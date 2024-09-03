@@ -20,12 +20,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Controller for delivery tool, written by Mervin van Brakel 2024"""
+
+"""
+Controller for delivery tool, written by Mervin van Brakel 2024.
+Updated by Max de Groot 2024.
+"""
 
 import sgtk
-from sgtk.platform.qt5 import QtWidgets
+from sgtk.platform.qt5 import QtWidgets, QtCore
 
 from . import model, view
+from .models import Version, Deliverables
 
 logger = sgtk.platform.get_logger(__name__)
 
@@ -57,10 +62,20 @@ class DeliveryController(QtWidgets.QWidget):
         self.connect_buttons()
         self.load_shots()
 
+    def closeEvent(self, event):
+        """
+        Handle window close event
+        Args:
+            event: Close event
+        """
+        logger.info("Quitting...")
+        self.model.quit()
+        event.accept()
+
     def connect_buttons(self):
         """Connects the buttons from our view to our controller function."""
         self.view.reload_button.clicked.connect(self.load_shots)
-        self.view.export_shots_button.clicked.connect(self.export_shots)
+        self.view.export_shots_button.clicked.connect(self.export_versions)
         self.view.open_delivery_folder_button.clicked.connect(
             self.open_delivery_folder
         )
@@ -76,6 +91,7 @@ class DeliveryController(QtWidgets.QWidget):
             )
 
         self.view.loading_widget.show()
+        self.view.shots_list_widget_layout.setAlignment(QtCore.Qt.AlignVCenter)
         self.model.load_shots(
             self.loading_shots_successful,
             self.loading_shots_failed,
@@ -88,10 +104,12 @@ class DeliveryController(QtWidgets.QWidget):
             shots_to_deliver: List of shots to deliver
         """
         self.view.loading_widget.hide()
+        self.view.shots_list_widget_layout.setAlignment(QtCore.Qt.AlignTop)
 
         for shot in shots_to_deliver:
-            shot_widget = self.view.get_shot_widget(shot)
-            self.view.shots_list_widget_layout.addWidget(shot_widget)
+            for version in shot.get_versions():
+                version_widget = self.view.get_version_widget(shot, version)
+                self.view.shots_list_widget_layout.addWidget(version_widget)
 
     def loading_shots_failed(self, error: str):
         """Runs when loading shots fails.
@@ -99,8 +117,9 @@ class DeliveryController(QtWidgets.QWidget):
         Args:
             error: Error message from model
         """
-        logger.error(f"Error while loading shots: {error}")
+        logger.error(f"Error while loading shots:\n{error}")
         self.view.loading_widget.hide()
+        self.view.shots_list_widget_layout.setAlignment(QtCore.Qt.AlignTop)
         self.view.shots_list_widget_layout.addWidget(
             QtWidgets.QLabel("Error while loading shots. Please check logs!")
         )
@@ -109,48 +128,73 @@ class DeliveryController(QtWidgets.QWidget):
         """Opens the delivery folder."""
         self.model.open_delivery_folder()
 
-    def export_shots(self):
+    def export_versions(self):
         """Runs the export function on the model."""
         self.view.final_validation_label.hide()
-        self.model.export_shots(
+
+        # Lock checkboxes
+        for key, version in self.view.shot_widget_references.items():
+            version["shot_deliver_sequence"].setDisabled(True)
+            version["shot_deliver_preview"].setDisabled(True)
+
+        self.model.export_versions(
             self.show_validation_error,
             self.update_progress_bar,
             self.show_validation_message,
+            self.get_deliverables,
         )
 
-    def show_validation_error(self, shot: dict) -> None:
+    def show_validation_error(self, version: Version) -> None:
         """Sets the validation error text on the shot widget.
 
         Args:
-            shot: Shot information to show validation error on
+            version: Version information to show validation error on
         """
-        self.view.shot_widget_references[shot["id"]][
+        self.view.shot_widget_references[version.id_str][
             "validation_label"
-        ].setText(shot["validation_error"])
-        self.view.shot_widget_references[shot["id"]][
+        ].setText(version.validation_error)
+        self.view.shot_widget_references[version.id_str][
             "validation_label"
         ].setStyleSheet("color: '#FF3E3E'; font: bold; font-size: 12px")
         self.view.final_validation_label.show()
 
-    def show_validation_message(self, shot) -> None:
+    def show_validation_message(self, version: Version) -> None:
         """Sets the validation message on the shot widget.
 
         Args:
-            shot: Shot to show validation message on
+            version: Version to show validation message on
         """
-        self.view.shot_widget_references[shot["id"]][
+        self.view.shot_widget_references[version.id_str][
             "validation_label"
-        ].setText(shot["validation_message"])
-        self.view.shot_widget_references[shot["id"]][
+        ].setText(version.validation_message)
+        self.view.shot_widget_references[version.id_str][
             "validation_label"
         ].setStyleSheet("color: '#8BFF3E'; font: normal; font-size: 10px")
 
-    def update_progress_bar(self, shot: dict) -> None:
+    def update_progress_bar(self, version: Version) -> None:
         """Updates the progress bar on a shot.
 
         Args:
-            shot: Shot to change progress bar on
+            version: Version to change progress bar on
         """
-        self.view.shot_widget_references[shot["id"]][
+        self.view.shot_widget_references[version.id_str][
             "shot_progress_bar"
-        ].setValue(shot["frames_delivered"])
+        ].setValue(version.progress * 100)
+
+    def get_deliverables(self, version: Version) -> Deliverables:
+        """
+        Get which items should be delivered.
+        Args:
+            version: Version to get the deliverables for
+
+        Returns:
+            Deliverables object
+        """
+        return Deliverables(
+            self.view.shot_widget_references[version.id_str][
+                "shot_deliver_sequence"
+            ].isChecked(),
+            self.view.shot_widget_references[version.id_str][
+                "shot_deliver_preview"
+            ].isChecked(),
+        )

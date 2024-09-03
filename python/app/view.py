@@ -21,11 +21,23 @@
 # SOFTWARE.
 
 
-"""View for delivery tool, written by Mervin van Brakel 2024"""
+"""
+View for delivery tool, written by Mervin van Brakel 2024.
+Updated by Max de Groot 2024.
+"""
 
+import urllib.request
 from pathlib import Path
 
-from sgtk.platform.qt5 import QtCore, QtSvg, QtWidgets
+from sgtk.platform.qt5 import QtCore, QtSvg, QtWidgets, QtGui
+
+from .models import Shot, Version
+
+# # For development only
+# try:
+#     from PySide6 import QtCore, QtWidgets, QtSvg, QtGui
+# except ImportError:
+#     pass
 
 SCRIPT_LOCATION: Path = Path(__file__).parent
 
@@ -49,7 +61,7 @@ class DeliveryView:
         QtWidgets.QWidget.__init__(main_widget)
 
         self.layout = QtWidgets.QVBoxLayout(main_widget)
-        self.layout.addWidget(self.get_explanation_widget())
+        # self.layout.addWidget(self.get_explanation_widget())
         self.layout.addWidget(self.get_shots_list_widget())
         self.layout.addWidget(self.get_buttons_widget())
 
@@ -160,7 +172,9 @@ class DeliveryView:
 
         return self.loading_widget
 
-    def get_shot_widget(self, shot: dict) -> QtWidgets.QWidget:
+    def get_version_widget(
+        self, shot: Shot, version: Version
+    ) -> QtWidgets.QWidget:
         """Gets the shot widget for the layout. It also stores this
         widget in the reference list so we can update its UI later.
 
@@ -170,52 +184,139 @@ class DeliveryView:
         Returns:
             Widget for shot information.
         """
-        self.shot_widget_references[shot["id"]] = {}
+        self.shot_widget_references[version.id_str] = {}
 
-        self.shot_widget_references[shot["id"]]["widget"] = QtWidgets.QWidget()
-        shot_widget_vertical_layout = QtWidgets.QVBoxLayout()
-        self.shot_widget_references[shot["id"]]["widget"].setLayout(
-            shot_widget_vertical_layout
+        self.shot_widget_references[version.id_str][
+            "widget"
+        ] = QtWidgets.QWidget()
+        shot_widget_main_layout = QtWidgets.QHBoxLayout()
+        self.shot_widget_references[version.id_str]["widget"].setLayout(
+            shot_widget_main_layout
         )
 
+        shot_widget_vertical_layout = QtWidgets.QVBoxLayout()
+
+        with urllib.request.urlopen(version.thumbnail) as response:
+            image_data = response.read()
+
+        # Load image into QPixmap
+        pixmap = QtGui.QPixmap()
+        pixmap.loadFromData(image_data)
+        scaled_pixmap = pixmap.scaledToWidth(
+            128, QtCore.Qt.SmoothTransformation
+        )
+
+        image_label = QtWidgets.QLabel()
+        image_label.setPixmap(scaled_pixmap)
+        shot_widget_main_layout.addWidget(image_label)
+
         shot_name_label = QtWidgets.QLabel(
-            f"Sequence {shot['sequence']} - Shot {shot['shot']}."
+            f"Sequence {shot.sequence} - Shot {shot.code} - Version {version.version_number}"
         )
         shot_name_label.setStyleSheet("font: bold; font-size: 14px")
         shot_widget_vertical_layout.addWidget(shot_name_label)
 
+        shot_widget_settings = QtWidgets.QWidget()
+        shot_widget_settings_layout = QtWidgets.QHBoxLayout()
+        shot_widget_settings_layout.setContentsMargins(0, 0, 0, 0)
+        shot_widget_settings.setLayout(shot_widget_settings_layout)
+
         shot_info_label = QtWidgets.QLabel(
-            f"Frames {shot['first_frame']} - {shot['last_frame']}. Version {shot['version_number']}."
+            f"Frames {version.first_frame} - {version.last_frame}"
         )
         shot_info_label.setStyleSheet("font-size: 12px")
-        shot_widget_vertical_layout.addWidget(shot_info_label)
+        shot_widget_settings_layout.addWidget(shot_info_label)
 
-        self.shot_widget_references[shot["id"]]["validation_label"] = (
-            QtWidgets.QLabel("Shot ready for export!")
+        check_box_style = (
+            "QCheckBox {"
+            "    font-size: 12px;"
+            "    padding: 0;"
+            "    margin: 0;"
+            "}"
+            "QCheckBox::indicator {"
+            "    border: 1px solid;"
+            "    width: 10px;"
+            "    height: 10px;"
+            "}"
+            "QCheckBox::indicator:unchecked {"
+            "    border-color: #737373;"
+            "    background-color: #525252;"
+            "}"
+            "QCheckBox::indicator:checked {"
+            "    border-color: #a3e635;"
+            "    background-color: #84cc16;"
+            "}"
         )
-        self.shot_widget_references[shot["id"]][
+        self.shot_widget_references[version.id_str][
+            "shot_deliver_sequence"
+        ] = QtWidgets.QCheckBox(text="Deliver EXRs")
+        self.shot_widget_references[version.id_str][
+            "shot_deliver_sequence"
+        ].setChecked(
+            version.deliver_sequence and version.sequence_path is not None
+        )
+        self.shot_widget_references[version.id_str][
+            "shot_deliver_sequence"
+        ].setDisabled(version.sequence_path is None)
+        self.shot_widget_references[version.id_str][
+            "shot_deliver_sequence"
+        ].setStyleSheet(check_box_style)
+        shot_widget_settings_layout.addWidget(
+            self.shot_widget_references[version.id_str][
+                "shot_deliver_sequence"
+            ]
+        )
+
+        self.shot_widget_references[version.id_str]["shot_deliver_preview"] = (
+            QtWidgets.QCheckBox(text="Deliver Preview")
+        )
+        self.shot_widget_references[version.id_str][
+            "shot_deliver_preview"
+        ].setChecked(
+            version.deliver_preview and version.path_to_movie is not None
+        )
+        self.shot_widget_references[version.id_str][
+            "shot_deliver_preview"
+        ].setDisabled(version.path_to_movie is None)
+        self.shot_widget_references[version.id_str][
+            "shot_deliver_preview"
+        ].setStyleSheet(check_box_style)
+        shot_widget_settings_layout.addWidget(
+            self.shot_widget_references[version.id_str]["shot_deliver_preview"]
+        )
+
+        shot_widget_vertical_layout.addWidget(shot_widget_settings)
+
+        self.shot_widget_references[version.id_str]["validation_label"] = (
+            QtWidgets.QLabel("Version ready for export!")
+        )
+        self.shot_widget_references[version.id_str][
             "validation_label"
         ].setStyleSheet("color: '#8BFF3E'; font-size: 10px;")
         shot_widget_vertical_layout.addWidget(
-            self.shot_widget_references[shot["id"]]["validation_label"]
+            self.shot_widget_references[version.id_str]["validation_label"]
         )
 
-        self.shot_widget_references[shot["id"]][
+        self.shot_widget_references[version.id_str][
             "shot_progress_bar"
         ] = QtWidgets.QProgressBar()
-        self.shot_widget_references[shot["id"]][
+        self.shot_widget_references[version.id_str][
             "shot_progress_bar"
-        ].setMinimum(shot["first_frame"])
-        self.shot_widget_references[shot["id"]][
+        ].setMinimum(0)
+        self.shot_widget_references[version.id_str][
             "shot_progress_bar"
-        ].setMaximum(shot["last_frame"])
-        self.shot_widget_references[shot["id"]][
+        ].setMaximum(100)
+        self.shot_widget_references[version.id_str][
             "shot_progress_bar"
         ].setStyleSheet(
             "QProgressBar::chunk {background-color: #8BFF3E;} QProgressBar {color: black; background-color: #444444; text-align: center;}"
         )
         shot_widget_vertical_layout.addWidget(
-            self.shot_widget_references[shot["id"]]["shot_progress_bar"]
+            self.shot_widget_references[version.id_str]["shot_progress_bar"]
         )
 
-        return self.shot_widget_references[shot["id"]]["widget"]
+        shot_details = QtWidgets.QWidget()
+        shot_details.setLayout(shot_widget_vertical_layout)
+        shot_widget_main_layout.addWidget(shot_details)
+
+        return self.shot_widget_references[version.id_str]["widget"]
