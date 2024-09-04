@@ -21,29 +21,127 @@
 # SOFTWARE.
 
 configuration:
-  delivery_sequence:
+  # --- TEMPLATES ---
+  preview_movie:
     type: template
-    fields: context, version, SEQ, *
-    description: "Template to deliver the sequences to."
+    fields: context, *
+    description: "Template of the preview files."
 
   delivery_folder:
     type: template
+    fields: prj, delivery_date, delivery_version
     description: "Folder to deliver to."
 
-  default_root:
-    type: str
-    default_value: "primary"
-    description: "Default roots to get to get project location on disk."
+  delivery_sequence:
+    type: template
+    fields: context, prj, delivery_date, delivery_version, task_name, version, SEQ, *
+    description: "Template to deliver the sequences to."
 
-  delivery_status:
+  delivery_preview:
+    type: template
+    fields: context, prj, delivery_date, delivery_version, task_name, version, *
+    description: "Template to deliver the previews to."
+
+  csv_submission_form:
+    type: template
+    fields: prj, delivery_date, delivery_version
+    description: "Template to deliver the submission form to."
+
+  # --- STRINGS ---
+  shot_status_field:
+    type: str
+    default_value: "sg_status_list"
+    allows_empty: True
+    description: Field to check the shot status with.
+
+  version_status_field:
+    type: str
+    default_value: "sg_status_list"
+    allows_empty: True
+    description: Field to check the version status with.
+
+  shot_delivery_status:
     type: str
     default_value: "rfd"
-    description: Status that will be added to the ready for delivery list.
+    allows_empty: True
+    description: Status of a shot that will be added to the ready for delivery list.
 
-  delivered_status:
+  version_delivery_status:
+    type: str
+    default_value: "rfd"
+    allows_empty: True
+    description: Status of a version that will be added to the ready for delivery list.
+
+  version_delivered_status:
+    type: str
+    default_value: "dlvr"
+    allows_empty: True
+    description: Status to set the version to if the EXRs (and preview) of the version have been delivered.
+
+  version_preview_delivered_status:
+    type: str
+    default_value: "dlvr"
+    allows_empty: True
+    description: Status to set the version to if only a preview of the version has been delivered.
+
+  shot_delivered_status:
     type: str
     default_value: "fin"
-    description: Status to set the shot to if the shot has been delivered.
+    allows_empty: True
+    description: Status to set the shot to if the EXRs of the shot have been delivered.
+
+  sg_server_path:
+    type: str
+    allows_empty: False
+    description: ShotGrid server path
+  sg_script_name:
+    type: str
+    allows_empty: False
+    description: ShotGrid script name
+  sg_script_key:
+    type: str
+    allows_empty: False
+    description: ShotGrid script key
+
+  # --- PATHS ---
+  logo_path_linux:
+    type: str
+    description: Linux path to the company logo.
+  logo_path_mac:
+    type: str
+    description: Mac path to the company logo.
+  logo_path_windows:
+    type: str
+    description: Windows path to the company logo.
+
+  font_path_linux:
+    type: str
+    description: Linux path to the regular font to use.
+  font_bold_path_linux:
+    type: str
+    description: Linux path to the bold font to use.
+  font_path_mac:
+    type: str
+    description: Mac path to the regular font to use.
+  font_bold_path_mac:
+    type: str
+    description: Mac path to the bold font to use.
+  font_path_windows:
+    type: str
+    description: Windows path to the regular font to use.
+  font_bold_path_windows:
+    type: str
+    description: Windows path to the bold font to use.
+
+  nuke_path_linux:
+    type: str
+    description: Linux path to your Nuke installation for creating slates.
+  nuke_path_mac:
+    type: str
+    description: Mac path to your Nuke installation for creating slates.
+  nuke_path_windows:
+    type: str
+    description: Windows path to your Nuke installation for creating slates.
 
 
 # this app works in all engines - it does not contain
