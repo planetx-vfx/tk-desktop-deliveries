@@ -21,15 +21,31 @@
 # SOFTWARE.
 
 
-"""Model for delivery tool, written by Mervin van Brakel 2024"""
+"""
+Model for delivery tool, written by Mervin van Brakel 2024.
+Updated by Max de Groot 2024.
+"""
 
 from __future__ import annotations
 
+import csv
 import os
+import traceback
 from pathlib import Path
 from typing import Callable
 
+import sgtk
 from sgtk.platform.qt5 import QtCore
+
+from .models import Shot, Version, NukeProcess, Deliverables, Settings
+from .models.Errors import LicenseError
+from .models.Version import Task
+
+# # For development only
+# try:
+#     from PySide6 import QtCore
+# except ImportError:
+#     pass
 
 
 class ValidationError(Exception):
@@ -37,6 +53,12 @@ class ValidationError(Exception):
 
 
 class DeliveryModel:
+    settings: Settings
+    shots_to_deliver: None | list[Shot]
+    base_template_fields: dict
+    load_shots_thread: None | LoadShotsThread
+    export_shots_thread: None | ExportShotsThread
+
     def __init__(self, app, logger) -> None:
         """Initializes the model.
 
@@ -44,18 +66,66 @@ class DeliveryModel:
             app: ShotGrid app
             logger: ShotGrid logger
         """
-        self._app = app
+        self.app = app
         self.context = app.context
         self.shotgrid_connection = app.shotgun
         self.logger = logger
         self.shots_to_deliver = None
+        self.load_shots_thread = None
+        self.export_shots_thread = None
+
+        self.settings = Settings(app)
+
+        if sgtk.util.is_linux():
+            self.nuke_path = "{}".format(app.get_setting("nuke_path_linux"))
+            self.logo_path = "{}".format(app.get_setting("logo_path_linux"))
+            self.font_path = "{}".format(app.get_setting("font_path_linux"))
+            self.font_bold_path = "{}".format(
+                app.get_setting("font_bold_path_linux")
+            )
+        elif sgtk.util.is_macos():
+            self.nuke_path = "{}".format(app.get_setting("nuke_path_mac"))
+            self.logo_path = "{}".format(app.get_setting("logo_path_mac"))
+            self.font_path = "{}".format(app.get_setting("font_path_mac"))
+            self.font_bold_path = "{}".format(
+                app.get_setting("font_bold_path_mac")
+            )
+        elif sgtk.util.is_windows():
+            self.nuke_path = "{}".format(app.get_setting("nuke_path_windows"))
+            self.logo_path = "{}".format(app.get_setting("logo_path_windows"))
+            self.font_path = "{}".format(app.get_setting("font_path_windows"))
+            self.font_bold_path = "{}".format(
+                app.get_setting("font_bold_path_windows")
+            )
+
+        # Set slate script path
+        __location__ = os.path.realpath(
+            os.path.join(os.getcwd(), os.path.dirname(__file__))
+        )
+        self.slate_path = os.path.join(__location__, "slate_cli.py")
+
+        self.base_template_fields = {
+            "prj": self.get_project_code(),
+            "delivery_version": 1,
+            "vnd": self.get_vendor_id(),
+        }
+
+    def quit(self):
+        """
+        Cancel running threads before app quit
+        """
+        if self.load_shots_thread and self.load_shots_thread.isRunning():
+            self.load_shots_thread.terminate()
+
+        if self.export_shots_thread and self.export_shots_thread.isRunning():
+            self.export_shots_thread.terminate()
 
     def open_delivery_folder(self) -> None:
         """Finds the correct path and opens the delivery folder."""
-        template = self._app.get_template("delivery_folder")
+        template = self.app.get_template("delivery_folder")
 
         roots = self.context.sgtk.roots
-        root_name = self._app.get_setting("default_root")
+        root_name = self.app.get_setting("default_root")
 
         project_location = roots.get(root_name)
         delivery_location = template.apply_fields(project_location)
@@ -84,15 +154,14 @@ class DeliveryModel:
 
         self.load_shots_thread.start()
 
-    def get_shots_to_deliver(self) -> list[dict]:
-        """Gets a list of shots that are ready for delivery.
+    def get_versions_to_deliver(self) -> list[Shot]:
+        """Gets a list of shots with versions that are ready for delivery.
 
         Returns:
             List of shot information dictionaries.
         """
         self.logger.info("Starting 'ready for delivery' search.")
         project_id = self.context.project["id"]
-        delivery_status = self._app.get_setting("delivery_status")
 
         filters = [
             [
@@ -100,21 +169,62 @@ class DeliveryModel:
                 "is",
                 {"type": "Project", "id": project_id},
             ],
-            ["sg_status_list", "is", delivery_status],
+            [
+                self.settings.version_status_field,
+                "is",
+                self.settings.version_delivery_status,
+            ],
         ]
 
         columns = [
-            "sg_sequence",
-            "code",
+            "entity",
+            "published_files",
+            "sg_first_frame",
+            "sg_last_frame",
+            "sg_task",
+            "sg_uploaded_movie_frame_rate",
+            "sg_movie_has_slate",
+            "sg_path_to_movie",
+            "sg_submitting_for",
+            "sg_delivery_note",
+            "image",
         ]
 
-        shots_to_deliver = self.shotgrid_connection.find(
-            "Shot", filters, columns
+        versions_to_deliver = self.shotgrid_connection.find(
+            "Version", filters, columns
         )
+
+        shot_ids = set(
+            [version["entity"]["id"] for version in versions_to_deliver]
+        )
+        shots_to_deliver = []
+
+        for shot_id in shot_ids:
+            sg_shot = self.shotgrid_connection.find_one(
+                "Shot",
+                [["id", "is", shot_id]],
+                [
+                    "sg_sequence",
+                    "code",
+                    "description",
+                    self.settings.shot_status_field,
+                ],
+            )
+            sg_shot["versions"] = [
+                version
+                for version in versions_to_deliver
+                if version["entity"]["id"] == shot_id
+            ]
+            shots_to_deliver.append(sg_shot)
 
         self.shots_to_deliver = self.get_shots_information_list(
             shots_to_deliver
         )
+
+        self.shots_to_deliver = sorted(
+            self.shots_to_deliver, key=lambda shot: (shot.sequence, shot.code)
+        )
+
         return self.shots_to_deliver
 
     def get_latest_shot_version(self, shot_information: dict) -> dict:
@@ -189,14 +299,62 @@ class DeliveryModel:
             ]
         ]
 
-        columns = ["sg_projectcode"]
+        columns = ["sg_short_name"]
         project = self.shotgrid_connection.find_one(
             "Project", filters, columns
         )
 
-        return project["sg_projectcode"]
+        return project["sg_short_name"]
 
-    def get_shots_information_list(self, shots_to_deliver: list) -> list[dict]:
+    def get_vendor_id(self) -> str:
+        """Gets the vendor id.
+
+        Returns:
+            Vendor id"""
+        project_id = self.context.project["id"]
+        filters = [
+            [
+                "id",
+                "is",
+                project_id,
+            ]
+        ]
+
+        columns = ["sg_vendorid"]
+        project = self.shotgrid_connection.find_one(
+            "Project", filters, columns
+        )
+
+        return project["sg_vendorid"]
+
+    def get_episode_code(self, sequence: dict) -> int | None:
+        """Gets the Episode code related to a Sequence.
+
+        Returns:
+            Episode code or None
+        """
+        filters = [
+            ["project", "is", self.context.project],
+            [
+                "sequences",
+                "is",
+                sequence,
+            ],
+        ]
+
+        columns = ["code"]
+        episode = self.shotgrid_connection.find_one(
+            "Episode", filters, columns
+        )
+
+        if episode is not None:
+            return episode["code"]
+        else:
+            return None
+
+    def get_shots_information_list(
+        self, shots_to_deliver: list[dict]
+    ) -> list[Shot]:
         """This function takes a list of shots and adds all the extra
         information we need for the rest of the program to function.
 
@@ -208,69 +366,106 @@ class DeliveryModel:
         """
         shots_information_list = []
 
-        for shot in shots_to_deliver:
-            shot_information = {}
-
-            shot_information["sequence"] = shot["sg_sequence"]["name"]
-            shot_information["shot"] = shot["code"]
-            shot_information["id"] = shot["id"]
-
-            latest_shot_version = self.get_latest_shot_version(
-                shot_information
+        for sg_shot in shots_to_deliver:
+            shot = Shot(
+                sequence=sg_shot["sg_sequence"]["name"],
+                code=sg_shot["code"],
+                id=sg_shot["id"],
+                description=sg_shot["description"],
+                project_code=self.get_project_code(),
+                episode=self.get_episode_code(sg_shot["sg_sequence"]),
             )
 
-            shot_information["first_frame"] = (
-                latest_shot_version["sg_first_frame"]
-                if latest_shot_version["sg_first_frame"]
-                else -1
-            )
+            for sg_version in sg_shot["versions"]:
+                first_frame = (
+                    sg_version["sg_first_frame"]
+                    if sg_version["sg_first_frame"]
+                    else -1
+                )
 
-            shot_information["last_frame"] = (
-                latest_shot_version["sg_last_frame"]
-                if latest_shot_version["sg_last_frame"]
-                else 0
-            )
+                last_frame = (
+                    sg_version["sg_last_frame"]
+                    if sg_version["sg_last_frame"]
+                    else 0
+                )
 
-            published_file = self.get_shot_version_published_file(
-                latest_shot_version
-            )
-            shot_information["sequence_path"] = published_file["path"][
-                "local_path_windows"
-            ]
-            shot_information["version_number"] = published_file[
-                "version_number"
-            ]
-            shot_information["project_code"] = self.get_project_code()
+                published_file = self.get_shot_version_published_file(
+                    sg_version
+                )
 
-            shots_information_list.append(shot_information)
+                task = None
+                if sg_version["sg_task"] is not None:
+                    task = Task(
+                        sg_version["sg_task"]["id"],
+                        sg_version["sg_task"]["name"],
+                    )
+
+                if (
+                    sg_shot[self.settings.shot_status_field]
+                    == self.settings.shot_delivery_status
+                ):
+                    deliver_preview = False
+                    deliver_sequence = True
+                else:
+                    deliver_preview = True
+                    deliver_sequence = False
+
+                version = Version(
+                    id=sg_version["id"],
+                    first_frame=first_frame,
+                    last_frame=last_frame,
+                    fps=sg_version["sg_uploaded_movie_frame_rate"],
+                    thumbnail=sg_version["image"],
+                    sequence_path=published_file["path"]["local_path_windows"],
+                    version_number=published_file["version_number"],
+                    path_to_movie=sg_version["sg_path_to_movie"],
+                    submitting_for=sg_version["sg_submitting_for"],
+                    delivery_note=sg_version["sg_delivery_note"],
+                    task=task,
+                    deliver_preview=deliver_preview,
+                    deliver_sequence=deliver_sequence,
+                )
+                shot.add_version(version)
+
+            shots_information_list.append(shot)
 
         return shots_information_list
 
-    def export_shots(
-        self,
-        show_validation_error: Callable,
-        update_progress_bars: Callable,
-        show_validation_message: Callable,
-    ) -> None:
-        """Starts the shot export thread.
-
-        Args:
-            show_validation_error: Function for showing validation errors
-            update_progress_bars: Function for updating progress bars
-            show_validation_message: Function for showing validation messages
+    def get_version_template_fields(
+        self, shot: Shot, version: Version, delivery_version: int = None
+    ) -> dict:
         """
-        self.validate_shots_thread = ExportShotsThread(
-            self,
-            show_validation_error,
-            update_progress_bars,
-            show_validation_message,
-        )
-        self.validate_shots_thread.start()
+        Get the template fields for a specific version
+        Args:
+            shot (Shot): Shot
+            version (Version): Version
+            delivery_version (int | None): Delivery version
+
+        Returns:
+            Template fields dict
+        """
+        template_fields = {
+            **self.base_template_fields,
+            "Sequence": shot.sequence,
+            "Shot": shot.code,
+            "version": version.version_number,
+        }
+
+        if delivery_version is not None:
+            template_fields["delivery_version"] = delivery_version
+
+        if version.task is not None:
+            template_fields["task_name"] = version.task.name
+
+        if shot.episode is not None:
+            template_fields["Episode"] = shot.episode
+
+        return template_fields
 
     def validate_all_shots(
         self,
-        show_validation_error: Callable,
-        show_validation_message: Callable,
+        show_validation_error: Callable[[Version], None],
+        show_validation_message: Callable[[Version], None],
     ) -> list:
         """Goes over all the shots and checks if all frames exist.
 
@@ -289,47 +484,78 @@ class DeliveryModel:
         successfully_validated_shots = []
         for shot in self.shots_to_deliver:
             self.logger.info(
-                f"Validating sequence {shot['sequence']}, shot {shot['shot']}."
+                f"Validating sequence {shot.sequence}, shot {shot.code}."
             )
-            try:
-                self.validate_filetype(shot)
-                self.validate_all_frames_exist(shot)
+            successfully_validated_versions = []
+            for version in shot.get_versions():
+                try:
+                    if version.deliver_preview:
+                        self.validate_movie(shot, version)
+                    self.validate_filetype(version)
+                    if version.deliver_sequence:
+                        self.validate_all_frames_exist(version)
+
+                    successfully_validated_versions.append(version)
+                    self.logger.info("Validation passed.")
+
+                    version.validation_message = (
+                        "Initial validation checks passed!"
+                    )
+                    show_validation_message(version)
+
+                except ValidationError as error_message:
+                    self.logger.error(f"Validation failed: {error_message}")
+                    version.validation_error = str(error_message)
+
+                    # This is kinda sketchy, I know
+                    show_validation_error(version)
+
+            if len(successfully_validated_versions) == len(
+                shot.get_versions()
+            ):
                 successfully_validated_shots.append(shot)
-                self.logger.info("Validation passed.")
-                shot["validation_message"] = (
-                    "Initial validation checks passed!"
-                )
-                show_validation_message(shot)
-
-            except ValidationError as error_message:
-                self.logger.error(f"Validation failed: {error_message}")
-                shot["validation_error"] = str(error_message)
-
-                # This is kinda sketchy, I know
-                show_validation_error(shot)
 
         return successfully_validated_shots
 
-    def validate_all_frames_exist(self, shot: dict) -> None:
+    def validate_movie(self, shot: Shot, version: Version) -> None:
+        """Checks if the movie exists.
+
+        Args:
+            shot: Shot information
+            version: Version information
+
+        Raises:
+            ValidationError: Error if validation fails.
+        """
+        if not os.path.exists(version.path_to_movie):
+            self.logger.error(
+                f"A version of shot {shot.sequence} {shot.code} ({shot.id}) has a movie linked that doesn't exist."
+            )
+            error_message = (
+                "The version has a movie linked that doesn't exist."
+            )
+            raise ValidationError(error_message)
+
+    def validate_all_frames_exist(self, version: Version) -> None:
         """Checks if all frames in the shot sequence exist
 
         Args:
-            shot: Shot information dict
+            version: Version information
 
         Raises:
             ValidationError: Error when validation fails
         """
-        if shot["first_frame"] == -1:
+        if version.first_frame == -1:
             self.logger.error(
                 "Missing frame range data. Please check if first_frame and last_frame are set properly on the version info."
             )
             error_message = "Shot version is missing frame range data. Was it published correctly?"
             raise ValidationError(error_message)
 
-        for frame in range(shot["first_frame"], shot["last_frame"]):
+        for frame in range(version.first_frame, version.last_frame):
 
             try:
-                frame_file_path = Path(shot["sequence_path"] % frame)
+                frame_file_path = Path(version.sequence_path % frame)
             except TypeError as e:
                 self.logger.error(
                     "Filepath formatting failed. Probably because linked file on this version is not an EXR sequence."
@@ -344,16 +570,16 @@ class DeliveryModel:
                 )
                 raise ValidationError(error_message)
 
-    def validate_filetype(self, shot: dict) -> None:
+    def validate_filetype(self, version: Version) -> None:
         """Checks if the filetype is an EXR.
 
         Args:
-            shot: Shot information
+            version: Version information
 
         Raises:
             ValidationError: Error if validation fails.
         """
-        if shot["sequence_path"].endswith(".mov"):
+        if version.sequence_path.endswith(".mov"):
             self.logger.error(
                 "Found MOV on latest version, not an EXR. This often happens because the ingest reference version is still the latest version."
             )
@@ -362,81 +588,211 @@ class DeliveryModel:
             )
             raise ValidationError(error_message)
 
-    def deliver_shot(
+    def deliver_version(
         self,
-        shot: dict,
-        show_validation_error: Callable,
-        show_validation_message: Callable,
-        update_progress_bars: Callable,
+        shot: Shot,
+        version: Version,
+        delivery_version: int,
+        deliverables: Deliverables,
+        show_validation_error: Callable[[Version], None],
+        show_validation_message: Callable[[Version], None],
+        update_progress_bars: Callable[[Version], None],
     ) -> None:
         """Copies the shot to the right folder with the right naming conventions.
 
         Args:
-            shot: Shot information dict
+            shot: Shot information
+            version: Version information
+            delivery_version: Version of the whole delivery
+            deliverables: Deliverables object
             show_validation_error: Function for showing validation errors
             show_validation_message: Function for showing validation message,
             update_progress_bars: Function for updating the progress bars
         """
+        if deliverables.deliver_preview or deliverables.deliver_sequence:
+            self.logger.debug(f"Delivering version {version.id}")
+        else:
+            self.logger.debug(f"Skipping delivery for version {version.id}")
+            return
+
         try:
-            delivery_template = self._app.get_template("delivery_sequence")
-
-            template_fields = {
-                "Projectcode": shot["project_code"],
-                "Sequence": shot["sequence"],
-                "Shot": shot["shot"],
-                "version": shot["version_number"],
-            }
-
-            delivery_path = Path(
-                delivery_template.apply_fields(template_fields)
+            preview_movie_template = self.app.get_template("preview_movie")
+            delivery_sequence_template = self.app.get_template(
+                "delivery_sequence"
             )
-            delivery_folder = delivery_path.parent
+            delivery_preview_template = self.app.get_template(
+                "delivery_preview"
+            )
 
-            if not delivery_folder.is_dir():
+            template_fields = self.get_version_template_fields(
+                shot, version, delivery_version
+            )
+
+            # Extract fields from preview path
+            fields = preview_movie_template.validate_and_get_fields(
+                version.path_to_movie
+            )
+            if fields is not None:
+                template_fields = {**fields, **template_fields}
+
+            # Get the output preview path
+            output_preview_path = Path(
+                delivery_preview_template.apply_fields(template_fields)
+            )
+
+            # Get the input preview path
+            preview_movie_file = Path(version.path_to_movie)
+
+            # Get the output frame delivery path
+            delivery_sequence_path = Path(
+                delivery_sequence_template.apply_fields(template_fields)
+            )
+
+            if deliverables.deliver_preview:
+                process = NukeProcess(
+                    version,
+                    show_validation_error,
+                    show_validation_message,
+                    update_progress_bars,
+                    0.5 if deliverables.deliver_sequence else 1.0,
+                )
+                process.run(
+                    self.nuke_path,
+                    [
+                        "-t",
+                        self.slate_path,
+                        str(version.first_frame),
+                        str(version.last_frame),
+                        str(version.fps),
+                        preview_movie_file.as_posix(),
+                        output_preview_path.as_posix(),
+                        self.settings.sg_server_path,
+                        self.settings.sg_script_name,
+                        self.settings.sg_script_key,
+                        self.logo_path,
+                        "--version-id",
+                        version.id_str,
+                        "-idt",
+                        "Output - Rec.709",
+                        "-odt",
+                        "Output - Rec.709",
+                        "--font-path",
+                        self.font_path,
+                        "--font-bold-path",
+                        self.font_bold_path,
+                    ],
+                )
+
                 self.logger.info(
-                    f"Creating folder for delivery {delivery_folder}."
-                )
-                delivery_folder.mkdir(parents=True, exist_ok=True)
-
-            for frame in range(shot["first_frame"], shot["last_frame"] + 1):
-                publish_file = Path(shot["sequence_path"] % frame)
-                delivery_file = delivery_path.with_name(
-                    delivery_path.name % frame
+                    f"Finished rendering preview to {output_preview_path}."
                 )
 
-                os.link(publish_file, delivery_file)
+            if deliverables.deliver_sequence:
+                # Create sequence delivery folder
+                sequence_delivery_folder = delivery_sequence_path.parent
+                self.logger.info(
+                    f"Creating folder for delivery {sequence_delivery_folder}."
+                )
+                sequence_delivery_folder.mkdir(parents=True, exist_ok=True)
 
-                shot["frames_delivered"] = frame
-                update_progress_bars(shot)
+                version.validation_message = "Delivering frames..."
+                show_validation_message(version)
 
-            self.logger.info(
-                f"Finished linking {publish_file} to {delivery_file}."
+                for frame in range(
+                    version.first_frame, version.last_frame + 1
+                ):
+                    publish_file = Path(version.sequence_path % frame)
+                    delivery_file = delivery_sequence_path.with_name(
+                        delivery_sequence_path.name % frame
+                    )
+
+                    os.link(publish_file, delivery_file)
+
+                    if deliverables.deliver_preview:
+                        version.progress = (
+                            0.5
+                            + (frame - version.first_frame)
+                            / (version.last_frame - version.first_frame)
+                            * 0.5
+                        )
+                    else:
+                        version.progress = (frame - version.first_frame) / (
+                            version.last_frame - version.first_frame
+                        )
+                    update_progress_bars(version)
+
+                self.logger.info(
+                    f"Finished linking {version.sequence_path} to {delivery_sequence_path}."
+                )
+
+            # Update version data
+            version_data = {}
+
+            if not deliverables.deliver_sequence:
+                version_data[self.settings.version_status_field] = (
+                    self.settings.version_preview_delivered_status
+                )
+            else:
+                version_data[self.settings.version_status_field] = (
+                    self.settings.version_delivered_status
+                )
+
+            self.shotgrid_connection.update(
+                "Version", version.id, version_data
             )
 
-            delivered_status = self._app.get_setting("delivered_status")
-            data = {
-                "sg_status_list": delivered_status,
-            }
-            self.shotgrid_connection.update("Shot", shot["id"], data)
+            # Update shot data
+            if deliverables.deliver_sequence:
+                shot_data = {
+                    self.settings.shot_status_field: (
+                        self.settings.shot_delivered_status
+                    )
+                }
+                self.shotgrid_connection.update("Shot", shot.id, shot_data)
 
-            shot["validation_message"] = "Export finished!"
-            show_validation_message(shot)
+            version.validation_message = "Export finished!"
+            show_validation_message(version)
 
         except FileExistsError:
             self.logger.error(
                 "Files already exist. Has this shot been exported before?"
             )
-            shot["validation_error"] = (
+            version.validation_error = (
                 "Files already exist. Has this shot been exported before?"
             )
-            show_validation_error(shot)
-
+            show_validation_error(version)
+        except LicenseError as error:
+            self.logger.error(error)
+            version.validation_error = "A Nuke license error occurred!"
+            show_validation_error(version)
         except Exception as error:
-            self.logger.error(str(error))
-            shot["validation_error"] = (
-                "Unexpected error occurred while copying files, please check logs!"
-            )
-            show_validation_error(shot)
+            self.logger.error(error)
+            version.validation_error = "An error occurred while making the delivery, please check logs!"
+            show_validation_error(version)
+
+    def export_versions(
+        self,
+        show_validation_error: Callable[[Version], None],
+        update_progress_bars: Callable[[Version], None],
+        show_validation_message: Callable[[Version], None],
+        get_deliverables: Callable[[Version], Deliverables],
+    ) -> None:
+        """Starts the shot export thread.
+
+        Args:
+            show_validation_error: Function for showing validation errors
+            update_progress_bars: Function for updating progress bars
+            show_validation_message: Function for showing validation messages
+            get_deliverables: Function for getting the selected delivery options
+        """
+        self.export_shots_thread = ExportShotsThread(
+            self,
+            show_validation_error,
+            update_progress_bars,
+            show_validation_message,
+            get_deliverables,
+        )
+        self.export_shots_thread.start()
 
 
 class ExportShotsThread(QtCore.QThread):
@@ -445,29 +801,145 @@ class ExportShotsThread(QtCore.QThread):
 
     def __init__(
         self,
-        model,
-        show_validation_error,
-        update_progress_bars,
-        show_validation_message,
+        model: DeliveryModel,
+        show_validation_error: Callable[[Version], None],
+        update_progress_bars: Callable[[Version], None],
+        show_validation_message: Callable[[Version], None],
+        get_deliverables: Callable[[Version], Deliverables],
     ):
         super().__init__()
         self.model = model
         self.show_validation_error = show_validation_error
         self.update_progress_bars = update_progress_bars
         self.show_validation_message = show_validation_message
+        self.get_deliverables = get_deliverables
 
     def run(self):
         validated_shots = self.model.validate_all_shots(
             self.show_validation_error, self.show_validation_message
         )
 
-        for shot in validated_shots:
-            self.model.deliver_shot(
-                shot,
-                self.show_validation_error,
-                self.show_validation_message,
-                self.update_progress_bars,
+        episodes = set([shot.episode for shot in validated_shots])
+        episode_delivery_versions = {}
+
+        delivery_folder_template = self.model.app.get_template(
+            "delivery_folder"
+        )
+        delivery_sequence_template = self.model.app.get_template(
+            "delivery_sequence"
+        )
+        delivery_preview_template = self.model.app.get_template(
+            "delivery_preview"
+        )
+
+        for episode in episodes:
+            # Get latest delivery version
+            template_fields = {
+                **self.model.base_template_fields,
+                "Episode": episode,
+            }
+
+            unsafe_folder_version = True
+            while unsafe_folder_version:
+                delivery_folder = delivery_folder_template.apply_fields(
+                    template_fields
+                )
+                if Path(delivery_folder).is_dir():
+                    template_fields["delivery_version"] += 1
+                else:
+                    unsafe_folder_version = False
+
+            # TODO check only enabled episodes
+            # Create delivery folder
+            delivery_folder = Path(
+                delivery_folder_template.apply_fields(template_fields)
             )
+            self.model.logger.info(
+                f"Creating folder for delivery {delivery_folder}."
+            )
+            delivery_folder.mkdir(parents=True, exist_ok=True)
+
+            # Store delivery version
+            episode_delivery_versions[episode] = template_fields[
+                "delivery_version"
+            ]
+
+            # Create csv
+            csv_submission_form_template = self.model.app.get_template(
+                "csv_submission_form"
+            )
+            csv_submission_form_path = (
+                csv_submission_form_template.apply_fields(template_fields)
+            )
+
+            with open(csv_submission_form_path, "w", newline="") as file:
+                writer = csv.writer(file)
+                header = [
+                    "Version Name",
+                    "Link",
+                    "VFX Scope of Work",
+                    "Vendor",
+                    "Submitting For",
+                    "Submission Note",
+                ]
+
+                writer.writerow(header)
+
+                for shot in validated_shots:
+                    if shot.episode != episode:
+                        continue
+
+                    for version in shot.get_versions():
+                        version_template_fields = (
+                            self.model.get_version_template_fields(
+                                shot,
+                                version,
+                                template_fields["delivery_version"],
+                            )
+                        )
+
+                        deliverables = self.get_deliverables(version)
+
+                        to_deliver = []
+                        if deliverables.deliver_sequence:
+                            sequence_name = Path(
+                                delivery_sequence_template.apply_fields(
+                                    version_template_fields
+                                )
+                            ).name
+                            to_deliver.append(sequence_name)
+                        if deliverables.deliver_preview:
+                            preview_name = Path(
+                                delivery_preview_template.apply_fields(
+                                    version_template_fields
+                                )
+                            ).name
+                            to_deliver.append(preview_name)
+
+                        for file_name in to_deliver:
+                            writer.writerow(
+                                [
+                                    file_name,
+                                    shot.code,
+                                    shot.description,
+                                    template_fields["vnd"],
+                                    version.submitting_for,
+                                    version.delivery_note,
+                                ]
+                            )
+
+        for shot in validated_shots:
+            for version in shot.get_versions():
+                deliverables = self.get_deliverables(version)
+                self.model.deliver_version(
+                    shot,
+                    version,
+                    episode_delivery_versions[shot.episode],
+                    deliverables,
+                    self.show_validation_error,
+                    self.show_validation_message,
+                    self.update_progress_bars,
+                )
 
 
 class LoadShotsThread(QtCore.QThread):
@@ -483,7 +955,7 @@ class LoadShotsThread(QtCore.QThread):
 
     def run(self):
         try:
-            shots_to_deliver = self.model.get_shots_to_deliver()
+            shots_to_deliver = self.model.get_versions_to_deliver()
             self.loading_shots_successful.emit(shots_to_deliver)
-        except Exception as error:
-            self.loading_shots_failed.emit(str(error))
+        except Exception:
+            self.loading_shots_failed.emit(traceback.format_exc())
