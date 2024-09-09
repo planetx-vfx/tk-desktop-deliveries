@@ -124,13 +124,10 @@ class DeliveryModel:
         """Finds the correct path and opens the delivery folder."""
         template = self.app.get_template("delivery_folder")
 
-        roots = self.context.sgtk.roots
-        root_name = self.app.get_setting("default_root")
+        delivery_location = template.apply_fields(self.base_template_fields)
+        delivery_folder = Path(delivery_location).parent
 
-        project_location = roots.get(root_name)
-        delivery_location = template.apply_fields(project_location)
-
-        os.startfile(delivery_location)
+        os.startfile(delivery_folder)
 
     def load_shots(
         self,
