@@ -488,8 +488,8 @@ class DeliveryModel:
                 try:
                     if version.deliver_preview:
                         self.validate_movie(shot, version)
-                    self.validate_filetype(version)
                     if version.deliver_sequence:
+                        self.validate_sequence_filetype(version)
                         self.validate_all_frames_exist(version)
 
                     successfully_validated_versions.append(version)
@@ -567,8 +567,8 @@ class DeliveryModel:
                 )
                 raise ValidationError(error_message)
 
-    def validate_filetype(self, version: Version) -> None:
-        """Checks if the filetype is an EXR.
+    def validate_sequence_filetype(self, version: Version) -> None:
+        """Checks if the sequence path filetype is an EXR.
 
         Args:
             version: Version information
