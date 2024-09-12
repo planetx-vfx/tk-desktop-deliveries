@@ -426,7 +426,7 @@ class ShotGridSlate(object):
 
         slate["shotName"].setValue(Path(sg_version["code"]).name)
 
-        slate["f_version_name"].setValue(f"v{version_number:04d}")
+        slate["f_version_name"].setValue(f"v{version_number:03d}")
         slate["f_submission_note"].setValue(sg_version["sg_delivery_note"])
         slate["f_submitting_for"].setValue(sg_version["sg_submitting_for"])
 
