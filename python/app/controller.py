@@ -25,12 +25,16 @@
 Controller for delivery tool, written by Mervin van Brakel 2024.
 Updated by Max de Groot 2024.
 """
+from __future__ import annotations
+
+from pathlib import Path
 
 import sgtk
 from sgtk.platform.qt5 import QtWidgets, QtCore
 
 from . import model, view
-from .models import Version, Deliverables
+from .models import Version, Deliverables, UserSettings
+from .widgets import OrderedListItem
 
 logger = sgtk.platform.get_logger(__name__)
 
@@ -137,7 +141,17 @@ class DeliveryController(QtWidgets.QWidget):
             version["shot_deliver_sequence"].setDisabled(True)
             version["shot_deliver_preview"].setDisabled(True)
 
+        user_settings = self.get_user_settings()
+
+        if user_settings is None:
+            self.view.final_validation_label.show()
+            return
+
+        # Close settings
+        self.view.settings_widget.setCollapsed(True)
+
         self.model.export_versions(
+            user_settings,
             self.show_validation_error,
             self.update_progress_bar,
             self.show_validation_message,
@@ -198,3 +212,94 @@ class DeliveryController(QtWidgets.QWidget):
                 "shot_deliver_preview"
             ].isChecked(),
         )
+
+    def get_user_settings(self) -> UserSettings | None:
+        """
+        Get the user settings from the GUI
+
+        Returns:
+            User settings object or None if validation failed
+        """
+        delivery_version = None
+        if self.view.settings["override_delivery_version"].isChecked():
+            delivery_version = int(
+                self.view.settings["delivery_version"].text()
+            )
+
+        self.view.settings["delivery_location"].setProperty("cssClass", "")
+        self.view.settings["delivery_location"].style().unpolish(
+            self.view.settings["delivery_location"]
+        )
+        self.view.settings["delivery_location"].style().polish(
+            self.view.settings["delivery_location"]
+        )
+
+        delivery_location = None
+        if (
+            self.view.settings["override_delivery_location"].isChecked()
+            and self.view.settings["delivery_location"].text() != ""
+        ):
+            filepath = Path(self.view.settings["delivery_location"].text())
+            if filepath.is_dir():
+                delivery_location = filepath.as_posix()
+            else:
+                self.view.settings["delivery_location"].setProperty(
+                    "cssClass", "validation-failed"
+                )
+                self.view.settings["delivery_location"].style().unpolish(
+                    self.view.settings["delivery_location"]
+                )
+                self.view.settings["delivery_location"].style().polish(
+                    self.view.settings["delivery_location"]
+                )
+                return None
+
+        csv_fields = []
+        csv_success = True
+        if self.view.settings["csv_fields"].size() > 0:
+            for item in self.view.settings["csv_fields"].items:
+                key, value = item.get_content()
+                item: OrderedListItem
+                key: str
+                value: str
+
+                success = True
+                if value.startswith("{"):
+                    if value.endswith("}"):
+                        if "." in value:
+                            entity, field = value[1:-1].split(".")
+
+                            if entity in [
+                                "file",
+                                "project",
+                                "shot",
+                                "version",
+                            ]:
+                                if entity == "file" and field != "name":
+                                    success = False
+
+                                # Add field as expression
+                                csv_fields.append((key, (entity, field)))
+                            else:
+                                success = False
+                        else:
+                            success = False
+                    else:
+                        success = False
+                else:
+                    if value.endswith("}"):
+                        success = False
+                    else:
+                        # Regular text
+                        csv_fields.append((key, value))
+
+                if success:
+                    item.reset_validation()
+                else:
+                    item.fail_validation()
+                    csv_success = False
+
+        if not csv_success:
+            return None
+
+        return UserSettings(delivery_version, delivery_location, csv_fields)

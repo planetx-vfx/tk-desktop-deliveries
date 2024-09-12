@@ -37,7 +37,16 @@ from typing import Callable
 import sgtk
 from sgtk.platform.qt5 import QtCore
 
-from .models import Shot, Version, NukeProcess, Deliverables, Settings
+from .models import (
+    Shot,
+    Version,
+    NukeProcess,
+    Deliverables,
+    Settings,
+    UserSettings,
+    ExportShotsThread,
+    LoadShotsThread,
+)
 from .models.Errors import LicenseError
 from .models.Version import Task
 
@@ -53,6 +62,8 @@ class ValidationError(Exception):
 
 
 class DeliveryModel:
+    """Model for Delivery app"""
+
     settings: Settings
     shots_to_deliver: None | list[Shot]
     base_template_fields: dict
@@ -591,6 +602,7 @@ class DeliveryModel:
         version: Version,
         delivery_version: int,
         deliverables: Deliverables,
+        user_settings: UserSettings,
         show_validation_error: Callable[[Version], None],
         show_validation_message: Callable[[Version], None],
         update_progress_bars: Callable[[Version], None],
@@ -602,6 +614,7 @@ class DeliveryModel:
             version: Version information
             delivery_version: Version of the whole delivery
             deliverables: Deliverables object
+            user_settings: User setting overrides
             show_validation_error: Function for showing validation errors
             show_validation_message: Function for showing validation message,
             update_progress_bars: Function for updating the progress bars
@@ -644,6 +657,27 @@ class DeliveryModel:
             delivery_sequence_path = Path(
                 delivery_sequence_template.apply_fields(template_fields)
             )
+
+            # Override delivery location from user settings
+            if user_settings.delivery_location is not None:
+                delivery_folder_template = self.app.get_template(
+                    "delivery_folder"
+                )
+                delivery_folder = Path(
+                    delivery_folder_template.apply_fields(template_fields)
+                )
+                base_path = (
+                    Path(user_settings.delivery_location)
+                    / delivery_folder.name
+                )
+
+                output_preview_path = base_path / output_preview_path.name
+
+                delivery_sequence_path = (
+                    base_path
+                    / delivery_sequence_path.parent.name
+                    / delivery_sequence_path.name
+                )
 
             if deliverables.deliver_preview:
                 process = NukeProcess(
@@ -769,6 +803,7 @@ class DeliveryModel:
 
     def export_versions(
         self,
+        user_settings: UserSettings,
         show_validation_error: Callable[[Version], None],
         update_progress_bars: Callable[[Version], None],
         show_validation_message: Callable[[Version], None],
@@ -777,6 +812,7 @@ class DeliveryModel:
         """Starts the shot export thread.
 
         Args:
+            user_settings: User settings
             show_validation_error: Function for showing validation errors
             update_progress_bars: Function for updating progress bars
             show_validation_message: Function for showing validation messages
@@ -784,6 +820,7 @@ class DeliveryModel:
         """
         self.export_shots_thread = ExportShotsThread(
             self,
+            user_settings,
             show_validation_error,
             update_progress_bars,
             show_validation_message,
