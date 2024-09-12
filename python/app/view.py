@@ -67,6 +67,45 @@ class DeliveryView:
         self.layout.addWidget(self.get_shots_list_widget())
         self.layout.addWidget(self.get_buttons_widget())
 
+        main_widget.setStyleSheet(
+            """
+            QCheckBox, QLabel {
+                font-size: 12px;
+            }
+            
+            QLineEdit {
+                border: 1px solid;
+                border-color: #737373; /* neutral-500 */
+                background-color: #525252; /* neutral-600 */
+            }
+            QLineEdit::disabled {
+                border-color: #525252; /* neutral-600 */
+                background-color: #404040; /* neutral-700 */
+            }
+            QLineEdit[cssClass~="validation-failed"] {
+                border-color: #ef4444; /* RED-500 */
+            }
+            
+            QCheckBox {
+                padding: 0;
+                margin: 0;
+            }
+            QCheckBox::indicator {
+                border: 1px solid;
+                width: 10px;
+                height: 10px;
+            }
+            QCheckBox::indicator:unchecked {
+                border-color: #737373; /* neutral-500 */
+                background-color: #525252; /* neutral-600 */
+            }
+            QCheckBox::indicator:checked {
+                border-color: #a3e635; /* lime-400 */
+                background-color: #84cc16; /* lime-500 */
+            }
+            """
+        )
+
     @staticmethod
     def get_explanation_widget() -> QtWidgets.QWidget:
         """Gets the explanation widget of the layout.
@@ -337,26 +376,6 @@ class DeliveryView:
         shot_info_label.setStyleSheet("font-size: 12px")
         shot_widget_settings_layout.addWidget(shot_info_label)
 
-        check_box_style = (
-            "QCheckBox {"
-            "    font-size: 12px;"
-            "    padding: 0;"
-            "    margin: 0;"
-            "}"
-            "QCheckBox::indicator {"
-            "    border: 1px solid;"
-            "    width: 10px;"
-            "    height: 10px;"
-            "}"
-            "QCheckBox::indicator:unchecked {"
-            "    border-color: #737373;"
-            "    background-color: #525252;"
-            "}"
-            "QCheckBox::indicator:checked {"
-            "    border-color: #a3e635;"
-            "    background-color: #84cc16;"
-            "}"
-        )
         self.shot_widget_references[version.id_str][
             "shot_deliver_sequence"
         ] = QtWidgets.QCheckBox(text="Deliver EXRs")
@@ -368,9 +387,6 @@ class DeliveryView:
         self.shot_widget_references[version.id_str][
             "shot_deliver_sequence"
         ].setDisabled(version.sequence_path is None)
-        self.shot_widget_references[version.id_str][
-            "shot_deliver_sequence"
-        ].setStyleSheet(check_box_style)
         shot_widget_settings_layout.addWidget(
             self.shot_widget_references[version.id_str][
                 "shot_deliver_sequence"
@@ -388,9 +404,6 @@ class DeliveryView:
         self.shot_widget_references[version.id_str][
             "shot_deliver_preview"
         ].setDisabled(version.path_to_movie is None)
-        self.shot_widget_references[version.id_str][
-            "shot_deliver_preview"
-        ].setStyleSheet(check_box_style)
         shot_widget_settings_layout.addWidget(
             self.shot_widget_references[version.id_str]["shot_deliver_preview"]
         )
