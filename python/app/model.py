@@ -28,24 +28,25 @@ Updated by Max de Groot 2024.
 
 from __future__ import annotations
 
-import csv
 import os
-import traceback
+import shutil
 from pathlib import Path
 from typing import Callable
 
 import sgtk
-from sgtk.platform.qt5 import QtCore
 
-from .models import Shot, Version, NukeProcess, Deliverables, Settings
+from .models import (
+    Shot,
+    Version,
+    NukeProcess,
+    Deliverables,
+    Settings,
+    UserSettings,
+    ExportShotsThread,
+    LoadShotsThread,
+)
 from .models.Errors import LicenseError
 from .models.Version import Task
-
-# # For development only
-# try:
-#     from PySide6 import QtCore
-# except ImportError:
-#     pass
 
 
 class ValidationError(Exception):
@@ -53,6 +54,8 @@ class ValidationError(Exception):
 
 
 class DeliveryModel:
+    """Model for Delivery app"""
+
     settings: Settings
     shots_to_deliver: None | list[Shot]
     base_template_fields: dict
@@ -591,6 +594,7 @@ class DeliveryModel:
         version: Version,
         delivery_version: int,
         deliverables: Deliverables,
+        user_settings: UserSettings,
         show_validation_error: Callable[[Version], None],
         show_validation_message: Callable[[Version], None],
         update_progress_bars: Callable[[Version], None],
@@ -602,6 +606,7 @@ class DeliveryModel:
             version: Version information
             delivery_version: Version of the whole delivery
             deliverables: Deliverables object
+            user_settings: User setting overrides
             show_validation_error: Function for showing validation errors
             show_validation_message: Function for showing validation message,
             update_progress_bars: Function for updating the progress bars
@@ -644,6 +649,27 @@ class DeliveryModel:
             delivery_sequence_path = Path(
                 delivery_sequence_template.apply_fields(template_fields)
             )
+
+            # Override delivery location from user settings
+            if user_settings.delivery_location is not None:
+                delivery_folder_template = self.app.get_template(
+                    "delivery_folder"
+                )
+                delivery_folder = Path(
+                    delivery_folder_template.apply_fields(template_fields)
+                )
+                base_path = (
+                    Path(user_settings.delivery_location)
+                    / delivery_folder.name
+                )
+
+                output_preview_path = base_path / output_preview_path.name
+
+                delivery_sequence_path = (
+                    base_path
+                    / delivery_sequence_path.parent.name
+                    / delivery_sequence_path.name
+                )
 
             if deliverables.deliver_preview:
                 process = NukeProcess(
@@ -695,6 +721,13 @@ class DeliveryModel:
                 version.validation_message = "Delivering frames..."
                 show_validation_message(version)
 
+                can_link = False
+                if (
+                    Path(version.sequence_path).drive
+                    == delivery_sequence_path.drive
+                ):
+                    can_link = True
+
                 for frame in range(
                     version.first_frame, version.last_frame + 1
                 ):
@@ -703,7 +736,10 @@ class DeliveryModel:
                         delivery_sequence_path.name % frame
                     )
 
-                    os.link(publish_file, delivery_file)
+                    if can_link:
+                        os.link(publish_file, delivery_file)
+                    else:
+                        shutil.copyfile(publish_file, delivery_file)
 
                     if deliverables.deliver_preview:
                         version.progress = (
@@ -769,190 +805,30 @@ class DeliveryModel:
 
     def export_versions(
         self,
+        user_settings: UserSettings,
         show_validation_error: Callable[[Version], None],
         update_progress_bars: Callable[[Version], None],
         show_validation_message: Callable[[Version], None],
+        finish_export_versions: Callable[[], None],
         get_deliverables: Callable[[Version], Deliverables],
     ) -> None:
         """Starts the shot export thread.
 
         Args:
+            user_settings: User settings
             show_validation_error: Function for showing validation errors
             update_progress_bars: Function for updating progress bars
             show_validation_message: Function for showing validation messages
+            finish_export_versions: Function for updating GUI when export is done
             get_deliverables: Function for getting the selected delivery options
         """
         self.export_shots_thread = ExportShotsThread(
             self,
+            user_settings,
             show_validation_error,
             update_progress_bars,
             show_validation_message,
+            finish_export_versions,
             get_deliverables,
         )
         self.export_shots_thread.start()
-
-
-class ExportShotsThread(QtCore.QThread):
-    """Class for exporting shots on a separate thread
-    so the UI doesn't freeze."""
-
-    def __init__(
-        self,
-        model: DeliveryModel,
-        show_validation_error: Callable[[Version], None],
-        update_progress_bars: Callable[[Version], None],
-        show_validation_message: Callable[[Version], None],
-        get_deliverables: Callable[[Version], Deliverables],
-    ):
-        super().__init__()
-        self.model = model
-        self.show_validation_error = show_validation_error
-        self.update_progress_bars = update_progress_bars
-        self.show_validation_message = show_validation_message
-        self.get_deliverables = get_deliverables
-
-    def run(self):
-        validated_shots = self.model.validate_all_shots(
-            self.show_validation_error, self.show_validation_message
-        )
-
-        episodes = set([shot.episode for shot in validated_shots])
-        episode_delivery_versions = {}
-
-        delivery_folder_template = self.model.app.get_template(
-            "delivery_folder"
-        )
-        delivery_sequence_template = self.model.app.get_template(
-            "delivery_sequence"
-        )
-        delivery_preview_template = self.model.app.get_template(
-            "delivery_preview"
-        )
-
-        for episode in episodes:
-            # Get latest delivery version
-            template_fields = {
-                **self.model.base_template_fields,
-                "Episode": episode,
-            }
-
-            unsafe_folder_version = True
-            while unsafe_folder_version:
-                delivery_folder = delivery_folder_template.apply_fields(
-                    template_fields
-                )
-                if Path(delivery_folder).is_dir():
-                    template_fields["delivery_version"] += 1
-                else:
-                    unsafe_folder_version = False
-
-            # TODO check only enabled episodes
-            # Create delivery folder
-            delivery_folder = Path(
-                delivery_folder_template.apply_fields(template_fields)
-            )
-            self.model.logger.info(
-                f"Creating folder for delivery {delivery_folder}."
-            )
-            delivery_folder.mkdir(parents=True, exist_ok=True)
-
-            # Store delivery version
-            episode_delivery_versions[episode] = template_fields[
-                "delivery_version"
-            ]
-
-            # Create csv
-            csv_submission_form_template = self.model.app.get_template(
-                "csv_submission_form"
-            )
-            csv_submission_form_path = (
-                csv_submission_form_template.apply_fields(template_fields)
-            )
-
-            with open(csv_submission_form_path, "w", newline="") as file:
-                writer = csv.writer(file)
-                header = [
-                    "Version Name",
-                    "Link",
-                    "VFX Scope of Work",
-                    "Vendor",
-                    "Submitting For",
-                    "Submission Note",
-                ]
-
-                writer.writerow(header)
-
-                for shot in validated_shots:
-                    if shot.episode != episode:
-                        continue
-
-                    for version in shot.get_versions():
-                        version_template_fields = (
-                            self.model.get_version_template_fields(
-                                shot,
-                                version,
-                                template_fields["delivery_version"],
-                            )
-                        )
-
-                        deliverables = self.get_deliverables(version)
-
-                        to_deliver = []
-                        if deliverables.deliver_sequence:
-                            sequence_name = Path(
-                                delivery_sequence_template.apply_fields(
-                                    version_template_fields
-                                )
-                            ).name
-                            to_deliver.append(sequence_name)
-                        if deliverables.deliver_preview:
-                            preview_name = Path(
-                                delivery_preview_template.apply_fields(
-                                    version_template_fields
-                                )
-                            ).name
-                            to_deliver.append(preview_name)
-
-                        for file_name in to_deliver:
-                            writer.writerow(
-                                [
-                                    file_name,
-                                    shot.code,
-                                    shot.description,
-                                    template_fields["vnd"],
-                                    version.submitting_for,
-                                    version.delivery_note,
-                                ]
-                            )
-
-        for shot in validated_shots:
-            for version in shot.get_versions():
-                deliverables = self.get_deliverables(version)
-                self.model.deliver_version(
-                    shot,
-                    version,
-                    episode_delivery_versions[shot.episode],
-                    deliverables,
-                    self.show_validation_error,
-                    self.show_validation_message,
-                    self.update_progress_bars,
-                )
-
-
-class LoadShotsThread(QtCore.QThread):
-    """Class for loading shots on a separate thread
-    so the UI doesn't freeze."""
-
-    loading_shots_successful = QtCore.Signal(object)
-    loading_shots_failed = QtCore.Signal(object)
-
-    def __init__(self, model):
-        super().__init__()
-        self.model = model
-
-    def run(self):
-        try:
-            shots_to_deliver = self.model.get_versions_to_deliver()
-            self.loading_shots_successful.emit(shots_to_deliver)
-        except Exception:
-            self.loading_shots_failed.emit(traceback.format_exc())
