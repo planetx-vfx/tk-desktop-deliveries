@@ -155,8 +155,18 @@ class DeliveryController(QtWidgets.QWidget):
             self.show_validation_error,
             self.update_progress_bar,
             self.show_validation_message,
+            self.finish_export_versions,
             self.get_deliverables,
         )
+
+    def finish_export_versions(self):
+        """
+        Callback for when exporting versions is done.
+        """
+        # Unlock checkboxes
+        for key, version in self.view.shot_widget_references.items():
+            version["shot_deliver_sequence"].setDisabled(False)
+            version["shot_deliver_preview"].setDisabled(False)
 
     def show_validation_error(self, version: Version) -> None:
         """Sets the validation error text on the shot widget.

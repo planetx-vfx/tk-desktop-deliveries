@@ -799,6 +799,7 @@ class DeliveryModel:
         show_validation_error: Callable[[Version], None],
         update_progress_bars: Callable[[Version], None],
         show_validation_message: Callable[[Version], None],
+        finish_export_versions: Callable[[], None],
         get_deliverables: Callable[[Version], Deliverables],
     ) -> None:
         """Starts the shot export thread.
@@ -808,6 +809,7 @@ class DeliveryModel:
             show_validation_error: Function for showing validation errors
             update_progress_bars: Function for updating progress bars
             show_validation_message: Function for showing validation messages
+            finish_export_versions: Function for updating GUI when export is done
             get_deliverables: Function for getting the selected delivery options
         """
         self.export_shots_thread = ExportShotsThread(
@@ -816,6 +818,7 @@ class DeliveryModel:
             show_validation_error,
             update_progress_bars,
             show_validation_message,
+            finish_export_versions,
             get_deliverables,
         )
         self.export_shots_thread.start()
