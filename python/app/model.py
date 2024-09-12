@@ -29,7 +29,7 @@ Updated by Max de Groot 2024.
 from __future__ import annotations
 
 import os
-import traceback
+import shutil
 from pathlib import Path
 from typing import Callable
 
@@ -721,6 +721,13 @@ class DeliveryModel:
                 version.validation_message = "Delivering frames..."
                 show_validation_message(version)
 
+                can_link = False
+                if (
+                    Path(version.sequence_path).drive
+                    == delivery_sequence_path.drive
+                ):
+                    can_link = True
+
                 for frame in range(
                     version.first_frame, version.last_frame + 1
                 ):
@@ -729,7 +736,10 @@ class DeliveryModel:
                         delivery_sequence_path.name % frame
                     )
 
-                    os.link(publish_file, delivery_file)
+                    if can_link:
+                        os.link(publish_file, delivery_file)
+                    else:
+                        shutil.copyfile(publish_file, delivery_file)
 
                     if deliverables.deliver_preview:
                         version.progress = (
