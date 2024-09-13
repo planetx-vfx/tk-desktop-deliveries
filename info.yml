@@ -104,16 +104,6 @@ configuration:
     description: ShotGrid script key
 
   # --- PATHS ---
-  logo_path_linux:
-    type: str
-    description: Linux path to the company logo.
-  logo_path_mac:
-    type: str
-    description: Mac path to the company logo.
-  logo_path_windows:
-    type: str
-    description: Windows path to the company logo.
-
   font_path_linux:
     type: str
     description: Linux path to the regular font to use.
