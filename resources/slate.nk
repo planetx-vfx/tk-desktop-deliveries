@@ -1,20 +1,1079 @@
-Read {
+RotoPaint {
  inputs 0
- file_type png
- format "1024 576 0 0 1024 576 1 "
- origset true
- name LOGO
+ replace true
+ format "1920 1080 0 0 1920 1080 1 HD_1080"
+ curves {{{v x3f99999a}
+  {f 0}
+  {n
+   {layer Root
+    {f 2097664}
+    {t x44700000 x44070000}
+    {a}
+    {curvegroup Shape27 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x44ad3ccd x43623333}
+        {x3f000000 xc0accccd}
+        {xc0d66666 0}
+        {x44ae9000 x43594ccd}
+        {x40b33333 0}
+        {0 xc0800000}
+        {x44afb333 x4360199a}
+        {0 x40600000}
+        {x40866666 xbf800000}
+        {x44aeeccd x43664ccd}
+        {0 0}
+        {0 0}
+        {x44ada000 x43690000}
+        {xc16b3333 x40666666}
+        {0 xc1466666}
+        {x44aad99a x43804000}
+        {0 x41700000}
+        {xc179999a 0}
+        {x44ae8ccd x438c3333}
+        {x4188cccd 0}
+        {xbfa66666 x415e6666}
+        {x44b24333 x4380599a}
+        {0 0}
+        {0 0}
+        {x44afb000 x4380599a}
+        {0 x40800000}
+        {x40b66666 0}
+        {x44ae999a x4383f333}
+        {xc0a00000 0}
+        {0 x40666666}
+        {x44ada000 x43810ccd}
+        {0 xc0533333}
+        {xc0733333 x3f666666}
+        {x44ae7ccd x437b8000}
+        {0 0}
+        {0 0}
+        {x44b0299a x4377e666}
+        {x41480000 xc0533333}
+        {0 x41300000}
+        {x44b27666 x4362cccd}
+        {0 xc17e6666}
+        {x4181999a 0}
+        {x44ae9666 x4348b333}
+        {xc1840000 0}
+        {x3fd9999a xc191999a}
+        {x44aaaccd x43623333}
+        {0 0}
+        {0 0}
+        {x44ad3ccd x43623333}
+        {0 0}
+        {0 0}
+        {x44ad3ccd x43623333}
+        {0 0}}}     idem}
+     {tx 0 x44ae919a x43708ccd}
+     {a str 1 ss 0}}
+    {curvegroup Shape26 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x44a9a99a x435e6666}
+        {0 0}
+        {0 0}
+        {x44a9a99a x434acccd}
+        {xc0266666 xbf8ccccd}
+        {x40a66666 0}
+        {x44a7d333 x4348b333}
+        {xc1926666 0}
+        {0 xc1866666}
+        {x44a48000 x43646666}
+        {0 0}
+        {0 0}
+        {x44a48000 x43812666}
+        {0 0}
+        {0 0}
+        {x44a2dccd x43812666}
+        {0 0}
+        {0 0}
+        {x44a2dccd x438b599a}
+        {0 0}
+        {0 0}
+        {x44a48000 x438b599a}
+        {0 0}
+        {0 0}
+        {x44a48000 x4396c000}
+        {0 0}
+        {0 0}
+        {x44a7999a x4396c000}
+        {0 0}
+        {0 0}
+        {x44a7999a x438b599a}
+        {0 0}
+        {0 0}
+        {x44a9c000 x438b599a}
+        {0 0}
+        {0 0}
+        {x44a9c000 x43812666}
+        {0 0}
+        {0 0}
+        {x44a7999a x43812666}
+        {0 0}
+        {0 0}
+        {x44a7999a x4365e666}
+        {0 xc0bccccd}
+        {xc0bccccd 0}
+        {x44a8accd x435d4ccd}
+        {x40400000 xbdcccccd}
+        {xc0200000 xbf4ccccd}
+        {x44a9a99a x435e6666}
+        {0 0}}}     idem}
+     {tx 0 x44a64e66 x437b199a}
+     {a str 1 ss 0}}
+    {curvegroup Shape25 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x44a24000 x43794ccd}
+        {0 0}
+        {0 0}
+        {x449f4000 x43794ccd}
+        {xc0133333 x40b33333}
+        {x41180000 0}
+        {x449d2666 x4381f333}
+        {xc1380000 0}
+        {0 x41280000}
+        {x449af666 x4370999a}
+        {0 xc129999a}
+        {xc1380000 0}
+        {x449d2666 x435d4ccd}
+        {x41180000 0}
+        {xc0133333 xc0b33333}
+        {x449f4000 x4367e666}
+        {0 0}
+        {0 0}
+        {x44a24000 x4367e666}
+        {xc04ccccd xc184cccd}
+        {x41b1999a 0}
+        {x449d2ccd x4348cccd}
+        {xc1cd999a 0}
+        {0 xc1b80000}
+        {x4497e666 x4370b333}
+        {0 x41b80000}
+        {xc1cd999a 0}
+        {x449d2ccd x438c4ccd}
+        {x41b0cccd xbe4ccccd}
+        {xc04ccccd x4184cccd}
+        {x44a24000 x43794ccd}
+        {0 0}}}     idem}
+     {tx 0 x449d1333 x4370b333}
+     {a str 1 ss 0}}
+    {curvegroup Shape24 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x448fb000 x43783333}
+        {0 0}
+        {0 0}
+        {x4493d333 x43783333}
+        {xbf99999a x4111999a}
+        {x41166666 0}
+        {x4491c333 x4383999a}
+        {xc114cccd 0}
+        {x3fb33333 x4119999a}
+        {x448fb000 x43783333}
+        {0 0}}}     idem}
+     {tx 0 x4491c19a x437fb333}
+     {a r 0 g 0 b 0 a 0 str 1 ss 0}}
+    {curvegroup Shape23 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x4493dccd x43623333}
+        {0 0}
+        {0 0}
+        {x4496b666 x43623333}
+        {xc0966666 xc1666666}
+        {x41980000 0}
+        {x4491dccd x4348b333}
+        {xc1d4cccd 0}
+        {0 xc1bb3333}
+        {x448ca666 x4370b333}
+        {0 x41bccccd}
+        {xc1be6666 0}
+        {x4491bccd x438c3333}
+        {x41bccccd 0}
+        {0 x41c4cccd}
+        {x4496cccd x43706666}
+        {0 0}
+        {0 0}
+        {x4496cccd x43690000}
+        {0 0}
+        {0 0}
+        {x448fb333 x43690000}
+        {x3fc00000 xc104cccd}
+        {xc12ccccd 0}
+        {x4491e000 x435a999a}
+        {x40e9999a xaa000000}
+        {xc0333333 xc0966666}
+        {x4493dccd x43623333}
+        {0 0}}}     idem}
+     {tx 0 x4491b99a x43708ccd}
+     {a str 1 ss 0}}
+    {curvegroup Shape22 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x448c3666 x43926666}
+        {xbfd9999a x3f19999a}
+        {x40333333 0}
+        {x448b4333 x4392f333}
+        {xc0e9999a 0}
+        {0 x40d9999a}
+        {x448a099a x438e199a}
+        {0 0}
+        {0 0}
+        {x448a099a x438b4ccd}
+        {0 0}
+        {0 0}
+        {x448c1333 x438b4ccd}
+        {0 0}
+        {0 0}
+        {x448c1333 x43816666}
+        {0 0}
+        {0 0}
+        {x448a099a x43816666}
+        {0 0}
+        {0 0}
+        {x448a099a x434a6666}
+        {0 0}
+        {0 0}
+        {x4486f000 x434a6666}
+        {0 0}
+        {0 0}
+        {x4486f000 x43816666}
+        {0 0}
+        {0 0}
+        {x44858000 x43816666}
+        {0 0}
+        {0 0}
+        {x44858000 x438b4ccd}
+        {0 0}
+        {0 0}
+        {x4486f000 x438b4ccd}
+        {0 0}
+        {0 0}
+        {x4486f000 x438e6666}
+        {0 x419a6666}
+        {xc1a8cccd 0}
+        {x448ac000 x439d4ccd}
+        {x40833333 0}
+        {xc019999a x3f666666}
+        {x448c3333 x439c8ccd}
+        {0 0}
+        {0 0}
+        {x448c3333 x43926666}
+        {0 0}
+        {0 0}
+        {x448c3666 x43926666}
+        {0 0}}}     idem}
+     {tx 0 x4488db33 x43814000}
+     {a str 1 ss 0}}
+    {curvegroup Shape21 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x4486299a x43926666}
+        {xbfd9999a x3f19999a}
+        {x40333333 0}
+        {x44853666 x4392f333}
+        {xc0e9999a 0}
+        {0 x40d9999a}
+        {x4483fccd x438e199a}
+        {0 0}
+        {0 0}
+        {x4483fccd x438b4ccd}
+        {0 0}
+        {0 0}
+        {x44860666 x438b4ccd}
+        {0 0}
+        {0 0}
+        {x44860666 x43816666}
+        {0 0}
+        {0 0}
+        {x44840000 x43816666}
+        {0 0}
+        {0 0}
+        {x44840000 x434a6666}
+        {0 0}
+        {0 0}
+        {x4480e666 x434a6666}
+        {0 0}
+        {0 0}
+        {x4480e666 x43816666}
+        {0 0}
+        {0 0}
+        {x447eeccd x43816666}
+        {0 0}
+        {0 0}
+        {x447eeccd x438b4ccd}
+        {0 0}
+        {0 0}
+        {x4480e666 x438b4ccd}
+        {0 0}
+        {0 0}
+        {x4480e666 x438e6666}
+        {0 x419a6666}
+        {xc1a8cccd 0}
+        {x4484b666 x439d4ccd}
+        {x40833333 0}
+        {xc019999a x3f666666}
+        {x4486299a x439c8ccd}
+        {0 0}
+        {0 0}
+        {x4486299a x43926666}
+        {0 0}
+        {0 0}
+        {x4486299a x43926666}
+        {0 0}}}     idem}
+     {tx 0 x4482d000 x43814000}
+     {a str 1 ss 0}}
+    {curvegroup Shape20 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x446fd99a x43783333}
+        {0 0}
+        {0 0}
+        {x44782000 x43783333}
+        {xbf99999a x4111999a}
+        {x41166666 0}
+        {x44740000 x4383999a}
+        {xc1166666 0}
+        {x3fa66666 x4119999a}
+        {x446fd99a x43783333}
+        {0 0}}}     idem}
+     {tx 0 x4473fccd x437fb333}
+     {a r 0 g 0 b 0 a 0 str 1 ss 0}}
+    {curvegroup Shape19 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x44783333 x43623333}
+        {0 0}
+        {0 0}
+        {x447de666 x43623333}
+        {xc0966666 xc1666666}
+        {x41980000 0}
+        {x44743333 x4348b333}
+        {xc1d4cccd 0}
+        {0 xc1bb3333}
+        {x4469c666 x4370b333}
+        {0 x41bccccd}
+        {xc1be6666 0}
+        {x4473f333 x438c3333}
+        {x41bccccd 0}
+        {0 x41c4cccd}
+        {x447e1333 x43706666}
+        {0 0}
+        {0 0}
+        {x447e1333 x43690000}
+        {0 0}
+        {0 0}
+        {x446fe000 x43690000}
+        {x3fc00000 xc104cccd}
+        {xc12ccccd 0}
+        {x4474399a x435a999a}
+        {x40e9999a xaa000000}
+        {xc039999a xc0966666}
+        {x44783333 x43623333}
+        {0 0}}}     idem}
+     {tx 0 x4473eccd x43708ccd}
+     {a str 1 ss 0}}
+    {curvegroup Shape18 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x445ae000 x434a8000}
+        {0 0}
+        {0 0}
+        {x445ae000 x439c6666}
+        {0 0}
+        {0 0}
+        {x44611333 x439c6666}
+        {0 0}
+        {0 0}
+        {x44611333 x434a8000}
+        {0 0}
+        {0 0}
+        {x445ae000 x434a8000}
+        {0 0}}}     idem}
+     {tx 0 x445df99a x4380d333}
+     {a str 1 ss 0}}
+    {curvegroup Shape17 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x44512666 x43708000}
+        {0 x41333333}
+        {x412e6666 0}
+        {x444c8000 x4381e666}
+        {xc12b3333 0}
+        {0 x41300000}
+        {x4447eccd x43708000}
+        {0 xc1300000}
+        {xc12b3333 0}
+        {x444c8000 x435d3333}
+        {x412e6666 0}
+        {0 xc131999a}
+        {x44512666 x43708000}
+        {0 0}}}     idem}
+     {tx 0 x444c899a x43708000}
+     {a r 0 g 0 b 0 a 0 str 1 ss 0}}
+    {curvegroup Shape16 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x44514666 x4385a666}
+        {0 0}
+        {0 0}
+        {x44514666 x438b4ccd}
+        {0 0}
+        {0 0}
+        {x4457599a x438b4ccd}
+        {0 0}
+        {0 0}
+        {x4457599a x434a6666}
+        {0 0}
+        {0 0}
+        {x44516000 x434a6666}
+        {0 0}
+        {0 0}
+        {x44516000 x4355b333}
+        {xc0866666 xc0e9999a}
+        {x41380000 0}
+        {x444b4000 x4348999a}
+        {xc1b0cccd 0}
+        {0 xc1b5999a}
+        {x4441b99a x43708000}
+        {0 x41b5999a}
+        {xc1b0cccd 0}
+        {x444b4000 x438c3333}
+        {x41380000 x2a800000}
+        {xc0600000 x40f66666}
+        {x44514666 x4385a666}
+        {0 0}}}     idem}
+     {tx 0 x444c899a x43708000}
+     {a str 1 ss 0}}
+    {curvegroup Shape15 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x44390ccd x438b4ccd}
+        {0 0}
+        {0 0}
+        {x443f4000 x438b4ccd}
+        {0 0}
+        {0 0}
+        {x443f4000 x434a6666}
+        {0 0}
+        {0 0}
+        {x44394000 x434a6666}
+        {0 0}
+        {0 0}
+        {x44394000 x4355b333}
+        {xc0533333 xc0e9999a}
+        {x4129999a 0}
+        {x44339333 x4348999a}
+        {xc1926666 0}
+        {0 xc191999a}
+        {x442cd333 x43674ccd}
+        {0 0}
+        {0 0}
+        {x442cd333 x438b4ccd}
+        {0 0}
+        {0 0}
+        {x44330000 x438b4ccd}
+        {0 0}
+        {0 0}
+        {x44330000 x436b199a}
+        {0 xc0fccccd}
+        {xc104cccd 0}
+        {x4435f333 x435dcccd}
+        {x40fccccd 0}
+        {0 xc101999a}
+        {x44390ccd x436ae666}
+        {0 0}
+        {0 0}
+        {x44390ccd x438b4ccd}
+        {0 0}}}     idem}
+     {tx 0 x4436099a x436f999a}
+     {a str 1 ss 0}}
+    {curvegroup Shape14 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x441f8666 x43623333}
+        {x3f000000 xc0accccd}
+        {xc0d66666 0}
+        {x44222ccd x43594ccd}
+        {x40b33333 0}
+        {0 xc0800000}
+        {x44247333 x4360199a}
+        {0 x40600000}
+        {x40866666 xbf800000}
+        {x4422e666 x43664ccd}
+        {0 0}
+        {0 0}
+        {x44204ccd x43690000}
+        {xc16b3333 x40666666}
+        {0 xc1466666}
+        {x441ac000 x43804000}
+        {0 x41700000}
+        {xc179999a 0}
+        {x44222666 x438c3333}
+        {x4188cccd 0}
+        {xbfa66666 x415e6666}
+        {x44299333 x4380599a}
+        {0 0}
+        {0 0}
+        {x44246ccd x4380599a}
+        {0 x40800000}
+        {x40b66666 0}
+        {x44224000 x4383f333}
+        {xc0a00000 0}
+        {0 x40666666}
+        {x44204ccd x43810ccd}
+        {0 xc0533333}
+        {xc0733333 x3f666666}
+        {x44220666 x437b8000}
+        {0 0}
+        {0 0}
+        {x44256000 x4377e666}
+        {x41480000 xc0533333}
+        {0 x41300000}
+        {x4429f99a x4362cccd}
+        {0 xc17e6666}
+        {x4181999a 0}
+        {x4422399a x4348b333}
+        {xc1840000 0}
+        {x3fd9999a xc191999a}
+        {x441a6666 x43623333}
+        {0 0}
+        {0 0}
+        {x441f8666 x43623333}
+        {0 0}
+        {0 0}
+        {x441f8666 x43623333}
+        {0 0}}}     idem}
+     {tx 0 x44223000 x43708ccd}
+     {a str 1 ss 0}}
+    {curvegroup Shape13 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x4411b99a x434a8000}
+        {0 0}
+        {0 0}
+        {x4411b99a x438b599a}
+        {0 0}
+        {0 0}
+        {x4417eccd x438b599a}
+        {0 0}
+        {0 0}
+        {x4417eccd x434a8000}
+        {0 0}
+        {0 0}
+        {x4411b99a x434a8000}
+        {0 0}}}     idem}
+     {tx 0 x4414d333 x4370999a}
+     {a str 1 ss 0}}
+    {curvegroup Shape12 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x4414d333 x438f999a}
+        {xc0fccccd 0}
+        {0 xc101999a}
+        {x44114666 x4396a666}
+        {0 x40fccccd}
+        {xc0fccccd 0}
+        {x4414d333 x439d999a}
+        {x41000000 0}
+        {0 x40f66666}
+        {x44186000 x4396a666}
+        {0 xc1000000}
+        {x41000000 0}
+        {x4414d333 x438f999a}
+        {0 0}}}     idem}
+     {tx 0 x4414d333 x4396999a}
+     {a str 1 ss 0}}
+    {curvegroup Shape11 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x4409d333 x438b4ccd}
+        {0 0}
+        {0 0}
+        {x44103333 x438b4ccd}
+        {0 0}
+        {0 0}
+        {x44088000 x434a8000}
+        {0 0}
+        {0 0}
+        {x4402c000 x434a8000}
+        {0 0}
+        {0 0}
+        {x43f6199a x438b599a}
+        {0 0}
+        {0 0}
+        {x44016ccd x438b599a}
+        {0 0}
+        {0 0}
+        {x4405a000 x4366999a}
+        {0 0}
+        {0 0}
+        {x4409d333 x438b4ccd}
+        {0 0}}}     idem}
+     {tx 0 x4405a000 x4370999a}
+     {a str 1 ss 0}}
+    {curvegroup Shape10 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x44c51ccd x43f4999a}
+        {0 0}
+        {0 0}
+        {x44c9999a x44092666}
+        {0 0}
+        {0 0}
+        {x44ce5333 x43f4999a}
+        {0 0}
+        {0 0}
+        {x44d87666 x43f4999a}
+        {0 0}
+        {0 0}
+        {x44cf9000 x44156666}
+        {0 0}
+        {0 0}
+        {x44d86333 x442f6666}
+        {0 0}
+        {0 0}
+        {x44ce799a x442f6666}
+        {0 0}
+        {0 0}
+        {x44ca1000 x44214ccd}
+        {0 0}
+        {0 0}
+        {x44c53000 x442f6666}
+        {0 0}
+        {0 0}
+        {x44bb8333 x442f6666}
+        {0 0}
+        {0 0}
+        {x44c4699a x4415399a}
+        {0 0}
+        {0 0}
+        {x44bb7000 x43f4999a}
+        {0 0}}}     idem}
+     {tx 0 x44c9f333 x4414d99a}
+     {a str 1 ss 0}}
+    {curvegroup Shape9 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x44a3f99a x443ad99a}
+        {0 0}
+        {0 0}
+        {x44a3f99a x442f6666}
+        {0 0}
+        {0 0}
+        {x449fb666 x442f6666}
+        {0 0}
+        {0 0}
+        {x449fb666 x44212666}
+        {0 0}
+        {0 0}
+        {x44a3f99a x44212666}
+        {0 0}
+        {0 0}
+        {x44a3f99a x440c4000}
+        {0 xc23a0000}
+        {xc24d999a 0}
+        {x44ad4333 x43f2199a}
+        {x41633333 0}
+        {xc0f00000 xc0200000}
+        {x44b26000 x43f4e666}
+        {0 0}
+        {0 0}
+        {x44b26000 x4408b333}
+        {xc0d9999a xbff33333}
+        {x410b3333 0}
+        {x44af9666 x4407c666}
+        {xc18a6666 0}
+        {0 xc18f3333}
+        {x44ac9000 x440e6ccd}
+        {0 0}
+        {0 0}
+        {x44ac9000 x44212666}
+        {0 0}
+        {0 0}
+        {x44b2999a x44212666}
+        {0 0}
+        {0 0}
+        {x44b2999a x442f6666}
+        {0 0}
+        {0 0}
+        {x44ac9000 x442f6666}
+        {0 0}
+        {0 0}
+        {x44ac9000 x443c4000}
+        {xc1accccd xc0200000}
+        {x41d00000 x3ff33333}
+        {x44a3f99a x443ad99a}
+        {0 0}}}     idem}
+     {tx 0 x44a92800 x441aa666}
+     {a str 1 ss 0}}
+    {curvegroup Shape8 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x448c2000 x441acccd}
+        {x406ccccd x41b26666}
+        {xc1c0cccd 0}
+        {x44917666 x4423c666}
+        {x41bc0000 0}
+        {xc0466666 x41ad999a}
+        {x4496a666 x441acccd}
+        {0 0}
+        {0 0}
+        {x448c2000 x441acccd}
+        {0 0}}}     idem}
+     {tx 0 x44916333 x441f499a}
+     {a r 0 g 0 b 0 a 0 str 1 ss 0}}
+    {curvegroup Shape7 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x449f7ccd x4413399a}
+        {0 x42910000}
+        {x4285cccd 0}
+        {x44916666 x4430a666}
+        {xc284999a 0}
+        {0 x4284999a}
+        {x44833ccd x4414eccd}
+        {0 xc2820000}
+        {xc294999a 0}
+        {x4491c99a x43f2199a}
+        {x42526666 0}
+        {xc1466666 xc2326666}
+        {x449f5666 x440ba000}
+        {0 0}
+        {0 0}
+        {x44972000 x440ba000}
+        {xc10b3333 xc1780000}
+        {x41a80000 0}
+        {x4491dccd x4405e666}
+        {xc1e8cccd 0}
+        {x406ccccd xc1d0cccd}
+        {x448be666 x440ff99a}
+        {0 0}
+        {0 0}
+        {x449f7ccd x440ff99a}
+        {0 0}
+        {0 0}
+        {x449f7ccd x4413399a}
+        {0 0}}}     idem}
+     {tx 0 x44915ccd x4414d99a}
+     {a str 1 ss 0}}
+    {curvegroup Shape6 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x444eb333 x442f6666}
+        {0 0}
+        {0 0}
+        {x444eb333 x43f4999a}
+        {0 0}
+        {0 0}
+        {x445fe000 x43f4999a}
+        {0 0}
+        {0 0}
+        {x445fe000 x44182ccd}
+        {0 x41c1999a}
+        {xc1b26666 0}
+        {x4468b333 x4421c666}
+        {x41a8cccd 0}
+        {0 x41c1999a}
+        {x4471399a x44182ccd}
+        {0 0}
+        {0 0}
+        {x4471399a x43f4999a}
+        {0 0}
+        {0 0}
+        {x44813333 x43f4999a}
+        {0 0}
+        {0 0}
+        {x44813333 x441b4666}
+        {0 x424b3333}
+        {x42500000 0}
+        {x446ee666 x4430a666}
+        {xc20f999a 0}
+        {x413ccccd x416e6666}
+        {x445f4000 x4429d333}
+        {0 0}
+        {0 0}
+        {x445f4000 x442f6666}
+        {0 0}
+        {0 0}
+        {x444eb333 x442f6666}
+        {0 0}}}     idem}
+     {tx 0 x44688ccd x4415799a}
+     {a str 1 ss 0}}
+    {curvegroup Shape5 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x442b199a x44074ccd}
+        {xc1ed999a 0}
+        {0 xc1fccccd}
+        {x441e4000 x4414eccd}
+        {0 x41f80000}
+        {xc1ed999a 0}
+        {x442b199a x44226666}
+        {x41ed999a 0}
+        {0 x41f80000}
+        {x4438199a x4414eccd}
+        {0 xc1fccccd}
+        {x41ed999a 0}
+        {x442b199a x44074ccd}
+        {0 0}}}     idem}
+     {tx 0 x442b2ccd x4414d99a}
+     {a r 0 g 0 b 0 a 0 str 1 ss 0}}
+    {curvegroup Shape4 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x44494ccd x43f4999a}
+        {0 0}
+        {0 0}
+        {x44494ccd x442f6666}
+        {0 0}
+        {0 0}
+        {x44386ccd x442f6666}
+        {0 0}
+        {0 0}
+        {x44386ccd x4429f99a}
+        {xc1466666 x41780000}
+        {x4205999a 0}
+        {x44276666 x4430a000}
+        {xc2753333 0}
+        {0 x427ccccd}
+        {x440d1333 x4414e666}
+        {0 xc27f3333}
+        {xc27a6666 0}
+        {x44280666 x43f20ccd}
+        {x41f80000 0}
+        {xc164cccd xc185999a}
+        {x4438c000 x43ff599a}
+        {0 0}
+        {0 0}
+        {x4438c000 x43f48000}
+        {0 0}
+        {0 0}
+        {x44494ccd x43f48000}
+        {0 0}
+        {0 0}
+        {x44494ccd x43f4999a}
+        {0 0}}}     idem}
+     {tx 0 x442b3000 x4414d333}
+     {a str 1 ss 0}}
+    {curvegroup Shape3 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x44700000 x444b6ccd}
+        {xc3ba199a 0}
+        {x439d4ccd xc241999a}
+        {0 x445bd99a}
+        {0 0}
+        {0 0}
+        {0 x445a7333}
+        {x431e199a xc2080000}
+        {xc3223333 x41833333}
+        {x43efb333 x4447999a}
+        {0 0}
+        {0 0}
+        {x43efb333 x43f4999a}
+        {0 0}
+        {0 0}
+        {x44090666 x43f4999a}
+        {0 0}
+        {0 0}
+        {x44090666 x4445f99a}
+        {x4306999a xc1380000}
+        {xc30c6666 0}
+        {x44700000 x4441accd}
+        {x43a74000 0}
+        {xc39b7333 xc285cccd}
+        {x44f00000 x445a7333}
+        {0 0}
+        {0 0}
+        {x44f00000 x445bd99a}
+        {xc39d4ccd xc241999a}
+        {x43ba199a 0}
+        {x44700000 x444b6ccd}
+        {0 0}}}     idem}
+     {tx 0 x44700000 x442b1333}
+     {a str 1 ss 0}}
+    {curvegroup Shape2 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x43ab8ccd x44226666}
+        {x41ed999a 0}
+        {0 x41fccccd}
+        {x43c54000 x4414c666}
+        {0 xc1f80000}
+        {x41ed999a 0}
+        {x43ab8ccd x44074ccd}
+        {xc1ed999a 0}
+        {0 xc1f80000}
+        {x43918ccd x4414c666}
+        {0 x41fccccd}
+        {xc1ed999a 0}
+        {x43ab8ccd x44226666}
+        {0 0}}}     idem}
+     {tx 0 x43ab6666 x4414d99a}
+     {a r 0 g 0 b 0 a 0 str 1 ss 0}}
+    {curvegroup Shape1 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {x43918ccd x43bed99a}
+        {0 0}
+        {0 0}
+        {x43918ccd x43ff6666}
+        {x41466666 xc1780000}
+        {xc2033333 0}
+        {x43b30000 x43f2199a}
+        {x42753333 0}
+        {0 xc27ccccd}
+        {x43e7a666 x4414c666}
+        {0 x427f3333}
+        {x427a6666 0}
+        {x43b1c000 x4430a666}
+        {xc1f80000 0}
+        {x4164cccd x4185999a}
+        {x43904ccd x442a0000}
+        {0 0}
+        {0 0}
+        {x43904ccd x442f6ccd}
+        {0 0}
+        {0 0}
+        {x435e4ccd x442f6ccd}
+        {0 0}
+        {0 0}
+        {x435e4ccd x43b9c000}
+        {xc294cccd xc13e6666}
+        {x4293999a x41780000}
+        {0 x43a54ccd}
+        {0 0}
+        {0 0}
+        {0 x43a28000}
+        {x439d4ccd x423a0000}
+        {xc3bac000 0}
+        {x44700000 x43c26666}
+        {x43bac000 0}
+        {xc39d4ccd x423a0000}
+        {x44f00000 x43a28000}
+        {0 0}
+        {0 0}
+        {x44f00000 x43a54ccd}
+        {xc39b7333 x42820000}
+        {x43a74000 0}
+        {x44700000 x43d5e666}
+        {xc366999a xaa000000}
+        {x4359199a x41f66666}
+        {x43918ccd x43bed99a}
+        {0 0}}}     idem}
+     {tx 0 x44700000 x4400f333}
+     {a str 1 ss 0}}
+    {curvegroup Shape0 512 bezier
+     {{cc
+       {f 8192}
+       {px x41880000
+        {0 0}
+        {0 x44870000}
+        {0 0}
+        {0 0}
+        {0 0}
+        {0 0}
+        {0 0}
+        {x44f00000 0}
+        {0 0}
+        {0 0}
+        {x44f00000 x44870000}
+        {0 0}}}     idem}
+     {tx 0 x44700000 x44070000}
+     {a r 0 g 0 b 0 str 1 ss 0 a 0 vis 0}}}}}}
+ toolbox {selectAll {
+  { selectAll str 1 ssx 1 ssy 1 sf 1 }
+  { createBezier str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { createBezierCusped str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { createBSpline str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { createEllipse str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { createRectangle str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { createRectangleCusped str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { brush str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { eraser src 2 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { clone src 1 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { reveal src 3 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { dodge src 1 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { burn src 1 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { blur src 1 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { sharpen src 1 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { smear src 1 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+} }
+ toolbar_source_transform_center {1024 778}
+ colorOverlay {0 0 0 0}
+ lifetime_type "all frames"
+ motionblur_shutter_offset_type centred
+ name plx_visual_effects_logo_white
+ tile_color 0xff
  selected true
- xpos -1030
- ypos -303
+ xpos -765
+ ypos -280
+ postage_stamp true
 }
-Premult {
- name Premult1
+Dot {
+ name Dot1
  selected true
- xpos -1030
- ypos -177
+ xpos -731
+ ypos -187
 }
-push 0
+push $cut_paste_input
 Group {
  inputs 2
  name NETFLIX_TEMPLATE_SLATE
@@ -22,8 +1081,8 @@ Group {
  tile_color 0xff00ffff
  note_font_color 0xff
  selected true
- xpos -810
- ypos -177
+ xpos -598
+ ypos -190
  addUserKnob {20 fields l Fields t "All Of the value inputs to the slate."}
  addUserKnob {1 shotName l "Shot Name"}
  addUserKnob {26 info_message l Info T "<font color=\"green\">Succes!</font>"}
@@ -179,53 +1238,13 @@ Group {
   bdwidth 396
   bdheight 249
  }
- Crop {
-  inputs 0
-  box {{"int(relative_box.x * normalize_scale_w + (relative_size.w * padding))"} {"int(relative_box.y * normalize_scale_h + (relative_size.h * padding))"} {"int(relative_box.r * normalize_scale_w - (relative_size.w * padding))"} {"int(relative_box.t * normalize_scale_h - (relative_size.h * padding))"}}
-  crop false
-  name Field_Area_A_left
-  xpos 1610
-  ypos 2367
-  addUserKnob {20 User}
-  addUserKnob {14 nominal_size l "Nominal Size" t "What is the size of this area in the nominal (4k) format. This is used to drive the automatic text scaling." R 0 100}
-  nominal_size {1478 2052}
-  addUserKnob {15 relative_box l "Relative Box" t "The bouding box that this text should sit inside. Is linked to the Final Crop and any other elements that define the area for this text."}
-  relative_box {{Field_Area_A.box} {Field_Area_A.box} {"(Field_Area_A.box.r - Field_Area_A.box.x) / 3  *2 + Field_Area_A.box.x"} {Field_Area_A.box}}
-  addUserKnob {14 relative_size l "Relative Size" R 0 100}
-  relative_size {{"relative_box.r - relative_box.x"} {"relative_box.t - relative_box.y"}}
-  addUserKnob {7 padding l "Padding %" t "how much space to leave around the edges of the bounding box. in % of total width "}
-  addUserKnob {7 normalize_scale_h l "Normalize Scale" t "Scale the starting bbox so that all fonts can be defined in terms of a 4k source."}
-  normalize_scale_h 1
-  addUserKnob {7 normalize_scale_w l "Normalize Scale Width"}
-  normalize_scale_w 1
- }
- Crop {
-  inputs 0
-  box {{"int(relative_box.x * normalize_scale_w + (relative_size.w * padding))"} {"int(relative_box.y * normalize_scale_h + (relative_size.h * padding))"} {"int(relative_box.r * normalize_scale_w - (relative_size.w * padding))"} {"int(relative_box.t * normalize_scale_h - (relative_size.h * padding))"}}
-  crop false
-  name Field_Area_A_right
-  xpos 1830
-  ypos 2367
-  addUserKnob {20 User}
-  addUserKnob {14 nominal_size l "Nominal Size" t "What is the size of this area in the nominal (4k) format. This is used to drive the automatic text scaling." R 0 100}
-  nominal_size {739 2052}
-  addUserKnob {15 relative_box l "Relative Box" t "The bouding box that this text should sit inside. Is linked to the Final Crop and any other elements that define the area for this text."}
-  relative_box {{"(Field_Area_A.box.r - Field_Area_A.box.x) / 3  *2 + Field_Area_A.box.x"} {Field_Area_A.box} {Field_Area_A.box} {Field_Area_A.box}}
-  addUserKnob {14 relative_size l "Relative Size" R 0 100}
-  relative_size {{"relative_box.r - relative_box.x"} {"relative_box.t - relative_box.y"}}
-  addUserKnob {7 padding l "Padding %" t "how much space to leave around the edges of the bounding box. in % of total width "}
-  addUserKnob {7 normalize_scale_h l "Normalize Scale" t "Scale the starting bbox so that all fonts can be defined in terms of a 4k source."}
-  normalize_scale_h 1
-  addUserKnob {7 normalize_scale_w l "Normalize Scale Width"}
-  normalize_scale_w 1
- }
  Input {
   inputs 0
   name Input
   xpos 3150
   ypos 1575
  }
-set Nbdf000 [stack 0]
+set N8c171c00 [stack 0]
  Dot {
   name Dot7
   xpos 2304
@@ -236,14 +1255,14 @@ set Nbdf000 [stack 0]
   xpos 2304
   ypos 3858
  }
-set N3331400 [stack 0]
+set N72dc0400 [stack 0]
  Group {
   inputs 0
   name slate_field14
   label "\[value field_area_name]\n\[value field_key]"
-  xpos 3150
-  ypos 2400
-  disable {{"\[string length \[value field_value]]==0 && !required"}}
+  xpos 3160
+  ypos 2368
+  disable {{"\[string length \[value field_value]]==0 && !required" x1 1}}
   addUserKnob {20 SlateField l "Slate Field"}
   addUserKnob {6 required l Required t "If required this field will render even if the value is empty.\n" +STARTLINE}
   required true
@@ -419,7 +1438,7 @@ set N3331400 [stack 0]
   addUserKnob {1 field_area_name l "Field Area Name" t "Name of the node that defines the field area this field goes in."}
   field_area_name Field_Area_B
   addUserKnob {15 field_area l "Field Area" t "the extent of the area this field covers"}
-  field_area {{"\[value field_area_name].box"} {"\[value field_area_name].box"} {"\[value field_area_name].box"} {"\[value field_area_name].box"}}
+  field_area {{"\[value field_area_name].box" x1 1162} {"\[value field_area_name].box" x1 0} {"\[value field_area_name].box" x1 1885} {"\[value field_area_name].box" x1 597}}
   addUserKnob {14 nominal_size l "Nominal Size" R 0 100}
   nominal_size {{"\[value field_area_name].nominal_size"} {"\[value field_area_name].nominal_size"}}
   addUserKnob {14 fit_size l "Fit Size" t "how big is the text area this field is going in. Used to calcuate the scaling of the text field." R 0 100}
@@ -443,7 +1462,7 @@ set N3331400 [stack 0]
    xpos -776
    ypos 330
   }
-set N3330800 [stack 0]
+set N72dc1000 [stack 0]
   Crop {
    box {{"Last_Text.bbox.x + parent.outline_size.x +1"} {"Last_Text.bbox.y + parent.outline_size.y + 1"} {"Last_Text.bbox.r - parent.outline_size.x -1"} {"Last_Text.bbox.y + parent.outline_size.y+ 2"}}
    crop false
@@ -495,7 +1514,7 @@ set N3330800 [stack 0]
    disable {{"\[string length \[value parent.field_value]]==0"}}
   }
   Crop {
-   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {500 x55 492}}
+   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {504 x55 492}}
    name Crop_to_lines
    xpos -1140
    ypos 423
@@ -511,7 +1530,7 @@ set N3330800 [stack 0]
    addUserKnob {3 output_lines l "output lines" t "how many lines to crop to based on input lines, max lines, and the render full height setting."}
    output_lines {{"parent.render_full_height?max_lines:min(used_lines, max_lines)"}}
   }
-set Nf7d2800 [stack 0]
+set N72f11000 [stack 0]
   MergeExpression {
    inputs 2
    expr0 Ar==auto_color_a.r?auto_color_b.r:auto_color_a.r
@@ -624,7 +1643,7 @@ set Nf7d2800 [stack 0]
    xpos -886
    ypos 564
   }
-push $Nf7d2800
+push $N72f11000
   Crop {
    box {{"input0.bbox.x - parent.border.x * parent.field_scale"} {"input0.bbox.y - parent.border.y * parent.field_scale"} {"input0.bbox.r + parent.border.r * parent.field_scale"} {"input0.bbox.t + parent.border.t * parent.field_scale"}}
    crop false
@@ -632,7 +1651,7 @@ push $Nf7d2800
    xpos -1140
    ypos 447
   }
-set N10f3b000 [stack 0]
+set N72f11c00 [stack 0]
   Text {
    cliptype none
    replace true
@@ -655,7 +1674,7 @@ set N10f3b000 [stack 0]
    xpos -1216
    ypos 493
   }
-push $N10f3b000
+push $N72f11c00
   Merge2 {
    inputs 2
    bbox B
@@ -707,7 +1726,7 @@ push $N10f3b000
    addUserKnob {20 User}
    addUserKnob {6 color_rgb_panelDropped l "panel dropped state" +HIDDEN +STARTLINE}
    addUserKnob {15 outside}
-   outside {{bounding.bbox.x} {input0.bbox.y} {bounding.bbox.r} {input0.bbox.t}}
+   outside {{bounding.bbox.x x1 1162 x1009 1162.5} {input0.bbox.y x1 537.5 x1009 554} {bounding.bbox.r x1 1895 x1009 1895.5} {input0.bbox.t x1 590 x1009 590}}
    addUserKnob {15 outline}
    outline {{"parent.outline_size.x != 0 ?int(max(1,parent.outline_size.x * parent.field_scale)):0"} {"parent.outline_size.y != 0 ?int(max(1,parent.outline_size.y * parent.field_scale)):0"} {"parent.outline_size.r != 0 ?int(max(1,parent.outline_size.r * parent.field_scale)):0"} {"parent.outline_size.t != 0 ?int(max(1,parent.outline_size.t * parent.field_scale)):0"}}
    addUserKnob {18 color}
@@ -762,7 +1781,7 @@ push $N10f3b000
    xpos -1140
    ypos 705
   }
-push $N3330800
+push $N72dc1000
   Merge2 {
    inputs 2
    name Merge4
@@ -786,8 +1805,8 @@ push $N3330800
  Group {
   name slate_field3
   label "\[value field_area_name]\n\[value field_key]"
-  xpos 3150
-  ypos 2478
+  xpos 3160
+  ypos 2420
   disable {{"\[string length \[value field_value]]==0 && !required"}}
   addUserKnob {20 SlateField l "Slate Field"}
   addUserKnob {6 required l Required t "If required this field will render even if the value is empty.\n" +STARTLINE}
@@ -980,19 +1999,19 @@ push $N3330800
    inputs 0
    name Input
    xpos -810
-   ypos 183
+   ypos 134
   }
   NoOp {
    name Last_Text
    xpos -810
-   ypos 231
+   ypos 204
   }
   Dot {
    name Dot2
    xpos -776
    ypos 330
   }
-set N8d9aa800 [stack 0]
+set N72f8f800 [stack 0]
   Crop {
    box {{"Last_Text.bbox.x + parent.outline_size.x +1"} {"Last_Text.bbox.y + parent.outline_size.y + 1"} {"Last_Text.bbox.r - parent.outline_size.x -1"} {"Last_Text.bbox.y + parent.outline_size.y+ 2"}}
    crop false
@@ -1044,7 +2063,7 @@ set N8d9aa800 [stack 0]
    disable {{"\[string length \[value parent.field_value]]==0"}}
   }
   Crop {
-   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {500 x55 492}}
+   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {504 x55 492}}
    name Crop_to_lines
    xpos -1140
    ypos 423
@@ -1060,7 +2079,7 @@ set N8d9aa800 [stack 0]
    addUserKnob {3 output_lines l "output lines" t "how many lines to crop to based on input lines, max lines, and the render full height setting."}
    output_lines {{"parent.render_full_height?max_lines:min(used_lines, max_lines)"}}
   }
-set N6e1d000 [stack 0]
+set N72fd5800 [stack 0]
   MergeExpression {
    inputs 2
    expr0 Ar==auto_color_a.r?auto_color_b.r:auto_color_a.r
@@ -1175,7 +2194,7 @@ set N6e1d000 [stack 0]
    xpos -886
    ypos 564
   }
-push $N6e1d000
+push $N72fd5800
   Crop {
    box {{"input0.bbox.x - parent.border.x * parent.field_scale"} {"input0.bbox.y - parent.border.y * parent.field_scale"} {"input0.bbox.r + parent.border.r * parent.field_scale"} {"input0.bbox.t + parent.border.t * parent.field_scale"}}
    crop false
@@ -1183,7 +2202,7 @@ push $N6e1d000
    xpos -1140
    ypos 447
   }
-set N6e1c800 [stack 0]
+set N73016400 [stack 0]
   Text {
    cliptype none
    replace true
@@ -1206,7 +2225,7 @@ set N6e1c800 [stack 0]
    xpos -1216
    ypos 493
   }
-push $N6e1c800
+push $N73016400
   Merge2 {
    inputs 2
    bbox B
@@ -1314,7 +2333,7 @@ push $N6e1c800
    xpos -1140
    ypos 705
   }
-push $N8d9aa800
+push $N72f8f800
   Merge2 {
    inputs 2
    name Merge4
@@ -1338,8 +2357,8 @@ push $N8d9aa800
  Group {
   name slate_field4
   label "\[value field_area_name]\n\[value field_key]"
-  xpos 3150
-  ypos 2520
+  xpos 3160
+  ypos 2479
   disable {{"\[string length \[value field_value]]==0 && !required"}}
   addUserKnob {20 SlateField l "Slate Field"}
   addUserKnob {6 required l Required t "If required this field will render even if the value is empty.\n" +STARTLINE}
@@ -1543,7 +2562,7 @@ push $N8d9aa800
    xpos -776
    ypos 330
   }
-set N8bbd9000 [stack 0]
+set N73098000 [stack 0]
   Crop {
    box {{"Last_Text.bbox.x + parent.outline_size.x +1"} {"Last_Text.bbox.y + parent.outline_size.y + 1"} {"Last_Text.bbox.r - parent.outline_size.x -1"} {"Last_Text.bbox.y + parent.outline_size.y+ 2"}}
    crop false
@@ -1596,7 +2615,7 @@ set N8bbd9000 [stack 0]
    disable {{"\[string length \[value parent.field_value]]==0"}}
   }
   Crop {
-   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {500 x55 492}}
+   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {504 x55 492}}
    name Crop_to_lines
    xpos -1140
    ypos 423
@@ -1612,7 +2631,7 @@ set N8bbd9000 [stack 0]
    addUserKnob {3 output_lines l "output lines" t "how many lines to crop to based on input lines, max lines, and the render full height setting."}
    output_lines {{"parent.render_full_height?max_lines:min(used_lines, max_lines)"}}
   }
-set N112c5000 [stack 0]
+set N730c8000 [stack 0]
   MergeExpression {
    inputs 2
    expr0 Ar==auto_color_a.r?auto_color_b.r:auto_color_a.r
@@ -1727,7 +2746,7 @@ set N112c5000 [stack 0]
    xpos -886
    ypos 564
   }
-push $N112c5000
+push $N730c8000
   Crop {
    box {{"input0.bbox.x - parent.border.x * parent.field_scale"} {"input0.bbox.y - parent.border.y * parent.field_scale"} {"input0.bbox.r + parent.border.r * parent.field_scale"} {"input0.bbox.t + parent.border.t * parent.field_scale"}}
    crop false
@@ -1735,7 +2754,7 @@ push $N112c5000
    xpos -1140
    ypos 447
   }
-set N112c5c00 [stack 0]
+set N730c8c00 [stack 0]
   Text {
    cliptype none
    replace true
@@ -1758,7 +2777,7 @@ set N112c5c00 [stack 0]
    xpos -1216
    ypos 493
   }
-push $N112c5c00
+push $N730c8c00
   Merge2 {
    inputs 2
    bbox B
@@ -1866,7 +2885,7 @@ push $N112c5c00
    xpos -1140
    ypos 705
   }
-push $N8bbd9000
+push $N73098000
   Merge2 {
    inputs 2
    name Merge4
@@ -1890,8 +2909,8 @@ push $N8bbd9000
  Group {
   name slate_field8
   label "\[value field_area_name]\n\[value field_key]"
-  xpos 3150
-  ypos 2574
+  xpos 3160
+  ypos 2533
   disable {{"\[string length \[value field_value]]==0 && !required"}}
   addUserKnob {20 SlateField l "Slate Field"}
   addUserKnob {6 required l Required t "If required this field will render even if the value is empty.\n" +STARTLINE}
@@ -2095,7 +3114,7 @@ push $N8bbd9000
    xpos -776
    ypos 330
   }
-set N4711f800 [stack 0]
+set N73164800 [stack 0]
   Crop {
    box {{"Last_Text.bbox.x + parent.outline_size.x +1"} {"Last_Text.bbox.y + parent.outline_size.y + 1"} {"Last_Text.bbox.r - parent.outline_size.x -1"} {"Last_Text.bbox.y + parent.outline_size.y+ 2"}}
    crop false
@@ -2147,7 +3166,7 @@ set N4711f800 [stack 0]
    disable {{"\[string length \[value parent.field_value]]==0"}}
   }
   Crop {
-   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {500 x55 492}}
+   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {504 x55 492}}
    name Crop_to_lines
    xpos -1140
    ypos 423
@@ -2163,7 +3182,7 @@ set N4711f800 [stack 0]
    addUserKnob {3 output_lines l "output lines" t "how many lines to crop to based on input lines, max lines, and the render full height setting."}
    output_lines {{"parent.render_full_height?max_lines:min(used_lines, max_lines)"}}
   }
-set N44a87800 [stack 0]
+set N7318c800 [stack 0]
   MergeExpression {
    inputs 2
    expr0 Ar==auto_color_a.r?auto_color_b.r:auto_color_a.r
@@ -2278,7 +3297,7 @@ set N44a87800 [stack 0]
    xpos -886
    ypos 564
   }
-push $N44a87800
+push $N7318c800
   Crop {
    box {{"input0.bbox.x - parent.border.x * parent.field_scale"} {"input0.bbox.y - parent.border.y * parent.field_scale"} {"input0.bbox.r + parent.border.r * parent.field_scale"} {"input0.bbox.t + parent.border.t * parent.field_scale"}}
    crop false
@@ -2286,7 +3305,7 @@ push $N44a87800
    xpos -1140
    ypos 447
   }
-set N445c400 [stack 0]
+set N7318d400 [stack 0]
   Text {
    cliptype none
    replace true
@@ -2309,7 +3328,7 @@ set N445c400 [stack 0]
    xpos -1216
    ypos 493
   }
-push $N445c400
+push $N7318d400
   Merge2 {
    inputs 2
    bbox B
@@ -2417,7 +3436,7 @@ push $N445c400
    xpos -1140
    ypos 705
   }
-push $N4711f800
+push $N73164800
   Merge2 {
    inputs 2
    name Merge4
@@ -2441,8 +3460,8 @@ push $N4711f800
  Group {
   name slate_field9
   label "\[value field_area_name]\n\[value field_key]"
-  xpos 3150
-  ypos 2622
+  xpos 3160
+  ypos 2581
   disable {{"\[string length \[value field_value]]==0 && !required"}}
   addUserKnob {20 SlateField l "Slate Field"}
   addUserKnob {6 required l Required t "If required this field will render even if the value is empty.\n" +STARTLINE}
@@ -2646,7 +3665,7 @@ push $N4711f800
    xpos -776
    ypos 330
   }
-set Nf48f6000 [stack 0]
+set N7320d000 [stack 0]
   Crop {
    box {{"Last_Text.bbox.x + parent.outline_size.x +1"} {"Last_Text.bbox.y + parent.outline_size.y + 1"} {"Last_Text.bbox.r - parent.outline_size.x -1"} {"Last_Text.bbox.y + parent.outline_size.y+ 2"}}
    crop false
@@ -2698,10 +3717,10 @@ set Nf48f6000 [stack 0]
    disable {{"\[string length \[value parent.field_value]]==0"}}
   }
   Crop {
-   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {500 x55 492}}
+   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {504 x55 492}}
    name Crop_to_lines
    xpos -1140
-   ypos 423
+   ypos 422
    addUserKnob {20 User}
    addUserKnob {3 line_height l "line height"}
    line_height {{Value.size}}
@@ -2714,7 +3733,7 @@ set Nf48f6000 [stack 0]
    addUserKnob {3 output_lines l "output lines" t "how many lines to crop to based on input lines, max lines, and the render full height setting."}
    output_lines {{"parent.render_full_height?max_lines:min(used_lines, max_lines)"}}
   }
-set N60e2000 [stack 0]
+set N73251000 [stack 0]
   MergeExpression {
    inputs 2
    expr0 Ar==auto_color_a.r?auto_color_b.r:auto_color_a.r
@@ -2829,7 +3848,7 @@ set N60e2000 [stack 0]
    xpos -886
    ypos 564
   }
-push $N60e2000
+push $N73251000
   Crop {
    box {{"input0.bbox.x - parent.border.x * parent.field_scale"} {"input0.bbox.y - parent.border.y * parent.field_scale"} {"input0.bbox.r + parent.border.r * parent.field_scale"} {"input0.bbox.t + parent.border.t * parent.field_scale"}}
    crop false
@@ -2837,7 +3856,7 @@ push $N60e2000
    xpos -1140
    ypos 447
   }
-set N60e2c00 [stack 0]
+set N73251c00 [stack 0]
   Text {
    cliptype none
    replace true
@@ -2860,7 +3879,7 @@ set N60e2c00 [stack 0]
    xpos -1216
    ypos 493
   }
-push $N60e2c00
+push $N73251c00
   Merge2 {
    inputs 2
    bbox B
@@ -2968,7 +3987,7 @@ push $N60e2c00
    xpos -1140
    ypos 705
   }
-push $Nf48f6000
+push $N7320d000
   Merge2 {
    inputs 2
    name Merge4
@@ -2992,8 +4011,8 @@ push $Nf48f6000
  Group {
   name slate_field12
   label "\[value field_area_name]\n\[value field_key]"
-  xpos 3150
-  ypos 2670
+  xpos 3160
+  ypos 2637
   disable {{"\[string length \[value field_value]]==0 && !required"}}
   addUserKnob {20 SlateField l "Slate Field"}
   addUserKnob {6 required l Required t "If required this field will render even if the value is empty.\n" +STARTLINE}
@@ -3197,7 +4216,7 @@ push $Nf48f6000
    xpos -776
    ypos 330
   }
-set N5ab8800 [stack 0]
+set N732c9800 [stack 0]
   Crop {
    box {{"Last_Text.bbox.x + parent.outline_size.x +1"} {"Last_Text.bbox.y + parent.outline_size.y + 1"} {"Last_Text.bbox.r - parent.outline_size.x -1"} {"Last_Text.bbox.y + parent.outline_size.y+ 2"}}
    crop false
@@ -3249,7 +4268,7 @@ set N5ab8800 [stack 0]
    disable {{"\[string length \[value parent.field_value]]==0"}}
   }
   Crop {
-   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {500 x55 492}}
+   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {504 x55 492}}
    name Crop_to_lines
    xpos -1140
    ypos 423
@@ -3265,7 +4284,7 @@ set N5ab8800 [stack 0]
    addUserKnob {3 output_lines l "output lines" t "how many lines to crop to based on input lines, max lines, and the render full height setting."}
    output_lines {{"parent.render_full_height?max_lines:min(used_lines, max_lines)"}}
   }
-set N5924800 [stack 0]
+set N73315800 [stack 0]
   MergeExpression {
    inputs 2
    expr0 Ar==auto_color_a.r?auto_color_b.r:auto_color_a.r
@@ -3380,7 +4399,7 @@ set N5924800 [stack 0]
    xpos -886
    ypos 564
   }
-push $N5924800
+push $N73315800
   Crop {
    box {{"input0.bbox.x - parent.border.x * parent.field_scale"} {"input0.bbox.y - parent.border.y * parent.field_scale"} {"input0.bbox.r + parent.border.r * parent.field_scale"} {"input0.bbox.t + parent.border.t * parent.field_scale"}}
    crop false
@@ -3388,7 +4407,7 @@ push $N5924800
    xpos -1140
    ypos 447
   }
-set N5925400 [stack 0]
+set N73354400 [stack 0]
   Text {
    cliptype none
    replace true
@@ -3411,7 +4430,7 @@ set N5925400 [stack 0]
    xpos -1216
    ypos 493
   }
-push $N5925400
+push $N73354400
   Merge2 {
    inputs 2
    bbox B
@@ -3519,7 +4538,7 @@ push $N5925400
    xpos -1140
    ypos 705
   }
-push $N5ab8800
+push $N732c9800
   Merge2 {
    inputs 2
    name Merge4
@@ -3543,8 +4562,8 @@ push $N5ab8800
  Group {
   name slate_field23
   label "\[value field_area_name]\n\[value field_key]"
-  xpos 3150
-  ypos 2724
+  xpos 3160
+  ypos 2688
   disable {{"\[string length \[value field_value]]==0 && !required"}}
   addUserKnob {20 SlateField l "Slate Field"}
   addUserKnob {6 required l Required t "If required this field will render even if the value is empty.\n" +STARTLINE}
@@ -3748,7 +4767,7 @@ push $N5ab8800
    xpos -776
    ypos 330
   }
-set N54ad000 [stack 0]
+set N733da000 [stack 0]
   Crop {
    box {{"Last_Text.bbox.x + parent.outline_size.x +1"} {"Last_Text.bbox.y + parent.outline_size.y + 1"} {"Last_Text.bbox.r - parent.outline_size.x -1"} {"Last_Text.bbox.y + parent.outline_size.y+ 2"}}
    crop false
@@ -3800,7 +4819,7 @@ set N54ad000 [stack 0]
    disable {{"\[string length \[value parent.field_value]]==0"}}
   }
   Crop {
-   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {500 x55 492}}
+   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {504 x55 492}}
    name Crop_to_lines
    xpos -1140
    ypos 423
@@ -3816,7 +4835,7 @@ set N54ad000 [stack 0]
    addUserKnob {3 output_lines l "output lines" t "how many lines to crop to based on input lines, max lines, and the render full height setting."}
    output_lines {{"parent.render_full_height?max_lines:min(used_lines, max_lines)"}}
   }
-set N524b000 [stack 0]
+set N73404000 [stack 0]
   MergeExpression {
    inputs 2
    expr0 Ar==auto_color_a.r?auto_color_b.r:auto_color_a.r
@@ -3931,7 +4950,7 @@ set N524b000 [stack 0]
    xpos -886
    ypos 564
   }
-push $N524b000
+push $N73404000
   Crop {
    box {{"input0.bbox.x - parent.border.x * parent.field_scale"} {"input0.bbox.y - parent.border.y * parent.field_scale"} {"input0.bbox.r + parent.border.r * parent.field_scale"} {"input0.bbox.t + parent.border.t * parent.field_scale"}}
    crop false
@@ -3939,7 +4958,7 @@ push $N524b000
    xpos -1140
    ypos 447
   }
-set N524bc00 [stack 0]
+set N73404c00 [stack 0]
   Text {
    cliptype none
    replace true
@@ -3962,7 +4981,7 @@ set N524bc00 [stack 0]
    xpos -1216
    ypos 493
   }
-push $N524bc00
+push $N73404c00
   Merge2 {
    inputs 2
    bbox B
@@ -4070,7 +5089,7 @@ push $N524bc00
    xpos -1140
    ypos 705
   }
-push $N54ad000
+push $N733da000
   Merge2 {
    inputs 2
    name Merge4
@@ -4094,8 +5113,8 @@ push $N54ad000
  Group {
   name slate_field24
   label "\[value field_area_name]\n\[value field_key]"
-  xpos 3150
-  ypos 2766
+  xpos 3160
+  ypos 2738
   disable {{"\[string length \[value field_value]]==0 && !required"}}
   addUserKnob {20 SlateField l "Slate Field"}
   addUserKnob {6 required l Required t "If required this field will render even if the value is empty.\n" +STARTLINE}
@@ -4299,7 +5318,7 @@ push $N54ad000
    xpos -776
    ypos 330
   }
-set N4e2d800 [stack 0]
+set N734a6800 [stack 0]
   Crop {
    box {{"Last_Text.bbox.x + parent.outline_size.x +1"} {"Last_Text.bbox.y + parent.outline_size.y + 1"} {"Last_Text.bbox.r - parent.outline_size.x -1"} {"Last_Text.bbox.y + parent.outline_size.y+ 2"}}
    crop false
@@ -4351,7 +5370,7 @@ set N4e2d800 [stack 0]
    disable {{"\[string length \[value parent.field_value]]==0"}}
   }
   Crop {
-   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {500 x55 492}}
+   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {504 x55 492}}
    name Crop_to_lines
    xpos -1140
    ypos 423
@@ -4367,7 +5386,7 @@ set N4e2d800 [stack 0]
    addUserKnob {3 output_lines l "output lines" t "how many lines to crop to based on input lines, max lines, and the render full height setting."}
    output_lines {{"parent.render_full_height?max_lines:min(used_lines, max_lines)"}}
   }
-set N4d4f800 [stack 0]
+set N734c8800 [stack 0]
   MergeExpression {
    inputs 2
    expr0 Ar==auto_color_a.r?auto_color_b.r:auto_color_a.r
@@ -4482,7 +5501,7 @@ set N4d4f800 [stack 0]
    xpos -886
    ypos 564
   }
-push $N4d4f800
+push $N734c8800
   Crop {
    box {{"input0.bbox.x - parent.border.x * parent.field_scale"} {"input0.bbox.y - parent.border.y * parent.field_scale"} {"input0.bbox.r + parent.border.r * parent.field_scale"} {"input0.bbox.t + parent.border.t * parent.field_scale"}}
    crop false
@@ -4490,7 +5509,7 @@ push $N4d4f800
    xpos -1140
    ypos 447
   }
-set N477a400 [stack 0]
+set N734c9400 [stack 0]
   Text {
    cliptype none
    replace true
@@ -4513,7 +5532,7 @@ set N477a400 [stack 0]
    xpos -1216
    ypos 493
   }
-push $N477a400
+push $N734c9400
   Merge2 {
    inputs 2
    bbox B
@@ -4621,7 +5640,7 @@ push $N477a400
    xpos -1140
    ypos 705
   }
-push $N4e2d800
+push $N734a6800
   Merge2 {
    inputs 2
    name Merge4
@@ -4645,8 +5664,8 @@ push $N4e2d800
  Group {
   name slate_field25
   label "\[value field_area_name]\n\[value field_key]"
-  xpos 3150
-  ypos 2814
+  xpos 3160
+  ypos 2788
   disable {{"\[string length \[value field_value]]==0 && !required"}}
   addUserKnob {20 SlateField l "Slate Field"}
   addUserKnob {6 required l Required t "If required this field will render even if the value is empty.\n" +STARTLINE}
@@ -4850,7 +5869,7 @@ push $N4e2d800
    xpos -776
    ypos 330
   }
-set N4804000 [stack 0]
+set N73551000 [stack 0]
   Crop {
    box {{"Last_Text.bbox.x + parent.outline_size.x +1"} {"Last_Text.bbox.y + parent.outline_size.y + 1"} {"Last_Text.bbox.r - parent.outline_size.x -1"} {"Last_Text.bbox.y + parent.outline_size.y+ 2"}}
    crop false
@@ -4902,7 +5921,7 @@ set N4804000 [stack 0]
    disable {{"\[string length \[value parent.field_value]]==0"}}
   }
   Crop {
-   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {500 x55 492}}
+   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {504 x55 492}}
    name Crop_to_lines
    xpos -1140
    ypos 423
@@ -4918,7 +5937,7 @@ set N4804000 [stack 0]
    addUserKnob {3 output_lines l "output lines" t "how many lines to crop to based on input lines, max lines, and the render full height setting."}
    output_lines {{"parent.render_full_height?max_lines:min(used_lines, max_lines)"}}
   }
-set N4514000 [stack 0]
+set N7358f000 [stack 0]
   MergeExpression {
    inputs 2
    expr0 Ar==auto_color_a.r?auto_color_b.r:auto_color_a.r
@@ -5033,7 +6052,7 @@ set N4514000 [stack 0]
    xpos -886
    ypos 564
   }
-push $N4514000
+push $N7358f000
   Crop {
    box {{"input0.bbox.x - parent.border.x * parent.field_scale"} {"input0.bbox.y - parent.border.y * parent.field_scale"} {"input0.bbox.r + parent.border.r * parent.field_scale"} {"input0.bbox.t + parent.border.t * parent.field_scale"}}
    crop false
@@ -5041,7 +6060,7 @@ push $N4514000
    xpos -1140
    ypos 447
   }
-set N4514c00 [stack 0]
+set N7358fc00 [stack 0]
   Text {
    cliptype none
    replace true
@@ -5064,7 +6083,7 @@ set N4514c00 [stack 0]
    xpos -1216
    ypos 493
   }
-push $N4514c00
+push $N7358fc00
   Merge2 {
    inputs 2
    bbox B
@@ -5172,7 +6191,7 @@ push $N4514c00
    xpos -1140
    ypos 705
   }
-push $N4804000
+push $N73551000
   Merge2 {
    inputs 2
    name Merge4
@@ -5196,8 +6215,8 @@ push $N4804000
  Group {
   name slate_field27
   label "\[value field_area_name]\n\[value field_key]"
-  xpos 3150
-  ypos 2862
+  xpos 3160
+  ypos 2838
   disable {{"\[string length \[value field_value]]==0 && !required"}}
   addUserKnob {20 SlateField l "Slate Field"}
   addUserKnob {6 required l Required t "If required this field will render even if the value is empty.\n" +STARTLINE}
@@ -5401,7 +6420,7 @@ push $N4804000
    xpos -776
    ypos 330
   }
-set N401a800 [stack 0]
+set N7360d800 [stack 0]
   Crop {
    box {{"Last_Text.bbox.x + parent.outline_size.x +1"} {"Last_Text.bbox.y + parent.outline_size.y + 1"} {"Last_Text.bbox.r - parent.outline_size.x -1"} {"Last_Text.bbox.y + parent.outline_size.y+ 2"}}
    crop false
@@ -5453,7 +6472,7 @@ set N401a800 [stack 0]
    disable {{"\[string length \[value parent.field_value]]==0"}}
   }
   Crop {
-   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {500 x55 492}}
+   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {504 x55 492}}
    name Crop_to_lines
    xpos -1140
    ypos 423
@@ -5469,7 +6488,7 @@ set N401a800 [stack 0]
    addUserKnob {3 output_lines l "output lines" t "how many lines to crop to based on input lines, max lines, and the render full height setting."}
    output_lines {{"parent.render_full_height?max_lines:min(used_lines, max_lines)"}}
   }
-set N3b34800 [stack 0]
+set N73657800 [stack 0]
   MergeExpression {
    inputs 2
    expr0 Ar==auto_color_a.r?auto_color_b.r:auto_color_a.r
@@ -5584,7 +6603,7 @@ set N3b34800 [stack 0]
    xpos -886
    ypos 564
   }
-push $N3b34800
+push $N73657800
   Crop {
    box {{"input0.bbox.x - parent.border.x * parent.field_scale"} {"input0.bbox.y - parent.border.y * parent.field_scale"} {"input0.bbox.r + parent.border.r * parent.field_scale"} {"input0.bbox.t + parent.border.t * parent.field_scale"}}
    crop false
@@ -5592,7 +6611,7 @@ push $N3b34800
    xpos -1140
    ypos 447
   }
-set N3b35400 [stack 0]
+set N73698400 [stack 0]
   Text {
    cliptype none
    replace true
@@ -5615,7 +6634,7 @@ set N3b35400 [stack 0]
    xpos -1216
    ypos 493
   }
-push $N3b35400
+push $N73698400
   Merge2 {
    inputs 2
    bbox B
@@ -5723,7 +6742,7 @@ push $N3b35400
    xpos -1140
    ypos 705
   }
-push $N401a800
+push $N7360d800
   Merge2 {
    inputs 2
    name Merge4
@@ -5747,8 +6766,8 @@ push $N401a800
  Group {
   name slate_field28
   label "\[value field_area_name]\n\[value field_key]"
-  xpos 3150
-  ypos 2910
+  xpos 3160
+  ypos 2888
   disable {{"\[string length \[value field_value]]==0 && !required"}}
   addUserKnob {20 SlateField l "Slate Field"}
   addUserKnob {6 required l Required t "If required this field will render even if the value is empty.\n" +STARTLINE}
@@ -5956,7 +6975,7 @@ push $N401a800
    xpos -776
    ypos 330
   }
-set N4421000 [stack 0]
+set N7371e000 [stack 0]
   Crop {
    box {{"Last_Text.bbox.x + parent.outline_size.x +1"} {"Last_Text.bbox.y + parent.outline_size.y + 1"} {"Last_Text.bbox.r - parent.outline_size.x -1"} {"Last_Text.bbox.y + parent.outline_size.y+ 2"}}
    crop false
@@ -6008,7 +7027,7 @@ set N4421000 [stack 0]
    disable {{"\[string length \[value parent.field_value]]==0"}}
   }
   Crop {
-   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {500 x55 492}}
+   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {504 x55 492}}
    name Crop_to_lines
    xpos -1140
    ypos 423
@@ -6024,7 +7043,7 @@ set N4421000 [stack 0]
    addUserKnob {3 output_lines l "output lines" t "how many lines to crop to based on input lines, max lines, and the render full height setting."}
    output_lines {{"parent.render_full_height?max_lines:min(used_lines, max_lines)"}}
   }
-set N6a87000 [stack 0]
+set N73746000 [stack 0]
   MergeExpression {
    inputs 2
    expr0 Ar==auto_color_a.r?auto_color_b.r:auto_color_a.r
@@ -6141,7 +7160,7 @@ set N6a87000 [stack 0]
    xpos -886
    ypos 564
   }
-push $N6a87000
+push $N73746000
   Crop {
    box {{"input0.bbox.x - parent.border.x * parent.field_scale"} {"input0.bbox.y - parent.border.y * parent.field_scale"} {"input0.bbox.r + parent.border.r * parent.field_scale"} {"input0.bbox.t + parent.border.t * parent.field_scale"}}
    crop false
@@ -6149,7 +7168,7 @@ push $N6a87000
    xpos -1140
    ypos 447
   }
-set N6a87c00 [stack 0]
+set N73746c00 [stack 0]
   Text {
    cliptype none
    replace true
@@ -6172,7 +7191,7 @@ set N6a87c00 [stack 0]
    xpos -1216
    ypos 493
   }
-push $N6a87c00
+push $N73746c00
   Merge2 {
    inputs 2
    bbox B
@@ -6281,7 +7300,7 @@ push $N6a87c00
    xpos -1140
    ypos 705
   }
-push $N4421000
+push $N7371e000
   Merge2 {
    inputs 2
    name Merge4
@@ -6305,8 +7324,8 @@ push $N4421000
  Group {
   name slate_field29
   label "\[value field_area_name]\n\[value field_key]"
-  xpos 3150
-  ypos 2958
+  xpos 3160
+  ypos 2948
   disable {{"\[string length \[value field_value]]==0 && !required"}}
   addUserKnob {20 SlateField l "Slate Field"}
   addUserKnob {6 required l Required t "If required this field will render even if the value is empty.\n" +STARTLINE}
@@ -6515,7 +7534,7 @@ push $N4421000
    xpos -776
    ypos 330
   }
-set N641b800 [stack 0]
+set N737e8800 [stack 0]
   Crop {
    box {{"Last_Text.bbox.x + parent.outline_size.x +1"} {"Last_Text.bbox.y + parent.outline_size.y + 1"} {"Last_Text.bbox.r - parent.outline_size.x -1"} {"Last_Text.bbox.y + parent.outline_size.y+ 2"}}
    crop false
@@ -6567,7 +7586,7 @@ set N641b800 [stack 0]
    disable {{"\[string length \[value parent.field_value]]==0"}}
   }
   Crop {
-   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {500 x55 492}}
+   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {504 x55 492}}
    name Crop_to_lines
    xpos -1140
    ypos 423
@@ -6583,7 +7602,7 @@ set N641b800 [stack 0]
    addUserKnob {3 output_lines l "output lines" t "how many lines to crop to based on input lines, max lines, and the render full height setting."}
    output_lines {{"parent.render_full_height?max_lines:min(used_lines, max_lines)"}}
   }
-set N6d9f800 [stack 0]
+set N7380e800 [stack 0]
   MergeExpression {
    inputs 2
    expr0 Ar==auto_color_a.r?auto_color_b.r:auto_color_a.r
@@ -6700,7 +7719,7 @@ set N6d9f800 [stack 0]
    xpos -886
    ypos 564
   }
-push $N6d9f800
+push $N7380e800
   Crop {
    box {{"input0.bbox.x - parent.border.x * parent.field_scale"} {"input0.bbox.y - parent.border.y * parent.field_scale"} {"input0.bbox.r + parent.border.r * parent.field_scale"} {"input0.bbox.t + parent.border.t * parent.field_scale"}}
    crop false
@@ -6708,7 +7727,7 @@ push $N6d9f800
    xpos -1140
    ypos 447
   }
-set N46c44400 [stack 0]
+set N7380f400 [stack 0]
   Text {
    cliptype none
    replace true
@@ -6731,7 +7750,7 @@ set N46c44400 [stack 0]
    xpos -1216
    ypos 493
   }
-push $N46c44400
+push $N7380f400
   Merge2 {
    inputs 2
    bbox B
@@ -6840,7 +7859,7 @@ push $N46c44400
    xpos -1140
    ypos 705
   }
-push $N641b800
+push $N737e8800
   Merge2 {
    inputs 2
    name Merge4
@@ -6864,8 +7883,8 @@ push $N641b800
  Group {
   name slate_field30
   label "\[value field_area_name]\n\[value field_key]"
-  xpos 3150
-  ypos 3006
+  xpos 3160
+  ypos 3003
   disable {{"\[string length \[value field_value]]==0 && !required"}}
   addUserKnob {20 SlateField l "Slate Field"}
   addUserKnob {6 required l Required t "If required this field will render even if the value is empty.\n" +STARTLINE}
@@ -7074,7 +8093,7 @@ push $N641b800
    xpos -776
    ypos 330
   }
-set N46b48000 [stack 0]
+set N73893000 [stack 0]
   Crop {
    box {{"Last_Text.bbox.x + parent.outline_size.x +1"} {"Last_Text.bbox.y + parent.outline_size.y + 1"} {"Last_Text.bbox.r - parent.outline_size.x -1"} {"Last_Text.bbox.y + parent.outline_size.y+ 2"}}
    crop false
@@ -7126,7 +8145,7 @@ set N46b48000 [stack 0]
    disable {{"\[string length \[value parent.field_value]]==0"}}
   }
   Crop {
-   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {500 x55 492}}
+   box {{"2 + parent.border.x"} {"500 - (line_height * output_lines)" x55 442} {"bounding.bbox.r - bounding.bbox.x -2 - parent.border.r * parent.field_scale" x55 230.5} {504 x55 492}}
    name Crop_to_lines
    xpos -1140
    ypos 423
@@ -7142,7 +8161,7 @@ set N46b48000 [stack 0]
    addUserKnob {3 output_lines l "output lines" t "how many lines to crop to based on input lines, max lines, and the render full height setting."}
    output_lines {{"parent.render_full_height?max_lines:min(used_lines, max_lines)"}}
   }
-set N24146000 [stack 0]
+set N738d5000 [stack 0]
   MergeExpression {
    inputs 2
    expr0 Ar==auto_color_a.r?auto_color_b.r:auto_color_a.r
@@ -7259,7 +8278,7 @@ set N24146000 [stack 0]
    xpos -886
    ypos 564
   }
-push $N24146000
+push $N738d5000
   Crop {
    box {{"input0.bbox.x - parent.border.x * parent.field_scale"} {"input0.bbox.y - parent.border.y * parent.field_scale"} {"input0.bbox.r + parent.border.r * parent.field_scale"} {"input0.bbox.t + parent.border.t * parent.field_scale"}}
    crop false
@@ -7267,7 +8286,7 @@ push $N24146000
    xpos -1140
    ypos 447
   }
-set N24146c00 [stack 0]
+set N738d5c00 [stack 0]
   Text {
    cliptype none
    replace true
@@ -7290,7 +8309,7 @@ set N24146c00 [stack 0]
    xpos -1216
    ypos 493
   }
-push $N24146c00
+push $N738d5c00
   Merge2 {
    inputs 2
    bbox B
@@ -7399,7 +8418,7 @@ push $N24146c00
    xpos -1140
    ypos 705
   }
-push $N46b48000
+push $N73893000
   Merge2 {
    inputs 2
    name Merge4
@@ -7430,7 +8449,7 @@ push $N46b48000
   xpos 2414
   ypos 3642
  }
-set N55fc400 [stack 0]
+set N73955400 [stack 0]
  Input {
   inputs 0
   name Logo
@@ -7577,7 +8596,7 @@ set N55fc400 [stack 0]
   value_font "\[value parent.font_bold]"
   addUserKnob {41 xjustify l "Value Justify" t "how to justify the value field in the box.\n\nNote: background and border only work correctly in right justify mode." T Value.xjustify}
   addUserKnob {3 value_font_size l "Value Font Size"}
-  value_font_size 75
+  value_font_size 55
   addUserKnob {18 value_color l "Value Color" t "the color of the text of the value"}
   value_color {{parent.style_controller_A.value_color} {parent.style_controller_A.value_color} {parent.style_controller_A.value_color}}
   addUserKnob {6 value_color_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
@@ -7717,7 +8736,7 @@ set N55fc400 [stack 0]
    xpos -776
    ypos 330
   }
-set Na362800 [stack 0]
+set N73975800 [stack 0]
   Crop {
    box {{"Last_Text.bbox.x + parent.outline_size.x +1"} {"Last_Text.bbox.y + parent.outline_size.y + 1"} {"Last_Text.bbox.r - parent.outline_size.x -1"} {"Last_Text.bbox.y + parent.outline_size.y+ 2"}}
    crop false
@@ -7785,7 +8804,7 @@ set Na362800 [stack 0]
    addUserKnob {3 output_lines l "output lines" t "how many lines to crop to based on input lines, max lines, and the render full height setting."}
    output_lines {{"parent.render_full_height?max_lines:min(used_lines, max_lines)"}}
   }
-set N6364800 [stack 0]
+set N739c1800 [stack 0]
   MergeExpression {
    inputs 2
    expr0 Ar==auto_color_a.r?auto_color_b.r:auto_color_a.r
@@ -7900,7 +8919,7 @@ set N6364800 [stack 0]
    xpos -886
    ypos 564
   }
-push $N6364800
+push $N739c1800
   Crop {
    box {{"input0.bbox.x - parent.border.x * parent.field_scale"} {"input0.bbox.y - parent.border.y * parent.field_scale"} {"input0.bbox.r + parent.border.r * parent.field_scale"} {"input0.bbox.t + parent.border.t * parent.field_scale"}}
    crop false
@@ -7908,7 +8927,7 @@ push $N6364800
    xpos -1140
    ypos 447
   }
-set N6365400 [stack 0]
+set N73a06400 [stack 0]
   Text {
    cliptype none
    replace true
@@ -7931,7 +8950,7 @@ set N6365400 [stack 0]
    xpos -1216
    ypos 493
   }
-push $N6365400
+push $N73a06400
   Merge2 {
    inputs 2
    bbox B
@@ -8039,7 +9058,7 @@ push $N6365400
    xpos -1140
    ypos 705
   }
-push $Na362800
+push $N73975800
   Merge2 {
    inputs 2
    name Merge4
@@ -8130,7 +9149,7 @@ push $Na362800
   value_font "\[value parent.font_bold]"
   addUserKnob {41 xjustify l "Value Justify" t "how to justify the value field in the box.\n\nNote: background and border only work correctly in right justify mode." T Value.xjustify}
   addUserKnob {3 value_font_size l "Value Font Size"}
-  value_font_size 75
+  value_font_size 55
   addUserKnob {18 value_color l "Value Color" t "the color of the text of the value"}
   value_color {{parent.style_controller_A.value_color} {parent.style_controller_A.value_color} {parent.style_controller_A.value_color}}
   addUserKnob {6 value_color_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
@@ -8273,7 +9292,7 @@ push $Na362800
    xpos -776
    ypos 330
   }
-set N5d4b000 [stack 0]
+set N73a88000 [stack 0]
   Crop {
    box {{"Last_Text.bbox.x + parent.outline_size.x +1"} {"Last_Text.bbox.y + parent.outline_size.y + 1"} {"Last_Text.bbox.r - parent.outline_size.x -1"} {"Last_Text.bbox.y + parent.outline_size.y+ 2"}}
    crop false
@@ -8342,7 +9361,7 @@ set N5d4b000 [stack 0]
    addUserKnob {3 output_lines l "output lines" t "how many lines to crop to based on input lines, max lines, and the render full height setting."}
    output_lines {{"parent.render_full_height?max_lines:min(used_lines, max_lines)"}}
   }
-set N5813000 [stack 0]
+set N73ab6000 [stack 0]
   MergeExpression {
    inputs 2
    expr0 Ar==auto_color_a.r?auto_color_b.r:auto_color_a.r
@@ -8459,7 +9478,7 @@ set N5813000 [stack 0]
    xpos -886
    ypos 564
   }
-push $N5813000
+push $N73ab6000
   Crop {
    box {{"input0.bbox.x - parent.border.x * parent.field_scale"} {"input0.bbox.y - parent.border.y * parent.field_scale"} {"input0.bbox.r + parent.border.r * parent.field_scale"} {"input0.bbox.t + parent.border.t * parent.field_scale"}}
    crop false
@@ -8467,7 +9486,7 @@ push $N5813000
    xpos -1140
    ypos 447
   }
-set N5813c00 [stack 0]
+set N73ab6c00 [stack 0]
   Text {
    cliptype none
    replace true
@@ -8490,7 +9509,7 @@ set N5813c00 [stack 0]
    xpos -1216
    ypos 493
   }
-push $N5813c00
+push $N73ab6c00
   Merge2 {
    inputs 2
    bbox B
@@ -8599,7 +9618,7 @@ push $N5813c00
    xpos -1140
    ypos 705
   }
-push $N5d4b000
+push $N73a88000
   Merge2 {
    inputs 2
    name Merge4
@@ -8624,7 +9643,7 @@ push $N5d4b000
   inputs 2
   name Merge9
   xpos 1720
-  ypos 2607
+  ypos 2605
  }
  Group {
   name slate_field13
@@ -8844,7 +9863,7 @@ push $N5d4b000
    xpos -776
    ypos 330
   }
-set N4fc8000 [stack 0]
+set N74b05000 [stack 0]
   Crop {
    box {{"Last_Text.bbox.x + parent.outline_size.x +1"} {"Last_Text.bbox.y + parent.outline_size.y + 1"} {"Last_Text.bbox.r - parent.outline_size.x -1"} {"Last_Text.bbox.y + parent.outline_size.y+ 2"}}
    crop false
@@ -8912,7 +9931,7 @@ set N4fc8000 [stack 0]
    addUserKnob {3 output_lines l "output lines" t "how many lines to crop to based on input lines, max lines, and the render full height setting."}
    output_lines {{"parent.render_full_height?max_lines:min(used_lines, max_lines)"}}
   }
-set N4e96000 [stack 0]
+set N74b4d000 [stack 0]
   MergeExpression {
    inputs 2
    expr0 Ar==auto_color_a.r?auto_color_b.r:auto_color_a.r
@@ -9027,7 +10046,7 @@ set N4e96000 [stack 0]
    xpos -886
    ypos 564
   }
-push $N4e96000
+push $N74b4d000
   Crop {
    box {{"input0.bbox.x - parent.border.x * parent.field_scale"} {"input0.bbox.y - parent.border.y * parent.field_scale"} {"input0.bbox.r + parent.border.r * parent.field_scale"} {"input0.bbox.t + parent.border.t * parent.field_scale"}}
    crop false
@@ -9035,7 +10054,7 @@ push $N4e96000
    xpos -1140
    ypos 447
   }
-set N4e96c00 [stack 0]
+set N74b4dc00 [stack 0]
   Text {
    cliptype none
    replace true
@@ -9058,7 +10077,7 @@ set N4e96c00 [stack 0]
    xpos -1216
    ypos 493
   }
-push $N4e96c00
+push $N74b4dc00
   Merge2 {
    inputs 2
    bbox B
@@ -9166,7 +10185,7 @@ push $N4e96c00
    xpos -1140
    ypos 705
   }
-push $N4fc8000
+push $N74b05000
   Merge2 {
    inputs 2
    name Merge4
@@ -9384,7 +10403,7 @@ push $N4fc8000
    xpos -776
    ypos 330
   }
-set N4164400 [stack 0]
+set N74bcb400 [stack 0]
   Crop {
    box {{"Last_Text.bbox.x + parent.outline_size.x +1"} {"Last_Text.bbox.y + parent.outline_size.y + 1"} {"Last_Text.bbox.r - parent.outline_size.x -1"} {"Last_Text.bbox.y + parent.outline_size.y+ 2"}}
    crop false
@@ -9452,7 +10471,7 @@ set N4164400 [stack 0]
    addUserKnob {3 output_lines l "output lines" t "how many lines to crop to based on input lines, max lines, and the render full height setting."}
    output_lines {{"parent.render_full_height?max_lines:min(used_lines, max_lines)"}}
   }
-set N3e06400 [stack 0]
+set N74c0f400 [stack 0]
   MergeExpression {
    inputs 2
    expr0 Ar==auto_color_a.r?auto_color_b.r:auto_color_a.r
@@ -9565,7 +10584,7 @@ set N3e06400 [stack 0]
    xpos -886
    ypos 564
   }
-push $N3e06400
+push $N74c0f400
   Crop {
    box {{"input0.bbox.x - parent.border.x * parent.field_scale"} {"input0.bbox.y - parent.border.y * parent.field_scale"} {"input0.bbox.r + parent.border.r * parent.field_scale"} {"input0.bbox.t + parent.border.t * parent.field_scale"}}
    crop false
@@ -9573,7 +10592,7 @@ push $N3e06400
    xpos -1140
    ypos 447
   }
-set N3e07000 [stack 0]
+set N74c50000 [stack 0]
   Text {
    cliptype none
    replace true
@@ -9596,7 +10615,7 @@ set N3e07000 [stack 0]
    xpos -1216
    ypos 493
   }
-push $N3e07000
+push $N74c50000
   Merge2 {
    inputs 2
    bbox B
@@ -9703,7 +10722,7 @@ push $N3e07000
    xpos -1140
    ypos 705
   }
-push $N4164400
+push $N74bcb400
   Merge2 {
    inputs 2
    name Merge4
@@ -9928,7 +10947,7 @@ push $N4164400
    xpos -776
    ypos 330
   }
-set N3fa0c00 [stack 0]
+set N74c85c00 [stack 0]
   Crop {
    box {{"Last_Text.bbox.x + parent.outline_size.x +1"} {"Last_Text.bbox.y + parent.outline_size.y + 1"} {"Last_Text.bbox.r - parent.outline_size.x -1"} {"Last_Text.bbox.y + parent.outline_size.y+ 2"}}
    crop false
@@ -9996,7 +11015,7 @@ set N3fa0c00 [stack 0]
    addUserKnob {3 output_lines l "output lines" t "how many lines to crop to based on input lines, max lines, and the render full height setting."}
    output_lines {{"parent.render_full_height?max_lines:min(used_lines, max_lines)"}}
   }
-set N6ac2c00 [stack 0]
+set N74cd5c00 [stack 0]
   MergeExpression {
    inputs 2
    expr0 Ar==auto_color_a.r?auto_color_b.r:auto_color_a.r
@@ -10109,7 +11128,7 @@ set N6ac2c00 [stack 0]
    xpos -886
    ypos 564
   }
-push $N6ac2c00
+push $N74cd5c00
   Crop {
    box {{"input0.bbox.x - parent.border.x * parent.field_scale"} {"input0.bbox.y - parent.border.y * parent.field_scale"} {"input0.bbox.r + parent.border.r * parent.field_scale"} {"input0.bbox.t + parent.border.t * parent.field_scale"}}
    crop false
@@ -10117,7 +11136,7 @@ push $N6ac2c00
    xpos -1140
    ypos 447
   }
-set N6ac3800 [stack 0]
+set N74d02800 [stack 0]
   Text {
    cliptype none
    replace true
@@ -10140,7 +11159,7 @@ set N6ac3800 [stack 0]
    xpos -1216
    ypos 493
   }
-push $N6ac3800
+push $N74d02800
   Merge2 {
    inputs 2
    bbox B
@@ -10148,7 +11167,7 @@ push $N6ac3800
    xpos -1140
    ypos 490
   }
-set Nf5952800 [stack 0]
+set N74d03800 [stack 0]
   Text {
    cliptype none
    replace true
@@ -10171,7 +11190,7 @@ set Nf5952800 [stack 0]
    xpos -1216
    ypos 514
   }
-push $Nf5952800
+push $N74d03800
   Merge2 {
    inputs 2
    bbox B
@@ -10278,7 +11297,7 @@ push $Nf5952800
    xpos -1140
    ypos 705
   }
-push $N3fa0c00
+push $N74c85c00
   Merge2 {
    inputs 2
    name Merge4
@@ -10503,7 +11522,7 @@ push $N3fa0c00
    xpos -776
    ypos 330
   }
-set N5a676400 [stack 0]
+set N74d81400 [stack 0]
   Crop {
    box {{"Last_Text.bbox.x + parent.outline_size.x +1"} {"Last_Text.bbox.y + parent.outline_size.y + 1"} {"Last_Text.bbox.r - parent.outline_size.x -1"} {"Last_Text.bbox.y + parent.outline_size.y+ 2"}}
    crop false
@@ -10571,7 +11590,7 @@ set N5a676400 [stack 0]
    addUserKnob {3 output_lines l "output lines" t "how many lines to crop to based on input lines, max lines, and the render full height setting."}
    output_lines {{"parent.render_full_height?max_lines:min(used_lines, max_lines)"}}
   }
-set N5a69a400 [stack 0]
+set N74dc3400 [stack 0]
   MergeExpression {
    inputs 2
    expr0 Ar==auto_color_a.r?auto_color_b.r:auto_color_a.r
@@ -10684,7 +11703,7 @@ set N5a69a400 [stack 0]
    xpos -886
    ypos 599
   }
-push $N5a69a400
+push $N74dc3400
   Crop {
    box {{"input0.bbox.x - parent.border.x * parent.field_scale"} {"input0.bbox.y - parent.border.y * parent.field_scale"} {"input0.bbox.r + parent.border.r * parent.field_scale"} {"input0.bbox.t + parent.border.t * parent.field_scale"}}
    crop false
@@ -10692,7 +11711,7 @@ push $N5a69a400
    xpos -1140
    ypos 486
   }
-set N5a69b000 [stack 0]
+set N74e02000 [stack 0]
   Text {
    cliptype none
    replace true
@@ -10715,7 +11734,7 @@ set N5a69b000 [stack 0]
    xpos -1216
    ypos 532
   }
-push $N5a69b000
+push $N74e02000
   Merge2 {
    inputs 2
    bbox B
@@ -10822,7 +11841,7 @@ push $N5a69b000
    xpos -1140
    ypos 740
   }
-push $N5a676400
+push $N74d81400
   Merge2 {
    inputs 2
    name Merge4
@@ -11048,7 +12067,7 @@ push $N5a676400
    xpos -776
    ypos 330
   }
-set N8a336c00 [stack 0]
+set N74e37c00 [stack 0]
   Crop {
    box {{"Last_Text.bbox.x + parent.outline_size.x +1"} {"Last_Text.bbox.y + parent.outline_size.y + 1"} {"Last_Text.bbox.r - parent.outline_size.x -1"} {"Last_Text.bbox.y + parent.outline_size.y+ 2"}}
    crop false
@@ -11116,7 +12135,7 @@ set N8a336c00 [stack 0]
    addUserKnob {3 output_lines l "output lines" t "how many lines to crop to based on input lines, max lines, and the render full height setting."}
    output_lines {{"parent.render_full_height?max_lines:min(used_lines, max_lines)"}}
   }
-set N8a372c00 [stack 0]
+set N74e87c00 [stack 0]
   MergeExpression {
    inputs 2
    expr0 Ar==auto_color_a.r?auto_color_b.r:auto_color_a.r
@@ -11229,7 +12248,7 @@ set N8a372c00 [stack 0]
    xpos -886
    ypos 564
   }
-push $N8a372c00
+push $N74e87c00
   Crop {
    box {{"input0.bbox.x - parent.border.x * parent.field_scale"} {"input0.bbox.y - parent.border.y * parent.field_scale"} {"input0.bbox.r + parent.border.r * parent.field_scale"} {"input0.bbox.t + parent.border.t * parent.field_scale"}}
    crop false
@@ -11237,7 +12256,7 @@ push $N8a372c00
    xpos -1140
    ypos 447
   }
-set N8a373800 [stack 0]
+set N74eb2800 [stack 0]
   Text {
    cliptype none
    replace true
@@ -11260,7 +12279,7 @@ set N8a373800 [stack 0]
    xpos -1216
    ypos 493
   }
-push $N8a373800
+push $N74eb2800
   Merge2 {
    inputs 2
    bbox B
@@ -11367,7 +12386,7 @@ push $N8a373800
    xpos -1140
    ypos 705
   }
-push $N8a336c00
+push $N74e37c00
   Merge2 {
    inputs 2
    name Merge4
@@ -11589,7 +12608,7 @@ push $N8a336c00
    xpos -776
    ypos 330
   }
-set N8a3fd400 [stack 0]
+set N74f54400 [stack 0]
   Crop {
    box {{"Last_Text.bbox.x + parent.outline_size.x +1"} {"Last_Text.bbox.y + parent.outline_size.y + 1"} {"Last_Text.bbox.r - parent.outline_size.x -1"} {"Last_Text.bbox.y + parent.outline_size.y+ 2"}}
    crop false
@@ -11657,7 +12676,7 @@ set N8a3fd400 [stack 0]
    addUserKnob {3 output_lines l "output lines" t "how many lines to crop to based on input lines, max lines, and the render full height setting."}
    output_lines {{"parent.render_full_height?max_lines:min(used_lines, max_lines)"}}
   }
-set N8a43b400 [stack 0]
+set N74f78400 [stack 0]
   MergeExpression {
    inputs 2
    expr0 Ar==auto_color_a.r?auto_color_b.r:auto_color_a.r
@@ -11768,7 +12787,7 @@ set N8a43b400 [stack 0]
    xpos -886
    ypos 564
   }
-push $N8a43b400
+push $N74f78400
   Crop {
    box {{"input0.bbox.x - parent.border.x * parent.field_scale"} {"input0.bbox.y - parent.border.y * parent.field_scale"} {"input0.bbox.r + parent.border.r * parent.field_scale"} {"input0.bbox.t + parent.border.t * parent.field_scale"}}
    crop false
@@ -11776,7 +12795,7 @@ push $N8a43b400
    xpos -1140
    ypos 447
   }
-set N8a47e000 [stack 0]
+set N74f79000 [stack 0]
   Text {
    cliptype none
    replace true
@@ -11799,7 +12818,7 @@ set N8a47e000 [stack 0]
    xpos -1216
    ypos 493
   }
-push $N8a47e000
+push $N74f79000
   Merge2 {
    inputs 2
    bbox B
@@ -11905,7 +12924,7 @@ push $N8a47e000
    xpos -1140
    ypos 705
   }
-push $N8a3fd400
+push $N74f54400
   Merge2 {
    inputs 2
    name Merge4
@@ -11979,7 +12998,7 @@ push $N8a3fd400
   xpos 3272
   ypos 2007
  }
-push $Nbdf000
+push $N8c171c00
  Dot {
   name Dot2
   xpos 3184
@@ -12077,20 +13096,20 @@ push $Nbdf000
   ypos 1021
  }
  Crop {
-  box {{parent.use_input_format?0:input0.bbox.x} {parent.use_input_format?0:input0.bbox.y} {parent.use_input_format?Input.width:input0.bbox.r} {parent.use_input_format?Input.height:input.bbox.t}}
+  box {{parent.use_input_format?0:input0.bbox.x} {parent.use_input_format?0:input0.bbox.y} {parent.use_input_format?Input.width:input0.bbox.r x1 1910} {parent.use_input_format?Input.height:input.bbox.t}}
   reformat true
   crop false
   name Slate_Format
   xpos 2160
   ypos 1119
  }
-set N8a519400 [stack 0]
+set N7505c400 [stack 0]
  Dot {
   name Dot12
   xpos 2194
   ypos 1266
  }
-set N8a519800 [stack 0]
+set N7505c800 [stack 0]
  Dot {
   name Dot13
   xpos 2304
@@ -12155,10 +13174,10 @@ set N8a519800 [stack 0]
   addUserKnob {6 color_panelDropped_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
   addUserKnob {6 color_rgb_panelDropped_1 l "panel dropped state" -STARTLINE +HIDDEN}
  }
-push $N8a519400
+push $N7505c400
  Crop {
   preset 2.35:1
-  box {{parent.use_input_for_crop?Slate_Format.box.x:parent.final_picture_crop.x x40 624 0 0 234 x45 0} {parent.use_input_for_crop?Slate_Format.box.y:parent.final_picture_crop.y x40 0 0 604 0 x45 0} {parent.use_input_for_crop?Slate_Format.box.r:parent.final_picture_crop.r x40 3532 4096 4096 3840 1280 1280} {parent.use_input_for_crop?Slate_Format.box.t:parent.final_picture_crop.t x40 2160 2160 1570 2160 420 720}}
+  box {{parent.use_input_for_crop?Slate_Format.box.x:parent.final_picture_crop.x x40 624 0 0 234 x45 0} {parent.use_input_for_crop?Slate_Format.box.y:parent.final_picture_crop.y x1 -0.1 x40 0 x41 0 604 0 x45 0} {parent.use_input_for_crop?Slate_Format.box.r:parent.final_picture_crop.r x1 1820 x40 3532 x41 4096 4096 3840 1280 1280} {parent.use_input_for_crop?Slate_Format.box.t:parent.final_picture_crop.t x1 1070 x40 2160 x41 2160 1570 2160 420 720 x1009 1070}}
   name Final_Crop
   gl_color 0xff0000ff
   xpos 1940
@@ -12172,7 +13191,7 @@ push $N8a519400
   xpos 1974
   ypos 1338
  }
-push $N8a519800
+push $N7505c800
  Grade {
   inputs 1+1
   multiply 0.5
@@ -12242,7 +13261,7 @@ push $N8a519800
   ypos 3879
   disable {{"\[python not\\ \\\"input/timecode\\\"\\ in\\ nuke.thisNode().metadata(time=nuke.thisNode()\\\['frame'\\].getValue()).keys()]"}}
  }
-push $N3331400
+push $N72dc0400
  Dot {
   name Dot9
   xpos 2304
@@ -12283,22 +13302,47 @@ push $N3331400
   addUserKnob {7 normalize_scale_w l "Normalize Scale Width"}
   normalize_scale_w 1
  }
+push $N73955400
+ Viewer {
+  frame_range 1001-1020
+  name Viewer1
+  xpos 1710
+  ypos 3036
+ }
  Crop {
   inputs 0
-  box {{"int(relative_box.x * normalize_scale_w + padding_px)" x41 66} {"int(relative_box.y * normalize_scale_h + padding_px)" x41 54} {"int(relative_box.r * normalize_scale_w - padding_px)" x41 3072} {"int(relative_box.t * normalize_scale_h - padding_px)" x41 2106}}
+  box {{"int(relative_box.x * normalize_scale_w + (relative_size.w * padding))"} {"int(relative_box.y * normalize_scale_h + (relative_size.h * padding))"} {"int(relative_box.r * normalize_scale_w - (relative_size.w * padding))"} {"int(relative_box.t * normalize_scale_h - (relative_size.h * padding))"}}
   crop false
-  name Field_Area_B
-  xpos 3700
-  ypos 2775
+  name Field_Area_A_right
+  xpos 1830
+  ypos 2367
   addUserKnob {20 User}
   addUserKnob {14 nominal_size l "Nominal Size" t "What is the size of this area in the nominal (4k) format. This is used to drive the automatic text scaling." R 0 100}
-  nominal_size {1463 1181}
+  nominal_size {739 2052}
   addUserKnob {15 relative_box l "Relative Box" t "The bouding box that this text should sit inside. Is linked to the Final Crop and any other elements that define the area for this text."}
-  relative_box {{Thumbnail_Position.bbox.x} {Final_Crop.box.y} {Thumbnail_Position.bbox.r} {Thumbnail_Position.bbox.y}}
+  relative_box {{"(Field_Area_A.box.r - Field_Area_A.box.x) / 3  *2 + Field_Area_A.box.x"} {Field_Area_A.box} {Field_Area_A.box} {Field_Area_A.box}}
   addUserKnob {14 relative_size l "Relative Size" R 0 100}
   relative_size {{"relative_box.r - relative_box.x"} {"relative_box.t - relative_box.y"}}
-  addUserKnob {3 padding_px l Padding_px t "pick the smaller of the width/height and set the number of pixels in the pad to the value defined by the padding %"}
-  padding_px {{"int((relative_size.w < relative_size.h? relative_size.w: relative_size.h) * padding)"}}
+  addUserKnob {7 padding l "Padding %" t "how much space to leave around the edges of the bounding box. in % of total width "}
+  addUserKnob {7 normalize_scale_h l "Normalize Scale" t "Scale the starting bbox so that all fonts can be defined in terms of a 4k source."}
+  normalize_scale_h 1
+  addUserKnob {7 normalize_scale_w l "Normalize Scale Width"}
+  normalize_scale_w 1
+ }
+ Crop {
+  inputs 0
+  box {{"int(relative_box.x * normalize_scale_w + (relative_size.w * padding))"} {"int(relative_box.y * normalize_scale_h + (relative_size.h * padding))"} {"int(relative_box.r * normalize_scale_w - (relative_size.w * padding))"} {"int(relative_box.t * normalize_scale_h - (relative_size.h * padding))"}}
+  crop false
+  name Field_Area_A_left
+  xpos 1610
+  ypos 2367
+  addUserKnob {20 User}
+  addUserKnob {14 nominal_size l "Nominal Size" t "What is the size of this area in the nominal (4k) format. This is used to drive the automatic text scaling." R 0 100}
+  nominal_size {1478 2052}
+  addUserKnob {15 relative_box l "Relative Box" t "The bouding box that this text should sit inside. Is linked to the Final Crop and any other elements that define the area for this text."}
+  relative_box {{Field_Area_A.box} {Field_Area_A.box} {"(Field_Area_A.box.r - Field_Area_A.box.x) / 3  *2 + Field_Area_A.box.x"} {Field_Area_A.box}}
+  addUserKnob {14 relative_size l "Relative Size" R 0 100}
+  relative_size {{"relative_box.r - relative_box.x"} {"relative_box.t - relative_box.y"}}
   addUserKnob {7 padding l "Padding %" t "how much space to leave around the edges of the bounding box. in % of total width "}
   addUserKnob {7 normalize_scale_h l "Normalize Scale" t "Scale the starting bbox so that all fonts can be defined in terms of a 4k source."}
   normalize_scale_h 1
@@ -12307,100 +13351,12 @@ push $N3331400
  }
  NoOp {
   inputs 0
-  name style_controller_B
-  xpos 3615
-  ypos 2564
-  addUserKnob {20 User}
-  addUserKnob {3 label_font_size l "label font size"}
-  label_font_size 40
-  addUserKnob {3 column_width l "label column width"}
-  column_width 420
-  addUserKnob {3 label_pad_right -STARTLINE}
-  label_pad_right 20
-  addUserKnob {3 value_font_size l "value font size"}
-  value_font_size 60
-  addUserKnob {18 label_color l "label color"}
-  label_color 0.25
-  addUserKnob {6 label_color_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 label_color_panelDropped_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 label_color_panelDropped_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 label_color_panelDropped_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 label_color_panelDropped_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 label_color_panelDropped_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 label_color_panelDropped_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 label_color_panelDropped_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 label_color_panelDropped_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 label_color_panelDropped_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 label_color_panelDropped_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 label_color_panelDropped_1_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 label_color_panelDropped_1_1_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 color_rgb_2_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {18 value_color}
-  value_color 0.7
-  addUserKnob {6 value_color_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 value_color_panelDropped_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 value_color_panelDropped_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 value_color_panelDropped_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 value_color_panelDropped_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 value_color_panelDropped_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 value_color_panelDropped_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 value_color_panelDropped_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 value_color_panelDropped_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 value_color_panelDropped_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 value_color_panelDropped_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 value_color_panelDropped_1_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 value_color_panelDropped_1_1_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 color_rgb_3_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {18 bg_a l "background color A"}
-  bg_a {0 0 0}
-  addUserKnob {6 bg_a_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_a_panelDropped_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_a_panelDropped_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_a_panelDropped_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_a_panelDropped_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_a_panelDropped_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_a_panelDropped_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_a_panelDropped_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_a_panelDropped_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_a_panelDropped_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_a_panelDropped_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_a_panelDropped_1_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_a_panelDropped_1_1_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 color_rgb_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {18 bg_b l "background color B"}
-  bg_b {0 0 0}
-  addUserKnob {6 bg_b_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_b_panelDropped_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_b_panelDropped_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_b_panelDropped_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_b_panelDropped_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_b_panelDropped_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_b_panelDropped_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_b_panelDropped_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_b_panelDropped_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_b_panelDropped_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_b_panelDropped_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_b_panelDropped_1_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 bg_b_panelDropped_1_1_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {6 color_rgb_1_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
-  addUserKnob {15 padding}
-  padding {10 0 0 30}
- }
-push $N55fc400
- Viewer {
-  frame_range 1001-1020
-  name Viewer1
-  xpos 1710
-  ypos 3036
- }
- NoOp {
-  inputs 0
   name style_controller_A
   xpos 1280
   ypos 2704
   addUserKnob {20 User}
   addUserKnob {3 label_font_size l "label font size"}
-  label_font_size 40
+  label_font_size 39
   addUserKnob {3 column_width l "label column width"}
   column_width 300
   addUserKnob {3 label_pad_right -STARTLINE}
@@ -12469,5 +13425,115 @@ push $N55fc400
   addUserKnob {6 color_rgb_1_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
   addUserKnob {15 padding}
   padding {0 40 20 40}
+ }
+push $N8c171c00
+ Viewer {
+  frame_range 1-100
+  name Viewer2
+  xpos 2982
+  ypos 2404
+ }
+ Crop {
+  inputs 0
+  box {{"int(relative_box.x * normalize_scale_w + padding_px)" x1 0 x41 66} {"int(relative_box.y * normalize_scale_h + padding_px)" x1 0 x41 54} {"int(relative_box.r * normalize_scale_w - padding_px)" x1 1920 x41 3072} {"int(relative_box.t * normalize_scale_h - padding_px)" x1 1080 x41 2106}}
+  crop false
+  name Field_Area_B
+  xpos 3683
+  ypos 2741
+  addUserKnob {20 User}
+  addUserKnob {14 nominal_size l "Nominal Size" t "What is the size of this area in the nominal (4k) format. This is used to drive the automatic text scaling." R 0 100}
+  nominal_size {1463 1181}
+  addUserKnob {15 relative_box l "Relative Box" t "The bouding box that this text should sit inside. Is linked to the Final Crop and any other elements that define the area for this text."}
+  relative_box {{Thumbnail_Position.bbox.x} {Final_Crop.box.y} {Thumbnail_Position.bbox.r} {Thumbnail_Position.bbox.y}}
+  addUserKnob {14 relative_size l "Relative Size" R 0 100}
+  relative_size {{"relative_box.r - relative_box.x"} {"relative_box.t - relative_box.y"}}
+  addUserKnob {3 padding_px l Padding_px t "pick the smaller of the width/height and set the number of pixels in the pad to the value defined by the padding %"}
+  padding_px {{"int((relative_size.w < relative_size.h? relative_size.w: relative_size.h) * padding)"}}
+  addUserKnob {7 padding l "Padding %" t "how much space to leave around the edges of the bounding box. in % of total width "}
+  addUserKnob {7 normalize_scale_h l "Normalize Scale" t "Scale the starting bbox so that all fonts can be defined in terms of a 4k source."}
+  normalize_scale_h 1
+  addUserKnob {7 normalize_scale_w l "Normalize Scale Width"}
+  normalize_scale_w 1
+ }
+ NoOp {
+  inputs 0
+  name style_controller_B
+  xpos 3695
+  ypos 2473
+  addUserKnob {20 User}
+  addUserKnob {3 label_font_size l "label font size"}
+  label_font_size 40
+  addUserKnob {3 column_width l "label column width"}
+  column_width 420
+  addUserKnob {3 label_pad_right -STARTLINE}
+  label_pad_right 20
+  addUserKnob {3 value_font_size l "value font size"}
+  value_font_size 40
+  addUserKnob {18 label_color l "label color"}
+  label_color 0.25
+  addUserKnob {6 label_color_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 label_color_panelDropped_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 label_color_panelDropped_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 label_color_panelDropped_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 label_color_panelDropped_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 label_color_panelDropped_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 label_color_panelDropped_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 label_color_panelDropped_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 label_color_panelDropped_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 label_color_panelDropped_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 label_color_panelDropped_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 label_color_panelDropped_1_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 label_color_panelDropped_1_1_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 color_rgb_2_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {18 value_color}
+  value_color 0.7
+  addUserKnob {6 value_color_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 value_color_panelDropped_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 value_color_panelDropped_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 value_color_panelDropped_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 value_color_panelDropped_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 value_color_panelDropped_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 value_color_panelDropped_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 value_color_panelDropped_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 value_color_panelDropped_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 value_color_panelDropped_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 value_color_panelDropped_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 value_color_panelDropped_1_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 value_color_panelDropped_1_1_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 color_rgb_3_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {18 bg_a l "background color A"}
+  bg_a {0 0 0}
+  addUserKnob {6 bg_a_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_a_panelDropped_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_a_panelDropped_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_a_panelDropped_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_a_panelDropped_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_a_panelDropped_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_a_panelDropped_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_a_panelDropped_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_a_panelDropped_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_a_panelDropped_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_a_panelDropped_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_a_panelDropped_1_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_a_panelDropped_1_1_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 color_rgb_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {18 bg_b l "background color B"}
+  bg_b {0 0 0}
+  addUserKnob {6 bg_b_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_b_panelDropped_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_b_panelDropped_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_b_panelDropped_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_b_panelDropped_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_b_panelDropped_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_b_panelDropped_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_b_panelDropped_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_b_panelDropped_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_b_panelDropped_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_b_panelDropped_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_b_panelDropped_1_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 bg_b_panelDropped_1_1_1_1_1_1_1_1_1_1_1_1 l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {6 color_rgb_1_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
+  addUserKnob {15 padding}
+  padding {20 0 0 30}
  }
 end_group

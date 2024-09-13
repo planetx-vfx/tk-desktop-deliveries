@@ -81,21 +81,18 @@ class DeliveryModel:
 
         if sgtk.util.is_linux():
             self.nuke_path = "{}".format(app.get_setting("nuke_path_linux"))
-            self.logo_path = "{}".format(app.get_setting("logo_path_linux"))
             self.font_path = "{}".format(app.get_setting("font_path_linux"))
             self.font_bold_path = "{}".format(
                 app.get_setting("font_bold_path_linux")
             )
         elif sgtk.util.is_macos():
             self.nuke_path = "{}".format(app.get_setting("nuke_path_mac"))
-            self.logo_path = "{}".format(app.get_setting("logo_path_mac"))
             self.font_path = "{}".format(app.get_setting("font_path_mac"))
             self.font_bold_path = "{}".format(
                 app.get_setting("font_bold_path_mac")
             )
         elif sgtk.util.is_windows():
             self.nuke_path = "{}".format(app.get_setting("nuke_path_windows"))
-            self.logo_path = "{}".format(app.get_setting("logo_path_windows"))
             self.font_path = "{}".format(app.get_setting("font_path_windows"))
             self.font_bold_path = "{}".format(
                 app.get_setting("font_bold_path_windows")
@@ -692,7 +689,6 @@ class DeliveryModel:
                         self.settings.sg_server_path,
                         self.settings.sg_script_name,
                         self.settings.sg_script_key,
-                        self.logo_path,
                         "--version-id",
                         version.id_str,
                         "-idt",

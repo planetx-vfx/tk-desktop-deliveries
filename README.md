@@ -1,15 +1,17 @@
 [![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/planetx-vfx/tk-desktop-deliveries?include_prereleases)](https://github.com/planetx-vfx/tk-desktop-deliveries) 
 [![GitHub issues](https://img.shields.io/github/issues/planetx-vfx/tk-desktop-deliveries)](https://github.com/planetx-vfx/tk-desktop-deliveries/issues) 
-[![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-370/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 
 # ShotGrid Deliveries App <img src="icon_256.png" alt="Icon" height="24"/>
 
+App to deliver shots with the correct naming convention.
+
 This app will get all versions with the "Ready for Delivery" status, create slated previews and/or copy the publishes to the delivery folder with the correct naming convention.
 
 ## User interface
 ![delivery_export](https://github.com/nfa-vfxim/tk-desktop-deliveries/assets/63094424/46c7fbab-84c8-401e-8627-eb25b315b313)
+
 
 ## Requirements
 
@@ -44,9 +46,6 @@ This app will get all versions with the "Ready for Delivery" status, create slat
 | `sg_server_path`                   | ShotGrid server path                                                                       |                |
 | `sg_script_name`                   | ShotGrid script name                                                                       |                |
 | `sg_script_key`                    | ShotGrid script key                                                                        |                |
-| `logo_path_linux`                  | Linux path to the company logo.                                                            |                |
-| `logo_path_mac`                    | Mac path to the company logo.                                                              |                |
-| `logo_path_windows`                | Windows path to the company logo.                                                          |                |
 | `font_path_linux`                  | Linux path to the regular font to use.                                                     |                |
 | `font_bold_path_linux`             | Linux path to the bold font to use.                                                        |                |
 | `font_path_mac`                    | Mac path to the regular font to use.                                                       |                |
