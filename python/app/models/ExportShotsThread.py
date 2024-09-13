@@ -172,16 +172,16 @@ class ExportShotsThread(QtCore.QThread):
         if csv_submission_form_path.is_file():
             with open(csv_submission_form_path, "r", newline="") as file:
                 reader = csv.reader(file)
-                entry = {}
                 header = []
                 for i, row in enumerate(reader):
                     if i == 0:
                         header = row
                     else:
+                        entry = {}
                         for j in range(0, len(header)):
                             entry[header[j]] = row[j]
 
-                existing_rows.append(entry)
+                        existing_rows.append(entry)
 
         with open(csv_submission_form_path, "w", newline="") as file:
             writer = csv.writer(file)
