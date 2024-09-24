@@ -90,6 +90,17 @@ configuration:
     allows_empty: True
     description: Status to set the shot to if the EXRs of the shot have been delivered.
 
+  preview_colorspace_idt:
+    type: str
+    default_value: "ACES - ACEScg"
+    allows_empty: True
+    description: Input colorspace of the preview.
+  preview_colorspace_odt:
+    type: str
+    default_value: "Output - sRGB"
+    allows_empty: True
+    description: Output colorspace of the preview.
+
   sg_server_path:
     type: str
     allows_empty: False
