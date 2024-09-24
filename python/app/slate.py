@@ -51,6 +51,7 @@ class ShotGridSlate(object):
             shotgrid_site (str): url for ShotGrid site
             script_name (str): API name for script on ShotGrid
             script_key (str): API key for script on ShotGrid
+            logo_path (str): Path to company logo
             fps (float, optional): fps used by project. Defaults to 25.0.
             company (str, optional): company name to add to slate. Defaults to "ShotGrid".
             colorspace_idt (str, optional): Input colorspace. Defaults to "ACES - ACEScg".
@@ -68,6 +69,7 @@ class ShotGridSlate(object):
         shotgrid_site,
         script_name,
         script_key,
+        logo_path: str,
         fps=25.0,
         company="ShotGrid",
         colorspace_idt="ACES - ACEScg",
@@ -84,6 +86,7 @@ class ShotGridSlate(object):
         self.shotgrid_site = shotgrid_site
         self.script_name = script_name
         self.script_key = script_key
+        self.logo_path = logo_path
         self.fps = fps
         self.company = company
         self.colorspace_idt = colorspace_idt
@@ -402,6 +405,20 @@ class ShotGridSlate(object):
             node["selected"].setValue(False)
 
         slate = nuke.toNode("NETFLIX_TEMPLATE_SLATE")
+
+        if self.logo_path.endswith(".nk"):
+            logo = nuke.nodePaste(self.logo_path)
+
+            for node in nuke.selectedNodes():
+                node["selected"].setValue(False)
+
+            slate.setInput(1, logo)
+        else:
+            logo = nuke.nodes.Read(file=self.logo_path)
+            premult = nuke.nodes.Premult()
+            premult.setInput(0, logo)
+
+            slate.setInput(1, premult)
 
         sg_project = self.__get_project_data()
         sg_version = self.__get_version_data()
