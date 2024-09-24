@@ -221,9 +221,20 @@ class DeliveryView:
         csv_heading_layout.addWidget(csv_label)
         csv_heading_layout.addStretch()
 
-        csv_add_button = QtWidgets.QPushButton("+")
-        csv_add_button.setFixedWidth(24)
-        csv_heading_layout.addWidget(csv_add_button)
+        self.csv_templates = QtWidgets.QComboBox()
+        csv_heading_layout.addWidget(self.csv_templates)
+
+        self.csv_save_button = QtWidgets.QPushButton("Save")
+        self.csv_save_button.setFixedWidth(40)
+        csv_heading_layout.addWidget(self.csv_save_button)
+
+        self.csv_load_button = QtWidgets.QPushButton("Load")
+        self.csv_load_button.setFixedWidth(40)
+        csv_heading_layout.addWidget(self.csv_load_button)
+
+        self.csv_add_button = QtWidgets.QPushButton("+")
+        self.csv_add_button.setFixedWidth(24)
+        csv_heading_layout.addWidget(self.csv_add_button)
 
         csv_heading.setLayout(csv_heading_layout)
         csv_settings_layout.addWidget(csv_heading)

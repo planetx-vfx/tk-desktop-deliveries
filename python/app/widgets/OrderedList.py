@@ -124,6 +124,13 @@ class OrderedList(QtWidgets.QWidget):
         self.items.pop(index)
         item.deleteLater()
 
+    def clear(self):
+        """Clear all items from the list."""
+        for item in self.items:
+            item.deleteLater()
+
+        self.items.clear()
+
     def size(self):
         """Get the amount of items"""
         return len(self.items)

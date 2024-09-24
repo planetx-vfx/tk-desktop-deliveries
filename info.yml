@@ -47,6 +47,11 @@ configuration:
     fields: prj, delivery_date, delivery_version
     description: "Template to deliver the submission form to."
 
+  csv_template_folder:
+    type: template
+    fields: context, *
+    description: "Folder to saves CSV templates."
+
   # --- STRINGS ---
   shot_status_field:
     type: str
