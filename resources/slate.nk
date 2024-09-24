@@ -1099,9 +1099,9 @@ Group {
  addUserKnob {1 f_date l Date t "Date of submission.  \n\nIn the ISO 8601 format YYYY-MM-DD\n\nEx. 2020-03-10\n\nExpression to generate automatically from current system date is provided. \n\n\[date %Y-%m-%d]"}
  f_date "\[date %Y-%m-%d]"
  addUserKnob {3 f_frames_first l "Frames \[First]" t "The frame range and duration of the media in the format \[first]-\[last] (\[duration])\n\n<b>This field is for the first frame. (Including the slate frame.) </b>\n\nEx. 1000-1050 (50)\n\n"}
- f_frames_first {{"first_frame -1" x1 1001 x1000 1001}}
+ f_frames_first 1000
  addUserKnob {3 f_frames_last l "\[Last]" t "The frame range and duration of the media in the format \[first]-\[last] (\[duration])\n\n<b>This field is for the last frame. <b>\n\nEx. 1000-1050 (50)\n\n" -STARTLINE}
- f_frames_last {{last_frame x1 1411 x1000 1411}}
+ f_frames_last 1100
  addUserKnob {3 f_frames_duration l "\[Duration]" t "The frame range and duration of the media in the format \[first]-\[last] (\[duration])\n\n<b>This field is for the duration in frames </b>\n\nEx. 1000-1050 (50)\n\n" -STARTLINE}
  f_frames_duration {{"f_frames_last - f_frames_first" x1 411 x1000 411}}
  addUserKnob {1 f_media_color l "Media Color" t "The colorspace / process that the media is in. Should also tell anyone viewing this media what colorspace they should interpret this media as to view correctly.\n\nExact values for this may vary per show and type of output but in general the format we suggest is\n\[gamma space] / \[color space] \n\nEx.\nrec709 / baked show lut\nor\nlinear / Arri Wide Gamut\n\n"}

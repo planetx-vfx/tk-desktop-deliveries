@@ -431,16 +431,8 @@ class ShotGridSlate(object):
 
         slate["f_show"].setValue(sg_project["name"])
 
-        slate["f_frames_first"].setValue(
-            sg_shot["sg_cut_in"]
-            if sg_shot["sg_cut_in"] is not None
-            else self.last_frame - 1
-        )
-        slate["f_frames_last"].setValue(
-            sg_shot["sg_cut_out"]
-            if sg_shot["sg_cut_out"] is not None
-            else self.last_frame
-        )
+        slate["f_frames_first"].setValue(self.first_frame - 1)
+        slate["f_frames_last"].setValue(self.last_frame)
 
         slate.knob("active_frame").setValue(self.first_frame - 1)
         slate.knob("thumbnail_frame").setValue(
