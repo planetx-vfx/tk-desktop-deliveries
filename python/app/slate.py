@@ -30,12 +30,13 @@ and upload to ShotGrid
 
 from __future__ import annotations
 
-from pathlib import Path
-
-import nuke
-import shotgun_api3
 import os
 import re
+from pathlib import Path
+
+import PyOpenColorIO as OCIO
+import nuke
+import shotgun_api3
 
 
 class ShotGridSlate(object):
@@ -458,9 +459,19 @@ class ShotGridSlate(object):
             slate["f_scene"].setValue(scene)
         slate["f_sequence_name"].setValue(sg_shot["sg_sequence"]["name"])
 
-        slate.knob("f_media_color").setValue(
-            self.colorspace_odt.replace("Output - ", "")
-        )
+        # Get correct colorspaceK
+        config = OCIO.GetCurrentConfig()
+        roles = [
+            role
+            for role in config.getRoles()
+            if role[0] == self.colorspace_odt
+        ]
+        if len(roles) > 0:
+            colorspace_odt = roles[0][1]
+        else:
+            colorspace_odt = self.colorspace_odt
+
+        slate.knob("f_media_color").setValue(colorspace_odt)
 
         if sg_project["sg_vendorid"]:
             slate["f_vendor"].setValue(sg_project["sg_vendorid"])
