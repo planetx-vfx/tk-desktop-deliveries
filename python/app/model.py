@@ -32,6 +32,7 @@ import os
 import shutil
 from pathlib import Path
 from typing import Callable
+from urllib.request import urlretrieve
 
 import sgtk
 
@@ -81,18 +82,21 @@ class DeliveryModel:
 
         if sgtk.util.is_linux():
             self.nuke_path = "{}".format(app.get_setting("nuke_path_linux"))
+            self.logo_path = "{}".format(app.get_setting("logo_path_linux"))
             self.font_path = "{}".format(app.get_setting("font_path_linux"))
             self.font_bold_path = "{}".format(
                 app.get_setting("font_bold_path_linux")
             )
         elif sgtk.util.is_macos():
             self.nuke_path = "{}".format(app.get_setting("nuke_path_mac"))
+            self.logo_path = "{}".format(app.get_setting("logo_path_mac"))
             self.font_path = "{}".format(app.get_setting("font_path_mac"))
             self.font_bold_path = "{}".format(
                 app.get_setting("font_bold_path_mac")
             )
         elif sgtk.util.is_windows():
             self.nuke_path = "{}".format(app.get_setting("nuke_path_windows"))
+            self.logo_path = "{}".format(app.get_setting("logo_path_windows"))
             self.font_path = "{}".format(app.get_setting("font_path_windows"))
             self.font_bold_path = "{}".format(
                 app.get_setting("font_bold_path_windows")
@@ -184,6 +188,7 @@ class DeliveryModel:
             "sg_path_to_movie",
             "sg_submitting_for",
             "sg_delivery_note",
+            "sg_attachment",
             "image",
         ]
 
@@ -418,6 +423,7 @@ class DeliveryModel:
                     path_to_movie=sg_version["sg_path_to_movie"],
                     submitting_for=sg_version["sg_submitting_for"],
                     delivery_note=sg_version["sg_delivery_note"],
+                    attachment=sg_version["sg_attachment"],
                     task=task,
                     deliver_preview=deliver_preview,
                     deliver_sequence=deliver_sequence,
@@ -615,6 +621,7 @@ class DeliveryModel:
             return
 
         try:
+            delivery_folder_template = self.app.get_template("delivery_folder")
             preview_movie_template = self.app.get_template("preview_movie")
             delivery_sequence_template = self.app.get_template(
                 "delivery_sequence"
@@ -634,6 +641,11 @@ class DeliveryModel:
             if fields is not None:
                 template_fields = {**fields, **template_fields}
 
+            # Get the delivery folder
+            delivery_folder = Path(
+                delivery_folder_template.apply_fields(template_fields)
+            )
+
             # Get the output preview path
             output_preview_path = Path(
                 delivery_preview_template.apply_fields(template_fields)
@@ -649,21 +661,18 @@ class DeliveryModel:
 
             # Override delivery location from user settings
             if user_settings.delivery_location is not None:
-                delivery_folder_template = self.app.get_template(
-                    "delivery_folder"
-                )
-                delivery_folder = Path(
-                    delivery_folder_template.apply_fields(template_fields)
-                )
-                base_path = (
+                delivery_folder_name = delivery_folder.name
+                delivery_folder = (
                     Path(user_settings.delivery_location)
-                    / delivery_folder.name
+                    / delivery_folder_name
                 )
 
-                output_preview_path = base_path / output_preview_path.name
+                output_preview_path = (
+                    delivery_folder / output_preview_path.name
+                )
 
                 delivery_sequence_path = (
-                    base_path
+                    delivery_folder
                     / delivery_sequence_path.parent.name
                     / delivery_sequence_path.name
                 )
@@ -689,12 +698,13 @@ class DeliveryModel:
                         self.settings.sg_server_path,
                         self.settings.sg_script_name,
                         self.settings.sg_script_key,
+                        self.logo_path,
                         "--version-id",
                         version.id_str,
                         "-idt",
-                        "Output - Rec.709",
+                        self.settings.preview_colorspace_idt,
                         "-odt",
-                        "Output - Rec.709",
+                        self.settings.preview_colorspace_odt,
                         "--font-path",
                         self.font_path,
                         "--font-bold-path",
@@ -753,6 +763,36 @@ class DeliveryModel:
                 self.logger.info(
                     f"Finished linking {version.sequence_path} to {delivery_sequence_path}."
                 )
+
+            # Deliver attachment
+            if version.attachment is not None:
+                if (
+                    len(
+                        [
+                            value
+                            for key, value in user_settings.csv_fields
+                            if value == ("version", "attachment")
+                        ]
+                    )
+                    > 0
+                ):
+                    name = version.attachment["name"]
+                    if version.attachment["link_type"] == "upload":
+                        url = version.attachment["url"]
+                        urlretrieve(url, delivery_folder / name)
+                    elif version.attachment["link_type"] == "local":
+                        file_path = None
+                        if sgtk.util.is_linux():
+                            file_path = version.attachment["local_path_linux"]
+                        elif sgtk.util.is_macos():
+                            file_path = version.attachment["local_path_mac"]
+                        elif sgtk.util.is_windows():
+                            file_path = version.attachment[
+                                "local_path_windows"
+                            ]
+
+                        if file_path is not None:
+                            shutil.copyfile(file_path, delivery_folder / name)
 
             # Update version data
             version_data = {}

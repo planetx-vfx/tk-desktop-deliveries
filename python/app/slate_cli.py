@@ -15,6 +15,7 @@ parser.add_argument("slate_path", type=str)
 parser.add_argument("shotgrid_site", type=str)
 parser.add_argument("script_name", type=str)
 parser.add_argument("script_key", type=str)
+parser.add_argument("logo_path", type=str)
 
 parser.add_argument(
     "-c", "--company", default="ShotGrid", type=str, metavar="name"

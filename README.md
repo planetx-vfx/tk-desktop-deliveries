@@ -30,6 +30,7 @@ This app will get all versions with the "Ready for Delivery" status, create slat
 | `delivery_sequence`   | Template to deliver the sequences to.       |               | context, prj, delivery_date, delivery_version, task_name, version, SEQ, * |
 | `delivery_preview`    | Template to deliver the previews to.        |               | context, prj, delivery_date, delivery_version, task_name, version, *      |
 | `csv_submission_form` | Template to deliver the submission form to. |               | prj, delivery_date, delivery_version                                      |
+| `csv_template_folder` | Folder to saves CSV templates.              |               | context, *                                                                |
 
 
 ### Strings
@@ -43,9 +44,14 @@ This app will get all versions with the "Ready for Delivery" status, create slat
 | `version_delivered_status`         | Status to set the version to if the EXRs (and preview) of the version have been delivered. | dlvr           |
 | `version_preview_delivered_status` | Status to set the version to if only a preview of the version has been delivered.          | dlvr           |
 | `shot_delivered_status`            | Status to set the shot to if the EXRs of the shot have been delivered.                     | fin            |
+| `preview_colorspace_idt`           | Input colorspace of the preview.                                                           | ACES - ACEScg  |
+| `preview_colorspace_odt`           | Output colorspace of the preview.                                                          | Output - sRGB  |
 | `sg_server_path`                   | ShotGrid server path                                                                       |                |
 | `sg_script_name`                   | ShotGrid script name                                                                       |                |
 | `sg_script_key`                    | ShotGrid script key                                                                        |                |
+| `logo_path_linux`                  | Linux path to the company logo.                                                            |                |
+| `logo_path_mac`                    | Mac path to the company logo.                                                              |                |
+| `logo_path_windows`                | Windows path to the company logo.                                                          |                |
 | `font_path_linux`                  | Linux path to the regular font to use.                                                     |                |
 | `font_bold_path_linux`             | Linux path to the bold font to use.                                                        |                |
 | `font_path_mac`                    | Mac path to the regular font to use.                                                       |                |

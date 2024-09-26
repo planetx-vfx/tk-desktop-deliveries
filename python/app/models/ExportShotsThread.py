@@ -7,6 +7,7 @@ from typing import Callable
 from sgtk.platform.qt5 import QtCore
 
 from . import Version, Deliverables, UserSettings
+from ..external import parse_exr_metadata
 
 
 # # For development only
@@ -220,14 +221,18 @@ class ExportShotsThread(QtCore.QThread):
                                 version_template_fields
                             )
                         ).name
-                        to_deliver.append(sequence_name)
+                        to_deliver.append(
+                            (sequence_name, version.sequence_path)
+                        )
                     if deliverables.deliver_preview:
                         preview_name = Path(
                             delivery_preview_template.apply_fields(
                                 version_template_fields
                             )
                         ).name
-                        to_deliver.append(preview_name)
+                        to_deliver.append(
+                            (preview_name, version.path_to_movie)
+                        )
 
                     csv_data = {}
                     for (
@@ -255,7 +260,7 @@ class ExportShotsThread(QtCore.QThread):
                         else:
                             csv_data[entity] = {}
 
-                    for file_name in to_deliver:
+                    for file_name, source_file_path in to_deliver:
                         csv_fields = []
 
                         for key, value in self.user_settings.csv_fields:
@@ -270,6 +275,47 @@ class ExportShotsThread(QtCore.QThread):
                                     csv_fields.append(file_name)
                                     continue
 
+                                elif (
+                                    field == "codec" or field == "compression"
+                                ):
+                                    if file_name.endswith(".exr"):
+                                        metadata = (
+                                            parse_exr_metadata.read_exr_header(
+                                                source_file_path
+                                                % version.first_frame
+                                            )
+                                        )
+                                        if "compression" in metadata:
+                                            csv_fields.append(
+                                                metadata.get(
+                                                    "compression"
+                                                ).replace("_COMPRESSION", "")
+                                            )
+                                        else:
+                                            csv_fields.append("")
+                                        continue
+                                    else:
+                                        # Set H.264 as the codec is hardcoded in the slate Nuke script
+                                        csv_fields.append("H.264")
+                                        continue
+                                elif field == "folder":
+                                    csv_fields.append(delivery_folder.name)
+                                    continue
+
+                            if entity == "version" and field == "attachment":
+                                if (
+                                    version.attachment is not None
+                                    and version.attachment["link_type"]
+                                    in ["upload", "local"]
+                                ):
+                                    csv_fields.append(
+                                        version.attachment["name"]
+                                    )
+                                    continue
+                                else:
+                                    csv_fields.append("")
+                                    continue
+
                             if entity in csv_data:
                                 if (
                                     field in csv_data[entity]
@@ -281,5 +327,5 @@ class ExportShotsThread(QtCore.QThread):
                             # Add empty string if no value found
                             csv_fields.append("")
 
-                        self.model.logger.info(csv_fields)
+                        self.model.logger.debug(list(zip(header, csv_fields)))
                         writer.writerow(csv_fields)

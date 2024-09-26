@@ -215,15 +215,26 @@ class DeliveryView:
 
         csv_label = QtWidgets.QLabel("CSV Fields (ℹ)")
         csv_label.setToolTip(
-            "<b>Available fields:</b><br>- file.name<br>- project.*<br>- shot.*<br>- version.*<br><br>* are all ShotGrid fields for the corresponding entity.<br>Use {} for an expression, or none for regular text."
+            "<b>Available fields:</b><br>- file.name<br>- file.codec<br>- file.folder<br>- project.*<br>- shot.*<br>- version.*<br><br>* are all ShotGrid fields for the corresponding entity.<br>Use {} for an expression, or none for regular text."
         )
 
         csv_heading_layout.addWidget(csv_label)
         csv_heading_layout.addStretch()
 
-        csv_add_button = QtWidgets.QPushButton("+")
-        csv_add_button.setFixedWidth(24)
-        csv_heading_layout.addWidget(csv_add_button)
+        self.csv_templates = QtWidgets.QComboBox()
+        csv_heading_layout.addWidget(self.csv_templates)
+
+        self.csv_save_button = QtWidgets.QPushButton("Save")
+        self.csv_save_button.setFixedWidth(40)
+        csv_heading_layout.addWidget(self.csv_save_button)
+
+        self.csv_load_button = QtWidgets.QPushButton("Load")
+        self.csv_load_button.setFixedWidth(40)
+        csv_heading_layout.addWidget(self.csv_load_button)
+
+        self.csv_add_button = QtWidgets.QPushButton("+")
+        self.csv_add_button.setFixedWidth(24)
+        csv_heading_layout.addWidget(self.csv_add_button)
 
         csv_heading.setLayout(csv_heading_layout)
         csv_settings_layout.addWidget(csv_heading)

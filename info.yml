@@ -47,6 +47,11 @@ configuration:
     fields: prj, delivery_date, delivery_version
     description: "Template to deliver the submission form to."
 
+  csv_template_folder:
+    type: template
+    fields: context, *
+    description: "Folder to saves CSV templates."
+
   # --- STRINGS ---
   shot_status_field:
     type: str
@@ -90,6 +95,17 @@ configuration:
     allows_empty: True
     description: Status to set the shot to if the EXRs of the shot have been delivered.
 
+  preview_colorspace_idt:
+    type: str
+    default_value: "ACES - ACEScg"
+    allows_empty: True
+    description: Input colorspace of the preview.
+  preview_colorspace_odt:
+    type: str
+    default_value: "Output - sRGB"
+    allows_empty: True
+    description: Output colorspace of the preview.
+
   sg_server_path:
     type: str
     allows_empty: False
@@ -104,6 +120,16 @@ configuration:
     description: ShotGrid script key
 
   # --- PATHS ---
+  logo_path_linux:
+    type: str
+    description: Linux path to the company logo.
+  logo_path_mac:
+    type: str
+    description: Mac path to the company logo.
+  logo_path_windows:
+    type: str
+    description: Windows path to the company logo.
+
   font_path_linux:
     type: str
     description: Linux path to the regular font to use.

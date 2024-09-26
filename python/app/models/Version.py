@@ -35,6 +35,7 @@ class Version:
         task: Task = None,
         submitting_for: str = "",
         delivery_note: str = "",
+        attachment: dict = None,
         deliver_preview: bool = True,
         deliver_sequence: bool = True,
     ):
@@ -59,6 +60,7 @@ class Version:
         self.task = task
         self.submitting_for = submitting_for
         self.delivery_note = delivery_note
+        self.attachment = attachment
 
         self.deliver_preview = deliver_preview
         self.deliver_sequence = deliver_sequence

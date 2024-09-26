@@ -15,6 +15,9 @@ class Settings:
     sg_script_name: str
     sg_script_key: str
 
+    preview_colorspace_idt: str
+    preview_colorspace_odt: str
+
     def __init__(self, app):
         self._app = app
 
@@ -29,5 +32,7 @@ class Settings:
             "sg_server_path",
             "sg_script_name",
             "sg_script_key",
+            "preview_colorspace_idt",
+            "preview_colorspace_odt",
         ]:
             setattr(self, setting, self._app.get_setting(setting))

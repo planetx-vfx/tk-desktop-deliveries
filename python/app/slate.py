@@ -30,12 +30,13 @@ and upload to ShotGrid
 
 from __future__ import annotations
 
-from pathlib import Path
-
-import nuke
-import shotgun_api3
 import os
 import re
+from pathlib import Path
+
+import PyOpenColorIO as OCIO
+import nuke
+import shotgun_api3
 
 
 class ShotGridSlate(object):
@@ -50,6 +51,7 @@ class ShotGridSlate(object):
             shotgrid_site (str): url for ShotGrid site
             script_name (str): API name for script on ShotGrid
             script_key (str): API key for script on ShotGrid
+            logo_path (str): Path to company logo
             fps (float, optional): fps used by project. Defaults to 25.0.
             company (str, optional): company name to add to slate. Defaults to "ShotGrid".
             colorspace_idt (str, optional): Input colorspace. Defaults to "ACES - ACEScg".
@@ -67,6 +69,7 @@ class ShotGridSlate(object):
         shotgrid_site,
         script_name,
         script_key,
+        logo_path: str,
         fps=25.0,
         company="ShotGrid",
         colorspace_idt="ACES - ACEScg",
@@ -83,6 +86,7 @@ class ShotGridSlate(object):
         self.shotgrid_site = shotgrid_site
         self.script_name = script_name
         self.script_key = script_key
+        self.logo_path = logo_path
         self.fps = fps
         self.company = company
         self.colorspace_idt = colorspace_idt
@@ -402,6 +406,20 @@ class ShotGridSlate(object):
 
         slate = nuke.toNode("NETFLIX_TEMPLATE_SLATE")
 
+        if self.logo_path.endswith(".nk"):
+            logo = nuke.nodePaste(self.logo_path)
+
+            for node in nuke.selectedNodes():
+                node["selected"].setValue(False)
+
+            slate.setInput(1, logo)
+        else:
+            logo = nuke.nodes.Read(file=self.logo_path)
+            premult = nuke.nodes.Premult()
+            premult.setInput(0, logo)
+
+            slate.setInput(1, premult)
+
         sg_project = self.__get_project_data()
         sg_version = self.__get_version_data()
         sg_shot = self.__get_shot_data(sg_version)
@@ -430,16 +448,8 @@ class ShotGridSlate(object):
 
         slate["f_show"].setValue(sg_project["name"])
 
-        slate["f_frames_first"].setValue(
-            sg_shot["sg_cut_in"]
-            if sg_shot["sg_cut_in"] is not None
-            else self.last_frame - 1
-        )
-        slate["f_frames_last"].setValue(
-            sg_shot["sg_cut_out"]
-            if sg_shot["sg_cut_out"] is not None
-            else self.last_frame
-        )
+        slate["f_frames_first"].setValue(self.first_frame - 1)
+        slate["f_frames_last"].setValue(self.last_frame)
 
         slate.knob("active_frame").setValue(self.first_frame - 1)
         slate.knob("thumbnail_frame").setValue(
@@ -458,9 +468,19 @@ class ShotGridSlate(object):
             slate["f_scene"].setValue(scene)
         slate["f_sequence_name"].setValue(sg_shot["sg_sequence"]["name"])
 
-        slate.knob("f_media_color").setValue(
-            self.colorspace_odt.replace("Output - ", "")
-        )
+        # Get correct colorspaceK
+        config = OCIO.GetCurrentConfig()
+        roles = [
+            role
+            for role in config.getRoles()
+            if role[0] == self.colorspace_odt
+        ]
+        if len(roles) > 0:
+            colorspace_odt = roles[0][1]
+        else:
+            colorspace_odt = self.colorspace_odt
+
+        slate.knob("f_media_color").setValue(colorspace_odt)
 
         if sg_project["sg_vendorid"]:
             slate["f_vendor"].setValue(sg_project["sg_vendorid"])
