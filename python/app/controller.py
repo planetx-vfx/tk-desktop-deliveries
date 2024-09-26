@@ -392,7 +392,12 @@ class DeliveryController(QtWidgets.QWidget):
                                 "shot",
                                 "version",
                             ]:
-                                if entity == "file" and field != "name":
+                                if entity == "file" and field not in [
+                                    "name",
+                                    "codec",
+                                    "compression",
+                                    "folder",
+                                ]:
                                     success = False
 
                                 # Add field as expression

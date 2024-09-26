@@ -215,7 +215,7 @@ class DeliveryView:
 
         csv_label = QtWidgets.QLabel("CSV Fields (ℹ)")
         csv_label.setToolTip(
-            "<b>Available fields:</b><br>- file.name<br>- project.*<br>- shot.*<br>- version.*<br><br>* are all ShotGrid fields for the corresponding entity.<br>Use {} for an expression, or none for regular text."
+            "<b>Available fields:</b><br>- file.name<br>- file.codec<br>- file.folder<br>- project.*<br>- shot.*<br>- version.*<br><br>* are all ShotGrid fields for the corresponding entity.<br>Use {} for an expression, or none for regular text."
         )
 
         csv_heading_layout.addWidget(csv_label)

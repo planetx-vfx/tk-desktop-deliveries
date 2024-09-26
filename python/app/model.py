@@ -187,6 +187,7 @@ class DeliveryModel:
             "sg_path_to_movie",
             "sg_submitting_for",
             "sg_delivery_note",
+            "sg_attachment",
             "image",
         ]
 
@@ -421,6 +422,7 @@ class DeliveryModel:
                     path_to_movie=sg_version["sg_path_to_movie"],
                     submitting_for=sg_version["sg_submitting_for"],
                     delivery_note=sg_version["sg_delivery_note"],
+                    attachment=sg_version["sg_attachment"],
                     task=task,
                     deliver_preview=deliver_preview,
                     deliver_sequence=deliver_sequence,
