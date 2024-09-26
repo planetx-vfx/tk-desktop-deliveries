@@ -30,6 +30,7 @@ This app will get all versions with the "Ready for Delivery" status, create slat
 | `delivery_sequence`   | Template to deliver the sequences to.       |               | context, prj, delivery_date, delivery_version, task_name, version, SEQ, * |
 | `delivery_preview`    | Template to deliver the previews to.        |               | context, prj, delivery_date, delivery_version, task_name, version, *      |
 | `csv_submission_form` | Template to deliver the submission form to. |               | prj, delivery_date, delivery_version                                      |
+| `csv_template_folder` | Folder to saves CSV templates.              |               | context, *                                                                |
 
 
 ### Strings
