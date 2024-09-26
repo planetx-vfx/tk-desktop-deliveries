@@ -89,7 +89,9 @@ class DeliveryController(QtWidgets.QWidget):
         )
         self.view.csv_add_button.clicked.connect(self.add_csv_entry)
         self.view.csv_save_button.clicked.connect(self.save_csv_template)
-        self.view.csv_load_button.clicked.connect(self.load_csv_template)
+        self.view.csv_load_button.clicked.connect(
+            lambda: self.load_csv_template()
+        )
 
     def load_shots(self):
         """Clear the olds shots, then fetches the shots on the model."""
@@ -155,10 +157,15 @@ class DeliveryController(QtWidgets.QWidget):
         ):
             for f in file_names:
                 if f.endswith(".csv"):
-                    self.load_csv_template_file(os.path.join(dir_path, f))
+                    data = self.load_csv_template_file(
+                        os.path.join(dir_path, f)
+                    )
+
+                    if f == "Default.csv":
+                        self.load_csv_template(data)
             break
 
-    def load_csv_template_file(self, file_path: str):
+    def load_csv_template_file(self, file_path: str) -> list:
         """
         Load the data from a csv template file.
 
@@ -175,6 +182,8 @@ class DeliveryController(QtWidgets.QWidget):
             file_name = Path(file_path).stem
 
             self.view.csv_templates.addItem(file_name, userData=data)
+
+            return data
 
     def open_delivery_folder(self):
         """Opens the delivery folder."""
@@ -232,11 +241,17 @@ class DeliveryController(QtWidgets.QWidget):
 
             self.load_csv_templates()
 
-    def load_csv_template(self):
+    def load_csv_template(self, csv_data: dict = None):
         """Load the selected CSV template."""
+        if csv_data is None:
+            csv_data = self.view.csv_templates.currentData()
+
+        if csv_data is None:
+            return
+
         self.view.settings["csv_fields"].clear()
 
-        for key, value in self.view.csv_templates.currentData():
+        for key, value in csv_data:
             self.view.settings["csv_fields"].add_item(key, value)
 
     def export_versions(self):
