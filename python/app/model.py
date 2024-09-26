@@ -32,6 +32,7 @@ import os
 import shutil
 from pathlib import Path
 from typing import Callable
+from urllib.request import urlretrieve
 
 import sgtk
 
@@ -620,6 +621,7 @@ class DeliveryModel:
             return
 
         try:
+            delivery_folder_template = self.app.get_template("delivery_folder")
             preview_movie_template = self.app.get_template("preview_movie")
             delivery_sequence_template = self.app.get_template(
                 "delivery_sequence"
@@ -639,6 +641,11 @@ class DeliveryModel:
             if fields is not None:
                 template_fields = {**fields, **template_fields}
 
+            # Get the delivery folder
+            delivery_folder = Path(
+                delivery_folder_template.apply_fields(template_fields)
+            )
+
             # Get the output preview path
             output_preview_path = Path(
                 delivery_preview_template.apply_fields(template_fields)
@@ -654,21 +661,18 @@ class DeliveryModel:
 
             # Override delivery location from user settings
             if user_settings.delivery_location is not None:
-                delivery_folder_template = self.app.get_template(
-                    "delivery_folder"
-                )
-                delivery_folder = Path(
-                    delivery_folder_template.apply_fields(template_fields)
-                )
-                base_path = (
+                delivery_folder_name = delivery_folder.name
+                delivery_folder = (
                     Path(user_settings.delivery_location)
-                    / delivery_folder.name
+                    / delivery_folder_name
                 )
 
-                output_preview_path = base_path / output_preview_path.name
+                output_preview_path = (
+                    delivery_folder / output_preview_path.name
+                )
 
                 delivery_sequence_path = (
-                    base_path
+                    delivery_folder
                     / delivery_sequence_path.parent.name
                     / delivery_sequence_path.name
                 )
@@ -759,6 +763,36 @@ class DeliveryModel:
                 self.logger.info(
                     f"Finished linking {version.sequence_path} to {delivery_sequence_path}."
                 )
+
+            # Deliver attachment
+            if version.attachment is not None:
+                if (
+                    len(
+                        [
+                            value
+                            for key, value in user_settings.csv_fields
+                            if value == ("version", "attachment")
+                        ]
+                    )
+                    > 0
+                ):
+                    name = version.attachment["name"]
+                    if version.attachment["link_type"] == "upload":
+                        url = version.attachment["url"]
+                        urlretrieve(url, delivery_folder / name)
+                    elif version.attachment["link_type"] == "local":
+                        file_path = None
+                        if sgtk.util.is_linux():
+                            file_path = version.attachment["local_path_linux"]
+                        elif sgtk.util.is_macos():
+                            file_path = version.attachment["local_path_mac"]
+                        elif sgtk.util.is_windows():
+                            file_path = version.attachment[
+                                "local_path_windows"
+                            ]
+
+                        if file_path is not None:
+                            shutil.copyfile(file_path, delivery_folder / name)
 
             # Update version data
             version_data = {}
