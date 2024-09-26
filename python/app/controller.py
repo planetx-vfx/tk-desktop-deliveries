@@ -27,6 +27,9 @@ Updated by Max de Groot 2024.
 """
 from __future__ import annotations
 
+import csv
+import os
+import re
 from pathlib import Path
 
 import sgtk
@@ -65,6 +68,7 @@ class DeliveryController(QtWidgets.QWidget):
         )
         self.connect_buttons()
         self.load_shots()
+        self.load_csv_templates()
 
     def closeEvent(self, event):
         """
@@ -83,6 +87,9 @@ class DeliveryController(QtWidgets.QWidget):
         self.view.open_delivery_folder_button.clicked.connect(
             self.open_delivery_folder
         )
+        self.view.csv_add_button.clicked.connect(self.add_csv_entry)
+        self.view.csv_save_button.clicked.connect(self.save_csv_template)
+        self.view.csv_load_button.clicked.connect(self.load_csv_template)
 
     def load_shots(self):
         """Clear the olds shots, then fetches the shots on the model."""
@@ -128,9 +135,109 @@ class DeliveryController(QtWidgets.QWidget):
             QtWidgets.QLabel("Error while loading shots. Please check logs!")
         )
 
+    def load_csv_templates(self):
+        """Load CSV Template files"""
+        csv_template_folder_template = self.model.app.get_template(
+            "csv_template_folder"
+        )
+        self.csv_template_folder = Path(
+            csv_template_folder_template.apply_fields({})
+        )
+
+        self.view.csv_templates.clear()
+
+        if not self.csv_template_folder.is_dir():
+            self.csv_template_folder.mkdir(exist_ok=True)
+            return
+
+        for dir_path, dir_names, file_names in os.walk(
+            self.csv_template_folder
+        ):
+            for f in file_names:
+                if f.endswith(".csv"):
+                    self.load_csv_template_file(os.path.join(dir_path, f))
+            break
+
+    def load_csv_template_file(self, file_path: str):
+        """
+        Load the data from a csv template file.
+
+        Args:
+            file_path: CSV file path
+        """
+        logger.debug(f"Loading CSV template: {file_path}")
+
+        with open(file_path, "r", newline="") as file:
+            reader = csv.reader(file)
+            rows = list(reader)
+            data = list(zip(rows[0], rows[1]))
+
+            file_name = Path(file_path).stem
+
+            self.view.csv_templates.addItem(file_name, userData=data)
+
     def open_delivery_folder(self):
         """Opens the delivery folder."""
         self.model.open_delivery_folder()
+
+    def add_csv_entry(self):
+        """Add an entry to the CSV list."""
+        self.view.settings["csv_fields"].add_item("", "")
+
+    def save_csv_template(self):
+        """Save current CSV template."""
+        text, ok = QtWidgets.QInputDialog.getText(
+            self, "Save CSV Template", "Enter the template name:"
+        )
+        if not ok:
+            return
+
+        if text == "":
+            dialog = QtWidgets.QMessageBox(self)
+            dialog.setWindowTitle("Failed")
+            dialog.setText("Failed saving template. Name is empty.")
+            dialog.exec()
+            return
+
+        if not re.match(r"^[a-zA-Z0-9 _-]+$", text):
+            dialog = QtWidgets.QMessageBox(self)
+            dialog.setWindowTitle("Failed")
+            dialog.setText(
+                "Failed saving template. Please only use [a-zA-Z0-9_- ]"
+            )
+            dialog.exec()
+            return
+
+        csv_template_path = self.csv_template_folder / f"{text}.csv"
+
+        user_settings = self.get_user_settings()
+
+        with open(csv_template_path, "w", newline="") as file:
+            writer = csv.writer(file)
+            header = [key for key, value in user_settings.csv_fields]
+            keys = [
+                value if isinstance(value, str) else f"{{{'.'.join(value)}}}"
+                for key, value in user_settings.csv_fields
+            ]
+
+            writer.writerow(header)
+            writer.writerow(keys)
+
+            dialog = QtWidgets.QMessageBox(self)
+            dialog.setWindowTitle("Success")
+            dialog.setText("Saved template")
+            dialog.exec()
+
+            file.close()
+
+            self.load_csv_templates()
+
+    def load_csv_template(self):
+        """Load the selected CSV template."""
+        self.view.settings["csv_fields"].clear()
+
+        for key, value in self.view.csv_templates.currentData():
+            self.view.settings["csv_fields"].add_item(key, value)
 
     def export_versions(self):
         """Runs the export function on the model."""
