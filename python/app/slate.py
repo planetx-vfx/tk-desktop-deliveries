@@ -468,17 +468,17 @@ class ShotGridSlate(object):
             slate["f_scene"].setValue(scene)
         slate["f_sequence_name"].setValue(sg_shot["sg_sequence"]["name"])
 
-        # Get correct colorspaceK
-        config = OCIO.GetCurrentConfig()
-        roles = [
-            role
-            for role in config.getRoles()
-            if role[0] == self.colorspace_odt
-        ]
-        if len(roles) > 0:
-            colorspace_odt = roles[0][1]
-        else:
-            colorspace_odt = self.colorspace_odt
+        # Get correct colorspace
+        colorspace_odt = self.colorspace_odt
+        if "OCIO" in os.environ:
+            config = OCIO.GetCurrentConfig()
+            roles = [
+                role
+                for role in config.getRoles()
+                if role[0] == self.colorspace_odt
+            ]
+            if len(roles) > 0:
+                colorspace_odt = roles[0][1]
 
         slate.knob("f_media_color").setValue(colorspace_odt)
 
