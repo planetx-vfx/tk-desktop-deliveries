@@ -149,7 +149,7 @@ class DeliveryController(QtWidgets.QWidget):
         self.view.csv_templates.clear()
 
         if not self.csv_template_folder.is_dir():
-            self.csv_template_folder.mkdir(exist_ok=True)
+            self.csv_template_folder.mkdir(parents=True, exist_ok=True)
             return
 
         for dir_path, dir_names, file_names in os.walk(
