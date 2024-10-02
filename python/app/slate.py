@@ -74,6 +74,7 @@ class ShotGridSlate(object):
         company="ShotGrid",
         colorspace_idt="ACES - ACEScg",
         colorspace_odt="Output - sRGB",
+        timecode_ref: str = None,
         publish_id: int = None,
         version_id: int = None,
         font_path: str = None,
@@ -91,6 +92,7 @@ class ShotGridSlate(object):
         self.company = company
         self.colorspace_idt = colorspace_idt
         self.colorspace_odt = colorspace_odt
+        self.timecode_ref = timecode_ref.replace(os.sep, "/")
         self.publish_id = publish_id
         self.version_id = version_id
         self.font_path = font_path
@@ -401,16 +403,34 @@ class ShotGridSlate(object):
         # Create slate node
         nuke.nodePaste(slate_node_path)
 
-        for node in nuke.selectedNodes():
-            node["selected"].setValue(False)
-
+        input = nuke.toNode("INPUT")
+        add_timecode = nuke.toNode("AddTimeCode")
         slate = nuke.toNode("NETFLIX_TEMPLATE_SLATE")
+
+        # Set read node as input for slate node
+        input.setInput(0, read_node)
+
+        print("TIMECODE", self.timecode_ref)
+        if self.timecode_ref is not None:
+            timecode = nuke.nodes.Read(file=self.timecode_ref)
+            timecode["name"].setValue("Timecode")
+            timecode["first"].setValue(self.first_frame)
+            timecode["last"].setValue(self.last_frame)
+            timecode["origfirst"].setValue(self.first_frame)
+            timecode["origlast"].setValue(self.last_frame)
+
+        if (
+            add_timecode.metadata("input/timecode", self.first_frame)
+            == "00:00:00:00"
+        ):
+            time = slate.node("AddTimeCode1")
+            time.knob("startcode").setValue("0")
+            time.knob("frame").setValue(self.first_frame - 1)
+
+        add_timecode.knob("frame").setValue(self.first_frame)
 
         if self.logo_path.endswith(".nk"):
             logo = nuke.nodePaste(self.logo_path)
-
-            for node in nuke.selectedNodes():
-                node["selected"].setValue(False)
 
             slate.setInput(1, logo)
         else:
@@ -456,11 +476,6 @@ class ShotGridSlate(object):
             int((self.first_frame + self.last_frame) / 2)
         )
 
-        # Manual AddTimeCode fix
-        time = slate.node("AddTimeCode1")
-        time.knob("startcode").setValue("0")
-        time.knob("frame").setValue(self.first_frame)
-
         # TODO Actual episode implementation
         if "_" in sg_shot["sg_sequence"]["name"]:
             episode, scene = sg_shot["sg_sequence"]["name"].split("_")
@@ -488,9 +503,6 @@ class ShotGridSlate(object):
         # Set fonts
         slate.knob("font").setValue(self.font_path)
         slate.knob("font_bold").setValue(self.font_bold_path)
-
-        # Set read node as input for slate node
-        slate.setInput(0, read_node)
 
         # Return created node
         return slate

@@ -34,6 +34,9 @@ parser.add_argument(
     type=str,
     metavar="colorspace",
 )
+parser.add_argument(
+    "--timecode-ref", type=str, help="Path to sequence with correct timecode"
+)
 
 shotgrid = parser.add_argument_group("ShotGrid")
 shotgrid.add_argument(

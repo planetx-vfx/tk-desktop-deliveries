@@ -27,6 +27,11 @@ configuration:
     fields: context, *
     description: "Template of the preview files."
 
+  input_sequence:
+    type: template
+    fields: context, version, SEQ, *
+    description: "Template to deliver the sequences from."
+
   delivery_folder:
     type: template
     fields: prj, delivery_date, delivery_version

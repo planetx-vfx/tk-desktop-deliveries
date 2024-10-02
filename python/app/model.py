@@ -621,6 +621,7 @@ class DeliveryModel:
             return
 
         try:
+            input_sequence_template = self.app.get_template("input_sequence")
             delivery_folder_template = self.app.get_template("delivery_folder")
             preview_movie_template = self.app.get_template("preview_movie")
             delivery_sequence_template = self.app.get_template(
@@ -640,6 +641,24 @@ class DeliveryModel:
             )
             if fields is not None:
                 template_fields = {**fields, **template_fields}
+
+            # Get timecode ref path
+            timecode_template_fields = {**template_fields, "version": 0}
+            timecode_ref_path = None
+            input_sequence = Path(
+                input_sequence_template.apply_fields(timecode_template_fields)
+            )
+            self.logger.info("input_sequence")
+            self.logger.info(input_sequence)
+            input_frame = input_sequence.with_name(
+                input_sequence.name % version.first_frame
+            )
+            if input_frame.is_file():
+                timecode_ref_path = input_sequence
+            else:
+                input_sequence = Path(version.sequence_path)
+                if Path(version.sequence_path % version.first_frame).is_file():
+                    timecode_ref_path = input_sequence
 
             # Get the delivery folder
             delivery_folder = Path(
@@ -685,31 +704,34 @@ class DeliveryModel:
                     update_progress_bars,
                     0.5 if deliverables.deliver_sequence else 1.0,
                 )
+                args = [
+                    "-t",
+                    self.slate_path,
+                    str(version.first_frame),
+                    str(version.last_frame),
+                    str(version.fps),
+                    preview_movie_file.as_posix(),
+                    output_preview_path.as_posix(),
+                    self.settings.sg_server_path,
+                    self.settings.sg_script_name,
+                    self.settings.sg_script_key,
+                    self.logo_path,
+                    "--version-id",
+                    version.id_str,
+                    "-idt",
+                    self.settings.preview_colorspace_idt,
+                    "-odt",
+                    self.settings.preview_colorspace_odt,
+                    "--font-path",
+                    self.font_path,
+                    "--font-bold-path",
+                    self.font_bold_path,
+                ]
+                if timecode_ref_path is not None:
+                    args.extend(["--timecode-ref", str(timecode_ref_path)])
                 process.run(
                     self.nuke_path,
-                    [
-                        "-t",
-                        self.slate_path,
-                        str(version.first_frame),
-                        str(version.last_frame),
-                        str(version.fps),
-                        preview_movie_file.as_posix(),
-                        output_preview_path.as_posix(),
-                        self.settings.sg_server_path,
-                        self.settings.sg_script_name,
-                        self.settings.sg_script_key,
-                        self.logo_path,
-                        "--version-id",
-                        version.id_str,
-                        "-idt",
-                        self.settings.preview_colorspace_idt,
-                        "-odt",
-                        self.settings.preview_colorspace_odt,
-                        "--font-path",
-                        self.font_path,
-                        "--font-bold-path",
-                        self.font_bold_path,
-                    ],
+                    args,
                 )
 
                 self.logger.info(
