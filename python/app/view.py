@@ -203,11 +203,7 @@ class DeliveryView:
         self.settings_widget.addWidget(delivery_location)
 
         # --- CSV ---
-        csv_settings = QtWidgets.QWidget()
-        csv_settings_layout = QtWidgets.QVBoxLayout()
-        csv_settings_layout.setContentsMargins(0, 0, 0, 0)
-        csv_settings_layout.setSpacing(8)
-        csv_settings.setLayout(csv_settings_layout)
+        csv_settings = Collapse(title="CSV")
 
         csv_heading = QtWidgets.QWidget()
         csv_heading_layout = QtWidgets.QHBoxLayout()
@@ -237,7 +233,7 @@ class DeliveryView:
         csv_heading_layout.addWidget(self.csv_add_button)
 
         csv_heading.setLayout(csv_heading_layout)
-        csv_settings_layout.addWidget(csv_heading)
+        csv_settings.addWidget(csv_heading)
 
         self.settings["csv_fields"] = OrderedList()
         self.settings["csv_fields"].add_item("Version Name", "{file.name}")
@@ -252,7 +248,7 @@ class DeliveryView:
         self.settings["csv_fields"].add_item(
             "Submission Note", "{version.sg_delivery_note}"
         )
-        csv_settings_layout.addWidget(self.settings["csv_fields"])
+        csv_settings.addWidget(self.settings["csv_fields"])
 
         self.settings_widget.addWidget(csv_settings)
 
