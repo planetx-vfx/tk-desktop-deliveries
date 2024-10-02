@@ -344,7 +344,7 @@ class ShotGridSlate(object):
             return self.sg.find_one(
                 "Project",
                 [["id", "is", entity["project"]["id"]]],
-                ["name", "sg_vendorid"],
+                ["name", "sg_vendorid", "sg_output_preview_aspect_ratio"],
             )
         else:
             return None
@@ -405,6 +405,7 @@ class ShotGridSlate(object):
 
         input = nuke.toNode("INPUT")
         add_timecode = nuke.toNode("AddTimeCode")
+        letterbox = nuke.toNode("Letterbox")
         slate = nuke.toNode("NETFLIX_TEMPLATE_SLATE")
 
         # Set read node as input for slate node
@@ -450,6 +451,16 @@ class ShotGridSlate(object):
             self.publish_id = sg_version["published_files"][0]["id"]
             sg_publish = self.__get_publish_data()
             version_number = sg_publish["version_number"]
+
+        if (
+            sg_project["sg_output_preview_aspect_ratio"] is not None
+            and sg_project["sg_output_preview_aspect_ratio"] != ""
+        ):
+            letterbox.knob("ratio").setValue(
+                float(sg_project["sg_output_preview_aspect_ratio"]), 0
+            )
+            letterbox.knob("ratio").setValue(1, 1)
+            letterbox.knob("disable").setValue(False)
 
         # print(sg_project)
         # print(sg_version)
