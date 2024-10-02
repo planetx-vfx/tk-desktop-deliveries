@@ -26,6 +26,7 @@ This app will get all versions with the "Ready for Delivery" status, create slat
 | Name                  | Description                                 | Default value | Fields                                                                    |
 |-----------------------|---------------------------------------------|---------------|---------------------------------------------------------------------------|
 | `preview_movie`       | Template of the preview files.              |               | context, *                                                                |
+| `input_sequence`      | Template to deliver the sequences from.     |               | context, version, SEQ, *                                                  |
 | `delivery_folder`     | Folder to deliver to.                       |               | prj, delivery_date, delivery_version                                      |
 | `delivery_sequence`   | Template to deliver the sequences to.       |               | context, prj, delivery_date, delivery_version, task_name, version, SEQ, * |
 | `delivery_preview`    | Template to deliver the previews to.        |               | context, prj, delivery_date, delivery_version, task_name, version, *      |
