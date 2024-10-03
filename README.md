@@ -5,6 +5,9 @@
 
 # ShotGrid Deliveries App <img src="icon_256.png" alt="Icon" height="24"/>
 
+[![Documentation](https://img.shields.io/badge/documentation-blue?style=for-the-badge)](https://github.com/planetx-vfx/tk-desktop-deliveries#readme)
+[![Support](https://img.shields.io/badge/support-orange?style=for-the-badge)](https://github.com/planetx-vfx/tk-desktop-deliveries/issues)
+
 App to deliver shots with the correct naming convention.
 
 This app will get all versions with the "Ready for Delivery" status, create slated previews and/or copy the publishes to the delivery folder with the correct naming convention.
