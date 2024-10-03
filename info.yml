@@ -175,6 +175,8 @@ requires_shotgun_fields:
 # More verbose description of this item
 display_name: "ShotGrid Deliveries App"
 description: "App to deliver shots with the correct naming convention."
+documentation_url: "https://github.com/planetx-vfx/tk-desktop-deliveries#readme"
+support_url: "https://github.com/planetx-vfx/tk-desktop-deliveries/issues"
 
 # Required minimum versions for this item to run
 requires_shotgun_version:
