@@ -39,8 +39,6 @@ from . import model, view
 from .models import Version, Deliverables, UserSettings, Letterbox
 from .widgets import OrderedListItem
 
-logger = sgtk.platform.get_logger(__name__)
-
 
 def open_delivery_app(app_instance):
     """
@@ -62,6 +60,7 @@ class DeliveryController(QtWidgets.QWidget):
         Initializes the controller.
         """
         self.app = sgtk.platform.current_bundle()
+        self.logger = self.app.logger
         self.view = view.DeliveryView()
         self.view.create_user_interface(self)
         self.model = model.DeliveryModel(self)
@@ -75,7 +74,7 @@ class DeliveryController(QtWidgets.QWidget):
         Args:
             event: Close event
         """
-        logger.info("Quitting...")
+        self.logger.info("Quitting...")
         self.model.quit()
         event.accept()
 
@@ -129,7 +128,7 @@ class DeliveryController(QtWidgets.QWidget):
         Args:
             error: Error message from model
         """
-        logger.error(f"Error while loading shots:\n{error}")
+        self.logger.error(f"Error while loading shots:\n{error}")
         self.view.loading_widget.hide()
         self.view.shots_list_widget_layout.setAlignment(QtCore.Qt.AlignTop)
         self.view.shots_list_widget_layout.addWidget(
@@ -171,7 +170,7 @@ class DeliveryController(QtWidgets.QWidget):
         Args:
             file_path: CSV file path
         """
-        logger.debug(f"Loading CSV template: {file_path}")
+        self.logger.debug(f"Loading CSV template: {file_path}")
 
         with open(file_path, "r", newline="") as file:
             reader = csv.reader(file)
