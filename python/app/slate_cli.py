@@ -37,6 +37,12 @@ parser.add_argument(
 parser.add_argument(
     "--timecode-ref", type=str, help="Path to sequence with correct timecode"
 )
+parser.add_argument(
+    "-lb",
+    "--letterbox",
+    type=str,
+    help="Letterbox overlay settings. Format: <width>:<height>/<opacity>",
+)
 
 shotgrid = parser.add_argument_group("ShotGrid")
 shotgrid.add_argument(

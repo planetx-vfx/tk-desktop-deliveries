@@ -16,6 +16,7 @@ class Collapse(QtWidgets.QWidget):
         self._content, self._content_layout = (None, None)
 
         self._main_v_layout = QtWidgets.QVBoxLayout(self)
+        self._main_v_layout.setSpacing(0)
         self._main_v_layout.setContentsMargins(0, 0, 0, 0)
 
         self._header = self.Header(title=title, collapsed=self._is_collapsed)
@@ -26,7 +27,7 @@ class Collapse(QtWidgets.QWidget):
         self._content = QtWidgets.QWidget()
         self._content.setObjectName("collapse")
         self._content.setStyleSheet(
-            "QWidget#collapse { background-color: #3a3a3a; }"
+            "QWidget#collapse { background-color: rgba(0, 0, 0, 0.14); }"
         )
 
         self._content.setLayout(self._content_layout)

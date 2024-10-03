@@ -36,10 +36,8 @@ import sgtk
 from sgtk.platform.qt5 import QtWidgets, QtCore
 
 from . import model, view
-from .models import Version, Deliverables, UserSettings
+from .models import Version, Deliverables, UserSettings, Letterbox
 from .widgets import OrderedListItem
-
-logger = sgtk.platform.get_logger(__name__)
 
 
 def open_delivery_app(app_instance):
@@ -61,11 +59,11 @@ class DeliveryController(QtWidgets.QWidget):
         """
         Initializes the controller.
         """
+        self.app = sgtk.platform.current_bundle()
+        self.logger = self.app.logger
         self.view = view.DeliveryView()
         self.view.create_user_interface(self)
-        self.model = model.DeliveryModel(
-            sgtk.platform.current_bundle(), logger
-        )
+        self.model = model.DeliveryModel(self)
         self.connect_buttons()
         self.load_shots()
         self.load_csv_templates()
@@ -76,7 +74,7 @@ class DeliveryController(QtWidgets.QWidget):
         Args:
             event: Close event
         """
-        logger.info("Quitting...")
+        self.logger.info("Quitting...")
         self.model.quit()
         event.accept()
 
@@ -130,7 +128,7 @@ class DeliveryController(QtWidgets.QWidget):
         Args:
             error: Error message from model
         """
-        logger.error(f"Error while loading shots:\n{error}")
+        self.logger.error(f"Error while loading shots:\n{error}")
         self.view.loading_widget.hide()
         self.view.shots_list_widget_layout.setAlignment(QtCore.Qt.AlignTop)
         self.view.shots_list_widget_layout.addWidget(
@@ -139,7 +137,7 @@ class DeliveryController(QtWidgets.QWidget):
 
     def load_csv_templates(self):
         """Load CSV Template files"""
-        csv_template_folder_template = self.model.app.get_template(
+        csv_template_folder_template = self.app.get_template(
             "csv_template_folder"
         )
         self.csv_template_folder = Path(
@@ -172,7 +170,7 @@ class DeliveryController(QtWidgets.QWidget):
         Args:
             file_path: CSV file path
         """
-        logger.debug(f"Loading CSV template: {file_path}")
+        self.logger.debug(f"Loading CSV template: {file_path}")
 
         with open(file_path, "r", newline="") as file:
             reader = csv.reader(file)
@@ -184,6 +182,18 @@ class DeliveryController(QtWidgets.QWidget):
             self.view.csv_templates.addItem(file_name, userData=data)
 
             return data
+
+    def load_letterbox_defaults(self, project):
+        """Load the default letterbox settings from the ShotGrid project"""
+        self.view.settings["letterbox_enable"].setChecked(
+            project["sg_output_preview_enable_mask"]
+        )
+
+        if project["sg_output_preview_aspect_ratio"] is not None:
+            self.view.settings["letterbox_w"].setText(
+                project["sg_output_preview_aspect_ratio"]
+            )
+            self.view.settings["letterbox_h"].setText("1")
 
     def open_delivery_folder(self):
         """Opens the delivery folder."""
@@ -386,6 +396,19 @@ class DeliveryController(QtWidgets.QWidget):
                 )
                 return None
 
+        letterbox = None
+        if (
+            self.view.settings["letterbox_enable"].isChecked()
+            and self.view.settings["letterbox_w"].text() != ""
+            and self.view.settings["letterbox_h"].text() != ""
+            and self.view.settings["letterbox_opacity"].text() != ""
+        ):
+            letterbox = Letterbox(
+                float(self.view.settings["letterbox_w"].text()),
+                float(self.view.settings["letterbox_h"].text()),
+                float(self.view.settings["letterbox_opacity"].text()),
+            )
+
         csv_fields = []
         csv_success = True
         if self.view.settings["csv_fields"].size() > 0:
@@ -439,4 +462,6 @@ class DeliveryController(QtWidgets.QWidget):
         if not csv_success:
             return None
 
-        return UserSettings(delivery_version, delivery_location, csv_fields)
+        return UserSettings(
+            delivery_version, delivery_location, letterbox, csv_fields
+        )
