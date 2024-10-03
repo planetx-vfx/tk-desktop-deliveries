@@ -1,19 +1,24 @@
 from __future__ import annotations
 
+from . import Letterbox
+
 
 class UserSettings:
     delivery_version: int = None
     delivery_location: str = None
+    letterbox: Letterbox = None
     csv_fields: list[tuple[str, tuple[str, str] | str]] = []
 
     def __init__(
         self,
         delivery_version: int = None,
         delivery_location: str = None,
+        letterbox: Letterbox = None,
         csv_fields: list[tuple[str, tuple[str, str] | str]] = None,
     ):
         self.delivery_version = delivery_version
         self.delivery_location = delivery_location
+        self.letterbox = letterbox
 
         if csv_fields is None:
             csv_fields = []

@@ -202,6 +202,58 @@ class DeliveryView:
 
         self.settings_widget.addWidget(delivery_location)
 
+        # --- Letterbox ---
+        self.settings["letterbox_w"] = QtWidgets.QLineEdit()
+        self.settings["letterbox_w"].setFixedWidth(40)
+        self.settings["letterbox_w"].setValidator(QtGui.QDoubleValidator())
+        self.settings["letterbox_w"].setText("16")
+        self.settings["letterbox_w"].setDisabled(True)
+
+        letterbox_ratio_label = QtWidgets.QLabel(":")
+
+        self.settings["letterbox_h"] = QtWidgets.QLineEdit()
+        self.settings["letterbox_h"].setFixedWidth(40)
+        self.settings["letterbox_h"].setValidator(QtGui.QDoubleValidator())
+        self.settings["letterbox_h"].setText("9")
+        self.settings["letterbox_h"].setDisabled(True)
+
+        letterbox_opacity_label = QtWidgets.QLabel("    Opacity")
+        self.settings["letterbox_opacity"] = QtWidgets.QLineEdit()
+        self.settings["letterbox_opacity"].setFixedWidth(40)
+        self.settings["letterbox_opacity"].setValidator(
+            QtGui.QDoubleValidator()
+        )
+        self.settings["letterbox_opacity"].setText("0.5")
+        self.settings["letterbox_opacity"].setDisabled(True)
+
+        self.settings["letterbox_enable"] = QtWidgets.QCheckBox(
+            text="Letterbox"
+        )
+
+        def update_letterbox_state(state):
+            for setting in ["letterbox_w", "letterbox_h", "letterbox_opacity"]:
+                self.settings[setting].setDisabled(state != QtCore.Qt.Checked)
+
+        self.settings["letterbox_enable"].stateChanged.connect(
+            update_letterbox_state
+        )
+
+        letterbox = QtWidgets.QWidget()
+        letterbox_layout = QtWidgets.QHBoxLayout()
+        letterbox_layout.setContentsMargins(0, 0, 0, 0)
+
+        letterbox_layout.addWidget(self.settings["letterbox_enable"])
+        letterbox_layout.addWidget(self.settings["letterbox_w"])
+        letterbox_layout.addWidget(letterbox_ratio_label)
+        letterbox_layout.addWidget(self.settings["letterbox_h"])
+        letterbox_layout.addWidget(letterbox_opacity_label)
+        letterbox_layout.addWidget(self.settings["letterbox_opacity"])
+        letterbox_layout.addStretch()
+
+        letterbox.setLayout(letterbox_layout)
+
+        self.settings_widget.addWidget(letterbox)
+
         # --- CSV ---
         csv_settings = Collapse(title="CSV")
 

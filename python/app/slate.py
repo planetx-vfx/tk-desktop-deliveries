@@ -39,6 +39,17 @@ import nuke
 import shotgun_api3
 
 
+class Letterbox:
+    width: float
+    height: float
+    opacity: float
+
+    def __init__(self, width: float, height: float, opacity: float):
+        self.width = width
+        self.height = height
+        self.opacity = opacity
+
+
 class ShotGridSlate(object):
     """Creates slate provided by publish data, transcodes and
     uploads to ShotGrid.
@@ -75,6 +86,7 @@ class ShotGridSlate(object):
         colorspace_idt="ACES - ACEScg",
         colorspace_odt="Output - sRGB",
         timecode_ref: str = None,
+        letterbox: str = None,
         publish_id: int = None,
         version_id: int = None,
         font_path: str = None,
@@ -97,6 +109,18 @@ class ShotGridSlate(object):
         self.version_id = version_id
         self.font_path = font_path
         self.font_bold_path = font_bold_path
+
+        self.letterbox = None
+        if letterbox is not None:
+            letterbox_match = re.match(
+                r"([0-9.]+):([0-9.]+)/([0-9.]+)", letterbox
+            )
+            if letterbox_match:
+                self.letterbox = Letterbox(
+                    float(letterbox_match.group(1)),
+                    float(letterbox_match.group(2)),
+                    float(letterbox_match.group(3)),
+                )
 
         # Get script directory to add gizmo
         script_directory = os.path.dirname(os.path.realpath(__file__))
@@ -344,7 +368,7 @@ class ShotGridSlate(object):
             return self.sg.find_one(
                 "Project",
                 [["id", "is", entity["project"]["id"]]],
-                ["name", "sg_vendorid", "sg_output_preview_aspect_ratio"],
+                ["name", "sg_vendorid"],
             )
         else:
             return None
@@ -403,6 +427,9 @@ class ShotGridSlate(object):
         # Create slate node
         nuke.nodePaste(slate_node_path)
 
+        for node in nuke.selectedNodes():
+            node["selected"].setValue(False)
+
         input = nuke.toNode("INPUT")
         add_timecode = nuke.toNode("AddTimeCode")
         letterbox = nuke.toNode("Letterbox")
@@ -420,18 +447,21 @@ class ShotGridSlate(object):
             timecode["origfirst"].setValue(self.first_frame)
             timecode["origlast"].setValue(self.last_frame)
 
+        add_timecode.knob("frame").setValue(self.first_frame)
+
         if (
             add_timecode.metadata("input/timecode", self.first_frame)
             == "00:00:00:00"
         ):
             time = slate.node("AddTimeCode1")
             time.knob("startcode").setValue("0")
-            time.knob("frame").setValue(self.first_frame - 1)
-
-        add_timecode.knob("frame").setValue(self.first_frame)
+            time.knob("frame").setValue(self.first_frame)
 
         if self.logo_path.endswith(".nk"):
             logo = nuke.nodePaste(self.logo_path)
+
+            for node in nuke.selectedNodes():
+                node["selected"].setValue(False)
 
             slate.setInput(1, logo)
         else:
@@ -452,14 +482,10 @@ class ShotGridSlate(object):
             sg_publish = self.__get_publish_data()
             version_number = sg_publish["version_number"]
 
-        if (
-            sg_project["sg_output_preview_aspect_ratio"] is not None
-            and sg_project["sg_output_preview_aspect_ratio"] != ""
-        ):
-            letterbox.knob("ratio").setValue(
-                float(sg_project["sg_output_preview_aspect_ratio"]), 0
-            )
-            letterbox.knob("ratio").setValue(1, 1)
+        if self.letterbox is not None:
+            letterbox.knob("ratio").setValue(self.letterbox.width, 0)
+            letterbox.knob("ratio").setValue(self.letterbox.height, 1)
+            letterbox.knob("opacity").setValue(self.letterbox.opacity)
             letterbox.knob("disable").setValue(False)
 
         # print(sg_project)

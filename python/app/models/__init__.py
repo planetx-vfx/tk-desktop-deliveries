@@ -6,3 +6,4 @@ from .Settings import Settings
 from .UserSettings import UserSettings
 from .ExportShotsThread import ExportShotsThread
 from .LoadShotsThread import LoadShotsThread
+from .Letterbox import Letterbox

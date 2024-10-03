@@ -63,17 +63,18 @@ class DeliveryModel:
     load_shots_thread: None | LoadShotsThread
     export_shots_thread: None | ExportShotsThread
 
-    def __init__(self, app, logger) -> None:
+    def __init__(self, controller) -> None:
         """Initializes the model.
 
         Args:
             app: ShotGrid app
             logger: ShotGrid logger
         """
+        app = controller.app
         self.app = app
         self.context = app.context
         self.shotgrid_connection = app.shotgun
-        self.logger = logger
+        self.logger = app.logger
         self.shots_to_deliver = None
         self.load_shots_thread = None
         self.export_shots_thread = None
@@ -113,6 +114,8 @@ class DeliveryModel:
             "delivery_version": 1,
             "vnd": self.get_vendor_id(),
         }
+
+        controller.load_letterbox_defaults(self.get_output_preview_settings())
 
     def quit(self):
         """
@@ -328,6 +331,28 @@ class DeliveryModel:
         )
 
         return project["sg_vendorid"]
+
+    def get_output_preview_settings(self):
+        """Get the output preview settings from the ShotGrid project"""
+        project_id = self.context.project["id"]
+        filters = [
+            [
+                "id",
+                "is",
+                project_id,
+            ]
+        ]
+
+        columns = [
+            "sg_output_preview_aspect_ratio",
+            "sg_output_preview_enable_mask",
+        ]
+
+        project = self.shotgrid_connection.find_one(
+            "Project", filters, columns
+        )
+
+        return project
 
     def get_episode_code(self, sequence: dict) -> int | None:
         """Gets the Episode code related to a Sequence.
@@ -648,8 +673,6 @@ class DeliveryModel:
             input_sequence = Path(
                 input_sequence_template.apply_fields(timecode_template_fields)
             )
-            self.logger.info("input_sequence")
-            self.logger.info(input_sequence)
             input_frame = input_sequence.with_name(
                 input_sequence.name % version.first_frame
             )
@@ -729,6 +752,9 @@ class DeliveryModel:
                 ]
                 if timecode_ref_path is not None:
                     args.extend(["--timecode-ref", str(timecode_ref_path)])
+                if user_settings.letterbox is not None:
+                    args.extend(["--letterbox", str(user_settings.letterbox)])
+
                 process.run(
                     self.nuke_path,
                     args,

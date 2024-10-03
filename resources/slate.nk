@@ -28,7 +28,6 @@ Expression {
  expr2 "b * mask_w * mask_h"
  mix {{opacity}}
  name Letterbox
- selected true
  xpos -480
  ypos 141
  disable true
