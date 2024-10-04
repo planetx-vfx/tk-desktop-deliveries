@@ -688,11 +688,6 @@ class DeliveryModel:
                 delivery_folder_template.apply_fields(template_fields)
             )
 
-            # Get the output preview path
-            output_preview_path = Path(
-                delivery_preview_template.apply_fields(template_fields)
-            )
-
             # Get the input preview path
             preview_movie_file = Path(version.path_to_movie)
 
@@ -709,60 +704,94 @@ class DeliveryModel:
                     / delivery_folder_name
                 )
 
-                output_preview_path = (
-                    delivery_folder / output_preview_path.name
-                )
-
                 delivery_sequence_path = (
                     delivery_folder
                     / delivery_sequence_path.parent.name
                     / delivery_sequence_path.name
                 )
 
+            # Get count of total jobs
+            preview_jobs = 0
             if deliverables.deliver_preview:
-                process = NukeProcess(
-                    version,
-                    show_validation_error,
-                    show_validation_message,
-                    update_progress_bars,
-                    0.5 if deliverables.deliver_sequence else 1.0,
-                )
-                args = [
-                    "-t",
-                    self.slate_path,
-                    str(version.first_frame),
-                    str(version.last_frame),
-                    str(version.fps),
-                    preview_movie_file.as_posix(),
-                    output_preview_path.as_posix(),
-                    self.settings.sg_server_path,
-                    self.settings.sg_script_name,
-                    self.settings.sg_script_key,
-                    self.logo_path,
-                    "--version-id",
-                    version.id_str,
-                    "-idt",
-                    self.settings.preview_colorspace_idt,
-                    "-odt",
-                    self.settings.preview_colorspace_odt,
-                    "--font-path",
-                    self.font_path,
-                    "--font-bold-path",
-                    self.font_bold_path,
-                ]
-                if timecode_ref_path is not None:
-                    args.extend(["--timecode-ref", str(timecode_ref_path)])
-                if user_settings.letterbox is not None:
-                    args.extend(["--letterbox", str(user_settings.letterbox)])
+                preview_jobs = len(user_settings.delivery_preview_outputs)
+            sequence_jobs = 0
+            if deliverables.deliver_sequence:
+                sequence_jobs = 1
 
-                process.run(
-                    self.nuke_path,
-                    args,
-                )
+            total_jobs = preview_jobs + sequence_jobs
+            current_job = 0
 
-                self.logger.info(
-                    f"Finished rendering preview to {output_preview_path}."
-                )
+            def update_progress(progress: float):
+                version.progress = (progress + current_job) / total_jobs
+                update_progress_bars(version)
+
+            if deliverables.deliver_preview:
+                for output in user_settings.delivery_preview_outputs:
+
+                    preview_template_fields = {
+                        **template_fields,
+                        "delivery_preview_extension": output.extension,
+                    }
+                    # Get the output preview path
+                    output_preview_path = Path(
+                        delivery_preview_template.apply_fields(
+                            preview_template_fields
+                        )
+                    )
+                    if user_settings.delivery_location is not None:
+                        output_preview_path = (
+                            delivery_folder / output_preview_path.name
+                        )
+
+                    process = NukeProcess(
+                        version,
+                        show_validation_error,
+                        show_validation_message,
+                        update_progress,
+                        f"{output.extension.upper()} - {output.name}",
+                    )
+                    args = [
+                        "-t",
+                        self.slate_path,
+                        str(version.first_frame),
+                        str(version.last_frame),
+                        str(version.fps),
+                        preview_movie_file.as_posix(),
+                        output_preview_path.as_posix(),
+                        self.settings.sg_server_path,
+                        self.settings.sg_script_name,
+                        self.settings.sg_script_key,
+                        self.logo_path,
+                        "--version-id",
+                        version.id_str,
+                        "-idt",
+                        self.settings.preview_colorspace_idt,
+                        "-odt",
+                        self.settings.preview_colorspace_odt,
+                        "--font-path",
+                        self.font_path,
+                        "--font-bold-path",
+                        self.font_bold_path,
+                        "--write-settings",
+                        output.to_cli_string(),
+                    ]
+                    if timecode_ref_path is not None:
+                        args.extend(["--timecode-ref", str(timecode_ref_path)])
+                    if user_settings.letterbox is not None:
+                        args.extend(
+                            ["--letterbox", str(user_settings.letterbox)]
+                        )
+
+                    process.run(
+                        self.nuke_path,
+                        args,
+                    )
+
+                    self.logger.info(
+                        f"Finished rendering preview to {output_preview_path}."
+                    )
+
+                    current_job += 1
 
             if deliverables.deliver_sequence:
                 # Create sequence delivery folder
@@ -795,18 +824,10 @@ class DeliveryModel:
                     else:
                         shutil.copyfile(publish_file, delivery_file)
 
-                    if deliverables.deliver_preview:
-                        version.progress = (
-                            0.5
-                            + (frame - version.first_frame)
-                            / (version.last_frame - version.first_frame)
-                            * 0.5
-                        )
-                    else:
-                        version.progress = (frame - version.first_frame) / (
-                            version.last_frame - version.first_frame
-                        )
-                    update_progress_bars(version)
+                    update_progress(
+                        (frame - version.first_frame)
+                        / (version.last_frame - version.first_frame)
+                    )
 
                 self.logger.info(
                     f"Finished linking {version.sequence_path} to {delivery_sequence_path}."
