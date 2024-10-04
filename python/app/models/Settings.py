@@ -1,8 +1,14 @@
+from __future__ import annotations
+
+from . import PreviewOutput
+
+
 class Settings:
     """
     App configuration
     """
 
+    delivery_preview_outputs: list[PreviewOutput]
     shot_status_field: str
     version_status_field: str
     shot_delivery_status: str
@@ -20,6 +26,15 @@ class Settings:
 
     def __init__(self, app):
         self._app = app
+
+        delivery_preview_outputs = self._app.get_setting(
+            "delivery_preview_outputs"
+        )
+        self.delivery_preview_outputs = []
+        for output in delivery_preview_outputs:
+            self.delivery_preview_outputs.append(
+                PreviewOutput.from_dict(output)
+            )
 
         for setting in [
             "shot_status_field",

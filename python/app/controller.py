@@ -67,6 +67,7 @@ class DeliveryController(QtWidgets.QWidget):
         self.connect_buttons()
         self.load_shots()
         self.load_csv_templates()
+        self.load_preview_outputs()
 
     def closeEvent(self, event):
         """
@@ -194,6 +195,48 @@ class DeliveryController(QtWidgets.QWidget):
                 project["sg_output_preview_aspect_ratio"]
             )
             self.view.settings["letterbox_h"].setText("1")
+
+    def load_preview_outputs(self):
+        """Load the preview output checkboxes"""
+        for i, output in enumerate(
+            self.model.settings.delivery_preview_outputs
+        ):
+            key = f"preview_output_{i}_enabled"
+            self.view.settings[key] = QtWidgets.QCheckBox(
+                text=f"{output.extension.upper()} - {output.name}",
+                objectName=key,
+            )
+            self.view.settings[key].setChecked(output.default_enabled)
+            self.view.settings[key].stateChanged.connect(
+                self.toggle_preview_output
+            )
+            self.view.output_previews.addWidget(self.view.settings[key])
+
+    def toggle_preview_output(self, state):
+        """Disable other conflicting output previews"""
+        if state != QtCore.Qt.Checked:
+            return
+
+        key = self.sender().objectName()
+        index = int(re.match("preview_output_([0-9]+)_enabled", key).group(1))
+
+        toggled_output = self.model.settings.delivery_preview_outputs[index]
+
+        other_outputs = [
+            po
+            for po in self.model.settings.delivery_preview_outputs
+            if po.extension == toggled_output.extension
+            and po != toggled_output
+        ]
+
+        if len(other_outputs) == 0:
+            return
+
+        for output in other_outputs:
+            i = self.model.settings.delivery_preview_outputs.index(output)
+            if i == -1:
+                continue
+            self.view.settings[f"preview_output_{i}_enabled"].setChecked(False)
 
     def open_delivery_folder(self):
         """Opens the delivery folder."""
@@ -409,6 +452,21 @@ class DeliveryController(QtWidgets.QWidget):
                 float(self.view.settings["letterbox_opacity"].text()),
             )
 
+        delivery_preview_outputs = []
+        input_preview_outputs = list(
+            enumerate(self.model.settings.delivery_preview_outputs)
+        )
+        input_preview_outputs.reverse()
+        for i, output in input_preview_outputs:
+            if self.view.settings[f"output_previews_{i}_enabled"].isChecked():
+                if not any(
+                    [
+                        output.extension == out.extension
+                        for out in delivery_preview_outputs
+                    ]
+                ):
+                    delivery_preview_outputs.append(output)
+
         csv_fields = []
         csv_success = True
         if self.view.settings["csv_fields"].size() > 0:
@@ -463,5 +521,9 @@ class DeliveryController(QtWidgets.QWidget):
             return None
 
         return UserSettings(
-            delivery_version, delivery_location, letterbox, csv_fields
+            delivery_version,
+            delivery_location,
+            letterbox,
+            delivery_preview_outputs,
+            csv_fields,
         )

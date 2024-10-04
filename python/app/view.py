@@ -254,6 +254,10 @@ class DeliveryView:
 
         self.settings_widget.addWidget(letterbox)
 
+        # --- PREVIEWS ---
+        self.output_previews = Collapse(title="Previews")
+        self.settings_widget.addWidget(self.output_previews)
+
         # --- CSV ---
         csv_settings = Collapse(title="CSV")
 
