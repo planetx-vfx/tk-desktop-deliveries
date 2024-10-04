@@ -70,6 +70,8 @@ class ExportShotsThread(QtCore.QThread):
             "delivery_preview"
         )
 
+        csv_episode_data = {}
+
         for episode in episodes:
             # Get latest delivery version
             template_fields = {
@@ -120,15 +122,10 @@ class ExportShotsThread(QtCore.QThread):
                 "delivery_version"
             ]
 
-            # Create csv
-            self.create_csv(
-                validated_shots,
-                episode,
-                delivery_folder,
-                template_fields,
-                delivery_sequence_template,
-                delivery_preview_template,
-            )
+            csv_episode_data[episode] = {
+                "delivery_folder": delivery_folder,
+                "template_fields": template_fields,
+            }
 
         for shot in validated_shots:
             for version in shot.get_versions():
@@ -143,6 +140,17 @@ class ExportShotsThread(QtCore.QThread):
                         self.show_validation_message,
                         self.update_progress_bars,
                     )
+
+        for episode in episodes:
+            # Create csv
+            self.create_csv(
+                validated_shots,
+                episode,
+                csv_episode_data[episode]["delivery_folder"],
+                csv_episode_data[episode]["template_fields"],
+                delivery_sequence_template,
+                delivery_preview_template,
+            )
 
         self.finish_export_versions()
 
