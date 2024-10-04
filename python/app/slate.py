@@ -30,6 +30,7 @@ and upload to ShotGrid
 
 from __future__ import annotations
 
+import json
 import os
 import re
 from pathlib import Path
@@ -87,6 +88,7 @@ class ShotGridSlate(object):
         colorspace_odt="Output - sRGB",
         timecode_ref: str = None,
         letterbox: str = None,
+        write_settings: str = None,
         publish_id: int = None,
         version_id: int = None,
         font_path: str = None,
@@ -121,6 +123,13 @@ class ShotGridSlate(object):
                     float(letterbox_match.group(2)),
                     float(letterbox_match.group(3)),
                 )
+
+        if write_settings is not None:
+            try:
+                self.write_settings = json.loads(write_settings)
+            except:
+                msg = f"Invalid write settings. ({write_settings})"
+                raise Exception(msg)
 
         # Get script directory to add gizmo
         script_directory = os.path.dirname(os.path.realpath(__file__))
@@ -558,12 +567,35 @@ class ShotGridSlate(object):
         write = nuke.createNode("Write")
         # Set write node settings
         write.knob("file").setValue(self.slate_path)
-        write.knob("file_type").setValue("mov")
-        write.knob("mov64_codec").setValue(14)  # H.264
         write.knob("colorspace").setValue(self.colorspace_odt)
         write.knob("afterFrameRender").setValue(
             "print(f\"Frame {nuke.frame()} ({int(nuke.frame() - nuke.root().knob('first_frame').value() + 1)} of {int(nuke.root().knob('last_frame').value() - nuke.root().knob('first_frame').value() + 1)})\")"
         )
+
+        if "file_type" in self.write_settings:
+            write.knob("file_type").setValue(self.write_settings["file_type"])
+
+            if self.write_settings["file_type"] == "mxf":
+                write.knob("afterRender").setValue(
+                    """
+import os
+import subprocess
+
+node = nuke.thisNode()
+file_path = node["file"].value()
+real_file_name = file_path.replace(".mxf", "_v1.mxf")
+cmd = f'ren "{real_file_name.replace("/", os.sep)}" "{os.path.basename(file_path)}"'
+subprocess.Popen(cmd, shell=True, encoding="utf-8")
+"""
+                )
+
+        for knob, setting in self.write_settings.items():
+            try:
+                write[knob].setValue(setting)
+            except Exception as e:
+                print(
+                    f"Could not apply {setting} to the knob {knob}, because {e}"
+                )
 
         # Set input
         write.setInput(0, slate_node)

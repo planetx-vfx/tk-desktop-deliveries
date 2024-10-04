@@ -43,6 +43,12 @@ parser.add_argument(
     type=str,
     help="Letterbox overlay settings. Format: <width>:<height>/<opacity>",
 )
+parser.add_argument(
+    "-ws",
+    "--write-settings",
+    type=str,
+    help="Settings fro the write node as a JSON object",
+)
 
 shotgrid = parser.add_argument_group("ShotGrid")
 shotgrid.add_argument(
