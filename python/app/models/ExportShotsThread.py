@@ -222,17 +222,28 @@ class ExportShotsThread(QtCore.QThread):
                             )
                         ).name
                         to_deliver.append(
-                            (sequence_name, version.sequence_path)
+                            (sequence_name, version.sequence_path, "")
                         )
                     if deliverables.deliver_preview:
-                        preview_name = Path(
-                            delivery_preview_template.apply_fields(
-                                version_template_fields
+                        for (
+                            output
+                        ) in self.user_settings.delivery_preview_outputs:
+                            output_template_fields = {
+                                **version_template_fields,
+                                "delivery_preview_extension": output.extension,
+                            }
+                            preview_name = Path(
+                                delivery_preview_template.apply_fields(
+                                    output_template_fields
+                                )
+                            ).name
+                            to_deliver.append(
+                                (
+                                    preview_name,
+                                    version.path_to_movie,
+                                    output.name,
+                                )
                             )
-                        ).name
-                        to_deliver.append(
-                            (preview_name, version.path_to_movie)
-                        )
 
                     csv_data = {}
                     for (
@@ -260,7 +271,7 @@ class ExportShotsThread(QtCore.QThread):
                         else:
                             csv_data[entity] = {}
 
-                    for file_name, source_file_path in to_deliver:
+                    for file_name, source_file_path, codec in to_deliver:
                         csv_fields = []
 
                         for key, value in self.user_settings.csv_fields:
@@ -278,6 +289,10 @@ class ExportShotsThread(QtCore.QThread):
                                 elif (
                                     field == "codec" or field == "compression"
                                 ):
+                                    if codec != "":
+                                        csv_fields.append(codec)
+                                        continue
+
                                     if file_name.endswith(".exr"):
                                         metadata = (
                                             parse_exr_metadata.read_exr_header(
@@ -295,9 +310,8 @@ class ExportShotsThread(QtCore.QThread):
                                             csv_fields.append("")
                                         continue
                                     else:
-                                        # Set H.264 as the codec is hardcoded in the slate Nuke script
-                                        csv_fields.append("H.264")
-                                        continue
+                                        csv_fields.append("")
+                                    continue
                                 elif field == "folder":
                                     csv_fields.append(delivery_folder.name)
                                     continue
