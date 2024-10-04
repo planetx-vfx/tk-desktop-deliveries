@@ -224,13 +224,13 @@ class ExportShotsThread(QtCore.QThread):
 
                     to_deliver = []
                     if deliverables.deliver_sequence:
-                        sequence_name = Path(
+                        sequence_path = Path(
                             delivery_sequence_template.apply_fields(
                                 version_template_fields
                             )
-                        ).name
+                        )
                         to_deliver.append(
-                            (sequence_name, version.sequence_path, "")
+                            (sequence_path.name, sequence_path.as_posix(), "")
                         )
                     if deliverables.deliver_preview:
                         for (
@@ -240,15 +240,15 @@ class ExportShotsThread(QtCore.QThread):
                                 **version_template_fields,
                                 "delivery_preview_extension": output.extension,
                             }
-                            preview_name = Path(
+                            preview_path = Path(
                                 delivery_preview_template.apply_fields(
                                     output_template_fields
                                 )
-                            ).name
+                            )
                             to_deliver.append(
                                 (
-                                    preview_name,
-                                    version.path_to_movie,
+                                    preview_path.name,
+                                    preview_path.as_posix(),
                                     output.name,
                                 )
                             )
@@ -279,7 +279,7 @@ class ExportShotsThread(QtCore.QThread):
                         else:
                             csv_data[entity] = {}
 
-                    for file_name, source_file_path, codec in to_deliver:
+                    for file_name, output_file_path, codec in to_deliver:
                         csv_fields = []
 
                         for key, value in self.user_settings.csv_fields:
@@ -304,7 +304,7 @@ class ExportShotsThread(QtCore.QThread):
                                     if file_name.endswith(".exr"):
                                         metadata = (
                                             parse_exr_metadata.read_exr_header(
-                                                source_file_path
+                                                output_file_path
                                                 % version.first_frame
                                             )
                                         )
