@@ -193,6 +193,7 @@ class DeliveryModel:
             "sg_delivery_note",
             "sg_attachment",
             "image",
+            self.settings.delivery_sequence_outputs_field,
         ]
 
         versions_to_deliver = self.shotgrid_connection.find(
@@ -452,6 +453,9 @@ class DeliveryModel:
                     task=task,
                     deliver_preview=deliver_preview,
                     deliver_sequence=deliver_sequence,
+                    sequence_output_status=sg_version[
+                        self.settings.delivery_sequence_outputs_field
+                    ],
                 )
                 shot.add_version(version)
 

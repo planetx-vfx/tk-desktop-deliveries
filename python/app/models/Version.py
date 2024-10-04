@@ -18,6 +18,8 @@ class Version:
     deliver_preview: bool
     deliver_sequence: bool
 
+    sequence_output_status: str
+
     validation_message: str | None
     validation_error: str | None
     progress: float
@@ -38,6 +40,7 @@ class Version:
         attachment: dict = None,
         deliver_preview: bool = True,
         deliver_sequence: bool = True,
+        sequence_output_status: str = "",
     ):
         self.id = id
         self.id_str = str(id)
@@ -64,6 +67,8 @@ class Version:
 
         self.deliver_preview = deliver_preview
         self.deliver_sequence = deliver_sequence
+
+        self.sequence_output_status = sequence_output_status
 
         self.validation_message = ""
         self.validation_error = ""
