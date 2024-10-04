@@ -210,7 +210,7 @@ class DeliveryController(QtWidgets.QWidget):
             self.view.settings[key].stateChanged.connect(
                 self.toggle_preview_output
             )
-            self.view.output_previews.addWidget(self.view.settings[key])
+            self.view.preview_outputs.addWidget(self.view.settings[key])
 
     def toggle_preview_output(self, state):
         """Disable other conflicting output previews"""
@@ -458,7 +458,7 @@ class DeliveryController(QtWidgets.QWidget):
         )
         input_preview_outputs.reverse()
         for i, output in input_preview_outputs:
-            if self.view.settings[f"output_previews_{i}_enabled"].isChecked():
+            if self.view.settings[f"preview_output_{i}_enabled"].isChecked():
                 if not any(
                     [
                         output.extension == out.extension
