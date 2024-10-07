@@ -47,7 +47,7 @@ parser.add_argument(
     "-ws",
     "--write-settings",
     type=str,
-    help="Settings fro the write node as a JSON object",
+    help="Settings for the write node as a JSON object",
 )
 
 shotgrid = parser.add_argument_group("ShotGrid")
