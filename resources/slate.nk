@@ -12294,7 +12294,7 @@ push $N440dc400
   addUserKnob {14 nominal_size l "Nominal Size" t "What is the size of this area in the nominal (4k) format. This is used to drive the automatic text scaling." R 0 100}
   nominal_size {739 2052}
   addUserKnob {15 relative_box l "Relative Box" t "The bouding box that this text should sit inside. Is linked to the Final Crop and any other elements that define the area for this text."}
-  relative_box {{"(Field_Area_A.box.r - Field_Area_A.box.x) / 3  *2 + Field_Area_A.box.x"} {Field_Area_A.box} {Field_Area_A.box} {Field_Area_A.box}}
+  relative_box {{"(Field_Area_A.box.r - Field_Area_A.box.x) / 5 * 3 + Field_Area_A.box.x"} {Field_Area_A.box} {Field_Area_A.box} {Field_Area_A.box}}
   addUserKnob {14 relative_size l "Relative Size" R 0 100}
   relative_size {{"relative_box.r - relative_box.x"} {"relative_box.t - relative_box.y"}}
   addUserKnob {7 padding l "Padding %" t "how much space to leave around the edges of the bounding box. in % of total width "}
@@ -12314,7 +12314,7 @@ push $N440dc400
   addUserKnob {14 nominal_size l "Nominal Size" t "What is the size of this area in the nominal (4k) format. This is used to drive the automatic text scaling." R 0 100}
   nominal_size {1478 2052}
   addUserKnob {15 relative_box l "Relative Box" t "The bouding box that this text should sit inside. Is linked to the Final Crop and any other elements that define the area for this text."}
-  relative_box {{Field_Area_A.box} {Field_Area_A.box} {"(Field_Area_A.box.r - Field_Area_A.box.x) / 3  *2 + Field_Area_A.box.x"} {Field_Area_A.box}}
+  relative_box {{Field_Area_A.box} {Field_Area_A.box} {"(Field_Area_A.box.r - Field_Area_A.box.x) / 5 * 3 + Field_Area_A.box.x"} {Field_Area_A.box}}
   addUserKnob {14 relative_size l "Relative Size" R 0 100}
   relative_size {{"relative_box.r - relative_box.x"} {"relative_box.t - relative_box.y"}}
   addUserKnob {7 padding l "Padding %" t "how much space to leave around the edges of the bounding box. in % of total width "}
