@@ -29,18 +29,19 @@ class NukeProcess:
         version: Version,
         show_validation_error: Callable[[Version], None],
         show_validation_message: Callable[[Version], None],
-        update_progress_bars: Callable[[Version], None],
-        progress_part: float,
+        update_progress_bars: Callable[[float], None],
+        name: str = None,
     ):
         self.version = version
         self.process = QtCore.QProcess()
         self.show_validation_error = show_validation_error
         self.show_validation_message = show_validation_message
         self.update_progress_bars = update_progress_bars
-        self.progress_part = progress_part
 
         self.process.readyReadStandardOutput.connect(self._on_output)
         self.process.readyReadStandardError.connect(self._on_script_error)
+
+        self.name = name
 
     def _on_output(self):
         """Handle logs"""
@@ -50,10 +51,14 @@ class NukeProcess:
             logger.debug(stdout)
 
         if not self._has_started:
-            self.version.validation_message = "Starting render..."
+            if self.name is not None:
+                self.version.validation_message = (
+                    f"Starting {self.name} render..."
+                )
+            else:
+                self.version.validation_message = "Starting render..."
             self.show_validation_message(self.version)
-            self.version.process = 0
-            self.update_progress_bars(self.version)
+            self.update_progress_bars(0)
             self._has_started = True
 
         if "A license for nuke was not found" in stdout:
@@ -66,16 +71,18 @@ class NukeProcess:
         )
         if progress:
             if not self._has_rendered:
-                self.version.validation_message = "Rendering..."
+                if self.name is not None:
+                    self.version.validation_message = (
+                        f"Rendering {self.name}..."
+                    )
+                else:
+                    self.version.validation_message = "Rendering..."
                 self.show_validation_message(self.version)
                 self._has_rendered = True
 
-            self.version.progress = (
-                float(progress.group(2))
-                / float(progress.group(3))
-                * self.progress_part
+            self.update_progress_bars(
+                float(progress.group(2)) / float(progress.group(3))
             )
-            self.update_progress_bars(self.version)
 
     def _on_script_error(self):
         """Handle errors"""

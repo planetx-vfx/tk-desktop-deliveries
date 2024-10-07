@@ -1,8 +1,16 @@
+from __future__ import annotations
+
+from . import PreviewOutput, SequenceOutput
+
+
 class Settings:
     """
     App configuration
     """
 
+    delivery_preview_outputs: list[PreviewOutput]
+    delivery_sequence_outputs: list[SequenceOutput]
+    delivery_sequence_outputs_field: str
     shot_status_field: str
     version_status_field: str
     shot_delivery_status: str
@@ -21,7 +29,26 @@ class Settings:
     def __init__(self, app):
         self._app = app
 
+        delivery_preview_outputs = self._app.get_setting(
+            "delivery_preview_outputs"
+        )
+        self.delivery_preview_outputs = []
+        for output in delivery_preview_outputs:
+            self.delivery_preview_outputs.append(
+                PreviewOutput.from_dict(output)
+            )
+
+        delivery_sequence_outputs = self._app.get_setting(
+            "delivery_sequence_outputs"
+        )
+        self.delivery_sequence_outputs = []
+        for output in delivery_sequence_outputs:
+            self.delivery_sequence_outputs.append(
+                SequenceOutput.from_dict(output)
+            )
+
         for setting in [
+            "delivery_sequence_outputs_field",
             "shot_status_field",
             "version_status_field",
             "shot_delivery_status",

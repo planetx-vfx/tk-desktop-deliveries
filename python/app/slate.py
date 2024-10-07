@@ -30,6 +30,7 @@ and upload to ShotGrid
 
 from __future__ import annotations
 
+import json
 import os
 import re
 from pathlib import Path
@@ -37,6 +38,17 @@ from pathlib import Path
 import PyOpenColorIO as OCIO
 import nuke
 import shotgun_api3
+
+
+class Letterbox:
+    width: float
+    height: float
+    opacity: float
+
+    def __init__(self, width: float, height: float, opacity: float):
+        self.width = width
+        self.height = height
+        self.opacity = opacity
 
 
 class ShotGridSlate(object):
@@ -74,6 +86,9 @@ class ShotGridSlate(object):
         company="ShotGrid",
         colorspace_idt="ACES - ACEScg",
         colorspace_odt="Output - sRGB",
+        timecode_ref: str = None,
+        letterbox: str = None,
+        write_settings: str = None,
         publish_id: int = None,
         version_id: int = None,
         font_path: str = None,
@@ -91,10 +106,30 @@ class ShotGridSlate(object):
         self.company = company
         self.colorspace_idt = colorspace_idt
         self.colorspace_odt = colorspace_odt
+        self.timecode_ref = timecode_ref.replace(os.sep, "/")
         self.publish_id = publish_id
         self.version_id = version_id
         self.font_path = font_path
         self.font_bold_path = font_bold_path
+
+        self.letterbox = None
+        if letterbox is not None:
+            letterbox_match = re.match(
+                r"([0-9.]+):([0-9.]+)/([0-9.]+)", letterbox
+            )
+            if letterbox_match:
+                self.letterbox = Letterbox(
+                    float(letterbox_match.group(1)),
+                    float(letterbox_match.group(2)),
+                    float(letterbox_match.group(3)),
+                )
+
+        if write_settings is not None:
+            try:
+                self.write_settings = json.loads(write_settings)
+            except:
+                msg = f"Invalid write settings. ({write_settings})"
+                raise Exception(msg)
 
         # Get script directory to add gizmo
         script_directory = os.path.dirname(os.path.realpath(__file__))
@@ -404,7 +439,32 @@ class ShotGridSlate(object):
         for node in nuke.selectedNodes():
             node["selected"].setValue(False)
 
+        input = nuke.toNode("INPUT")
+        add_timecode = nuke.toNode("AddTimeCode")
+        letterbox = nuke.toNode("Letterbox")
         slate = nuke.toNode("NETFLIX_TEMPLATE_SLATE")
+
+        # Set read node as input for slate node
+        input.setInput(0, read_node)
+
+        print("TIMECODE", self.timecode_ref)
+        if self.timecode_ref is not None:
+            timecode = nuke.nodes.Read(file=self.timecode_ref)
+            timecode["name"].setValue("Timecode")
+            timecode["first"].setValue(self.first_frame)
+            timecode["last"].setValue(self.last_frame)
+            timecode["origfirst"].setValue(self.first_frame)
+            timecode["origlast"].setValue(self.last_frame)
+
+        add_timecode.knob("frame").setValue(self.first_frame)
+
+        if (
+            add_timecode.metadata("input/timecode", self.first_frame)
+            == "00:00:00:00"
+        ):
+            time = slate.node("AddTimeCode1")
+            time.knob("startcode").setValue("0")
+            time.knob("frame").setValue(self.first_frame)
 
         if self.logo_path.endswith(".nk"):
             logo = nuke.nodePaste(self.logo_path)
@@ -431,6 +491,12 @@ class ShotGridSlate(object):
             sg_publish = self.__get_publish_data()
             version_number = sg_publish["version_number"]
 
+        if self.letterbox is not None:
+            letterbox.knob("ratio").setValue(self.letterbox.width, 0)
+            letterbox.knob("ratio").setValue(self.letterbox.height, 1)
+            letterbox.knob("opacity").setValue(self.letterbox.opacity)
+            letterbox.knob("disable").setValue(False)
+
         # print(sg_project)
         # print(sg_version)
         # print(sg_shot)
@@ -456,11 +522,6 @@ class ShotGridSlate(object):
             int((self.first_frame + self.last_frame) / 2)
         )
 
-        # Manual AddTimeCode fix
-        time = slate.node("AddTimeCode1")
-        time.knob("startcode").setValue("0")
-        time.knob("frame").setValue(self.first_frame)
-
         # TODO Actual episode implementation
         if "_" in sg_shot["sg_sequence"]["name"]:
             episode, scene = sg_shot["sg_sequence"]["name"].split("_")
@@ -468,17 +529,17 @@ class ShotGridSlate(object):
             slate["f_scene"].setValue(scene)
         slate["f_sequence_name"].setValue(sg_shot["sg_sequence"]["name"])
 
-        # Get correct colorspaceK
-        config = OCIO.GetCurrentConfig()
-        roles = [
-            role
-            for role in config.getRoles()
-            if role[0] == self.colorspace_odt
-        ]
-        if len(roles) > 0:
-            colorspace_odt = roles[0][1]
-        else:
-            colorspace_odt = self.colorspace_odt
+        # Get correct colorspace
+        colorspace_odt = self.colorspace_odt
+        if "OCIO" in os.environ:
+            config = OCIO.GetCurrentConfig()
+            roles = [
+                role
+                for role in config.getRoles()
+                if role[0] == self.colorspace_odt
+            ]
+            if len(roles) > 0:
+                colorspace_odt = roles[0][1]
 
         slate.knob("f_media_color").setValue(colorspace_odt)
 
@@ -488,9 +549,6 @@ class ShotGridSlate(object):
         # Set fonts
         slate.knob("font").setValue(self.font_path)
         slate.knob("font_bold").setValue(self.font_bold_path)
-
-        # Set read node as input for slate node
-        slate.setInput(0, read_node)
 
         # Return created node
         return slate
@@ -509,12 +567,35 @@ class ShotGridSlate(object):
         write = nuke.createNode("Write")
         # Set write node settings
         write.knob("file").setValue(self.slate_path)
-        write.knob("file_type").setValue("mov")
-        write.knob("mov64_codec").setValue(14)  # H.264
         write.knob("colorspace").setValue(self.colorspace_odt)
         write.knob("afterFrameRender").setValue(
             "print(f\"Frame {nuke.frame()} ({int(nuke.frame() - nuke.root().knob('first_frame').value() + 1)} of {int(nuke.root().knob('last_frame').value() - nuke.root().knob('first_frame').value() + 1)})\")"
         )
+
+        if "file_type" in self.write_settings:
+            write.knob("file_type").setValue(self.write_settings["file_type"])
+
+            if self.write_settings["file_type"] == "mxf":
+                write.knob("afterRender").setValue(
+                    """
+import os
+import subprocess
+
+node = nuke.thisNode()
+file_path = node["file"].value()
+real_file_name = file_path.replace(".mxf", "_v1.mxf")
+cmd = f'ren "{real_file_name.replace("/", os.sep)}" "{os.path.basename(file_path)}"'
+subprocess.Popen(cmd, shell=True, encoding="utf-8")
+"""
+                )
+
+        for knob, setting in self.write_settings.items():
+            try:
+                write[knob].setValue(setting)
+            except Exception as e:
+                print(
+                    f"Could not apply {setting} to the knob {knob}, because {e}"
+                )
 
         # Set input
         write.setInput(0, slate_node)

@@ -202,12 +202,64 @@ class DeliveryView:
 
         self.settings_widget.addWidget(delivery_location)
 
+        # --- Letterbox ---
+        self.settings["letterbox_w"] = QtWidgets.QLineEdit()
+        self.settings["letterbox_w"].setFixedWidth(40)
+        self.settings["letterbox_w"].setValidator(QtGui.QDoubleValidator())
+        self.settings["letterbox_w"].setText("16")
+        self.settings["letterbox_w"].setDisabled(True)
+
+        letterbox_ratio_label = QtWidgets.QLabel(":")
+
+        self.settings["letterbox_h"] = QtWidgets.QLineEdit()
+        self.settings["letterbox_h"].setFixedWidth(40)
+        self.settings["letterbox_h"].setValidator(QtGui.QDoubleValidator())
+        self.settings["letterbox_h"].setText("9")
+        self.settings["letterbox_h"].setDisabled(True)
+
+        letterbox_opacity_label = QtWidgets.QLabel("    Opacity")
+        self.settings["letterbox_opacity"] = QtWidgets.QLineEdit()
+        self.settings["letterbox_opacity"].setFixedWidth(40)
+        self.settings["letterbox_opacity"].setValidator(
+            QtGui.QDoubleValidator()
+        )
+        self.settings["letterbox_opacity"].setText("0.5")
+        self.settings["letterbox_opacity"].setDisabled(True)
+
+        self.settings["letterbox_enable"] = QtWidgets.QCheckBox(
+            text="Letterbox"
+        )
+
+        def update_letterbox_state(state):
+            for setting in ["letterbox_w", "letterbox_h", "letterbox_opacity"]:
+                self.settings[setting].setDisabled(state != QtCore.Qt.Checked)
+
+        self.settings["letterbox_enable"].stateChanged.connect(
+            update_letterbox_state
+        )
+
+        letterbox = QtWidgets.QWidget()
+        letterbox_layout = QtWidgets.QHBoxLayout()
+        letterbox_layout.setContentsMargins(0, 0, 0, 0)
+
+        letterbox_layout.addWidget(self.settings["letterbox_enable"])
+        letterbox_layout.addWidget(self.settings["letterbox_w"])
+        letterbox_layout.addWidget(letterbox_ratio_label)
+        letterbox_layout.addWidget(self.settings["letterbox_h"])
+        letterbox_layout.addWidget(letterbox_opacity_label)
+        letterbox_layout.addWidget(self.settings["letterbox_opacity"])
+        letterbox_layout.addStretch()
+
+        letterbox.setLayout(letterbox_layout)
+
+        self.settings_widget.addWidget(letterbox)
+
+        # --- PREVIEWS ---
+        self.preview_outputs = Collapse(title="Previews")
+        self.settings_widget.addWidget(self.preview_outputs)
+
         # --- CSV ---
-        csv_settings = QtWidgets.QWidget()
-        csv_settings_layout = QtWidgets.QVBoxLayout()
-        csv_settings_layout.setContentsMargins(0, 0, 0, 0)
-        csv_settings_layout.setSpacing(8)
-        csv_settings.setLayout(csv_settings_layout)
+        csv_settings = Collapse(title="CSV")
 
         csv_heading = QtWidgets.QWidget()
         csv_heading_layout = QtWidgets.QHBoxLayout()
@@ -237,7 +289,7 @@ class DeliveryView:
         csv_heading_layout.addWidget(self.csv_add_button)
 
         csv_heading.setLayout(csv_heading_layout)
-        csv_settings_layout.addWidget(csv_heading)
+        csv_settings.addWidget(csv_heading)
 
         self.settings["csv_fields"] = OrderedList()
         self.settings["csv_fields"].add_item("Version Name", "{file.name}")
@@ -252,7 +304,7 @@ class DeliveryView:
         self.settings["csv_fields"].add_item(
             "Submission Note", "{version.sg_delivery_note}"
         )
-        csv_settings_layout.addWidget(self.settings["csv_fields"])
+        csv_settings.addWidget(self.settings["csv_fields"])
 
         self.settings_widget.addWidget(csv_settings)
 

@@ -27,6 +27,11 @@ configuration:
     fields: context, *
     description: "Template of the preview files."
 
+  input_sequence:
+    type: template
+    fields: context, version, SEQ, *
+    description: "Template to deliver the sequences from."
+
   delivery_folder:
     type: template
     fields: prj, delivery_date, delivery_version
@@ -39,7 +44,7 @@ configuration:
 
   delivery_preview:
     type: template
-    fields: context, prj, delivery_date, delivery_version, task_name, version, *
+    fields: context, prj, delivery_date, delivery_version, task_name, version, delivery_preview_extension, *
     description: "Template to deliver the previews to."
 
   csv_submission_form:
@@ -51,6 +56,38 @@ configuration:
     type: template
     fields: context, *
     description: "Folder to saves CSV templates."
+
+  # --- LISTS ---
+  delivery_preview_outputs:
+    type: list
+    description: "List of preview output settings to use."
+    values:
+      type: dict
+      items:
+        name:
+          type: str
+        extension:
+          type: str
+        default_enabled:
+          type: bool
+          default_value: true
+        settings:
+          type: dict
+
+  delivery_sequence_outputs:
+    type: list
+    description: "List of version statuses to match exr render settings to."
+    values:
+      type: dict
+      items:
+        name:
+          type: str
+        extension:
+          type: str
+        status:
+          type: str
+        settings:
+          type: dict
 
   # --- STRINGS ---
   shot_status_field:
@@ -64,6 +101,12 @@ configuration:
     default_value: "sg_status_list"
     allows_empty: True
     description: Field to check the version status with.
+
+  delivery_sequence_outputs_field:
+    type: str
+    default_value: "sg_submitting_for"
+    allows_empty: True
+    description: Field to match the delivery sequence output settings with.
 
   shot_delivery_status:
     type: str
@@ -170,6 +213,8 @@ requires_shotgun_fields:
 # More verbose description of this item
 display_name: "ShotGrid Deliveries App"
 description: "App to deliver shots with the correct naming convention."
+documentation_url: "https://github.com/planetx-vfx/tk-desktop-deliveries#readme"
+support_url: "https://github.com/planetx-vfx/tk-desktop-deliveries/issues"
 
 # Required minimum versions for this item to run
 requires_shotgun_version:

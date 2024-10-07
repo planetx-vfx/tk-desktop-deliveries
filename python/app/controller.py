@@ -36,10 +36,8 @@ import sgtk
 from sgtk.platform.qt5 import QtWidgets, QtCore
 
 from . import model, view
-from .models import Version, Deliverables, UserSettings
+from .models import Version, Deliverables, UserSettings, Letterbox
 from .widgets import OrderedListItem
-
-logger = sgtk.platform.get_logger(__name__)
 
 
 def open_delivery_app(app_instance):
@@ -61,14 +59,15 @@ class DeliveryController(QtWidgets.QWidget):
         """
         Initializes the controller.
         """
+        self.app = sgtk.platform.current_bundle()
+        self.logger = self.app.logger
         self.view = view.DeliveryView()
         self.view.create_user_interface(self)
-        self.model = model.DeliveryModel(
-            sgtk.platform.current_bundle(), logger
-        )
+        self.model = model.DeliveryModel(self)
         self.connect_buttons()
         self.load_shots()
         self.load_csv_templates()
+        self.load_preview_outputs()
 
     def closeEvent(self, event):
         """
@@ -76,7 +75,7 @@ class DeliveryController(QtWidgets.QWidget):
         Args:
             event: Close event
         """
-        logger.info("Quitting...")
+        self.logger.info("Quitting...")
         self.model.quit()
         event.accept()
 
@@ -130,7 +129,7 @@ class DeliveryController(QtWidgets.QWidget):
         Args:
             error: Error message from model
         """
-        logger.error(f"Error while loading shots:\n{error}")
+        self.logger.error(f"Error while loading shots:\n{error}")
         self.view.loading_widget.hide()
         self.view.shots_list_widget_layout.setAlignment(QtCore.Qt.AlignTop)
         self.view.shots_list_widget_layout.addWidget(
@@ -139,7 +138,7 @@ class DeliveryController(QtWidgets.QWidget):
 
     def load_csv_templates(self):
         """Load CSV Template files"""
-        csv_template_folder_template = self.model.app.get_template(
+        csv_template_folder_template = self.app.get_template(
             "csv_template_folder"
         )
         self.csv_template_folder = Path(
@@ -149,7 +148,7 @@ class DeliveryController(QtWidgets.QWidget):
         self.view.csv_templates.clear()
 
         if not self.csv_template_folder.is_dir():
-            self.csv_template_folder.mkdir(exist_ok=True)
+            self.csv_template_folder.mkdir(parents=True, exist_ok=True)
             return
 
         for dir_path, dir_names, file_names in os.walk(
@@ -172,7 +171,7 @@ class DeliveryController(QtWidgets.QWidget):
         Args:
             file_path: CSV file path
         """
-        logger.debug(f"Loading CSV template: {file_path}")
+        self.logger.debug(f"Loading CSV template: {file_path}")
 
         with open(file_path, "r", newline="") as file:
             reader = csv.reader(file)
@@ -184,6 +183,60 @@ class DeliveryController(QtWidgets.QWidget):
             self.view.csv_templates.addItem(file_name, userData=data)
 
             return data
+
+    def load_letterbox_defaults(self, project):
+        """Load the default letterbox settings from the ShotGrid project"""
+        self.view.settings["letterbox_enable"].setChecked(
+            project["sg_output_preview_enable_mask"]
+        )
+
+        if project["sg_output_preview_aspect_ratio"] is not None:
+            self.view.settings["letterbox_w"].setText(
+                project["sg_output_preview_aspect_ratio"]
+            )
+            self.view.settings["letterbox_h"].setText("1")
+
+    def load_preview_outputs(self):
+        """Load the preview output checkboxes"""
+        for i, output in enumerate(
+            self.model.settings.delivery_preview_outputs
+        ):
+            key = f"preview_output_{i}_enabled"
+            self.view.settings[key] = QtWidgets.QCheckBox(
+                text=f"{output.extension.upper()} - {output.name}",
+                objectName=key,
+            )
+            self.view.settings[key].setChecked(output.default_enabled)
+            self.view.settings[key].stateChanged.connect(
+                self.toggle_preview_output
+            )
+            self.view.preview_outputs.addWidget(self.view.settings[key])
+
+    def toggle_preview_output(self, state):
+        """Disable other conflicting output previews"""
+        if state != QtCore.Qt.Checked:
+            return
+
+        key = self.sender().objectName()
+        index = int(re.match("preview_output_([0-9]+)_enabled", key).group(1))
+
+        toggled_output = self.model.settings.delivery_preview_outputs[index]
+
+        other_outputs = [
+            po
+            for po in self.model.settings.delivery_preview_outputs
+            if po.extension == toggled_output.extension
+            and po != toggled_output
+        ]
+
+        if len(other_outputs) == 0:
+            return
+
+        for output in other_outputs:
+            i = self.model.settings.delivery_preview_outputs.index(output)
+            if i == -1:
+                continue
+            self.view.settings[f"preview_output_{i}_enabled"].setChecked(False)
 
     def open_delivery_folder(self):
         """Opens the delivery folder."""
@@ -386,6 +439,34 @@ class DeliveryController(QtWidgets.QWidget):
                 )
                 return None
 
+        letterbox = None
+        if (
+            self.view.settings["letterbox_enable"].isChecked()
+            and self.view.settings["letterbox_w"].text() != ""
+            and self.view.settings["letterbox_h"].text() != ""
+            and self.view.settings["letterbox_opacity"].text() != ""
+        ):
+            letterbox = Letterbox(
+                float(self.view.settings["letterbox_w"].text()),
+                float(self.view.settings["letterbox_h"].text()),
+                float(self.view.settings["letterbox_opacity"].text()),
+            )
+
+        delivery_preview_outputs = []
+        input_preview_outputs = list(
+            enumerate(self.model.settings.delivery_preview_outputs)
+        )
+        input_preview_outputs.reverse()
+        for i, output in input_preview_outputs:
+            if self.view.settings[f"preview_output_{i}_enabled"].isChecked():
+                if not any(
+                    [
+                        output.extension == out.extension
+                        for out in delivery_preview_outputs
+                    ]
+                ):
+                    delivery_preview_outputs.append(output)
+
         csv_fields = []
         csv_success = True
         if self.view.settings["csv_fields"].size() > 0:
@@ -439,4 +520,10 @@ class DeliveryController(QtWidgets.QWidget):
         if not csv_success:
             return None
 
-        return UserSettings(delivery_version, delivery_location, csv_fields)
+        return UserSettings(
+            delivery_version,
+            delivery_location,
+            letterbox,
+            delivery_preview_outputs,
+            csv_fields,
+        )

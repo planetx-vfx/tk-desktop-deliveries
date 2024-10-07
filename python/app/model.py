@@ -36,6 +36,7 @@ from urllib.request import urlretrieve
 
 import sgtk
 
+from .external import parse_exr_metadata
 from .models import (
     Shot,
     Version,
@@ -63,17 +64,18 @@ class DeliveryModel:
     load_shots_thread: None | LoadShotsThread
     export_shots_thread: None | ExportShotsThread
 
-    def __init__(self, app, logger) -> None:
+    def __init__(self, controller) -> None:
         """Initializes the model.
 
         Args:
             app: ShotGrid app
             logger: ShotGrid logger
         """
+        app = controller.app
         self.app = app
         self.context = app.context
         self.shotgrid_connection = app.shotgun
-        self.logger = logger
+        self.logger = app.logger
         self.shots_to_deliver = None
         self.load_shots_thread = None
         self.export_shots_thread = None
@@ -107,12 +109,15 @@ class DeliveryModel:
             os.path.join(os.getcwd(), os.path.dirname(__file__))
         )
         self.slate_path = os.path.join(__location__, "slate_cli.py")
+        self.plate_path = os.path.join(__location__, "plate_cli.py")
 
         self.base_template_fields = {
             "prj": self.get_project_code(),
             "delivery_version": 1,
             "vnd": self.get_vendor_id(),
         }
+
+        controller.load_letterbox_defaults(self.get_output_preview_settings())
 
     def quit(self):
         """
@@ -190,6 +195,7 @@ class DeliveryModel:
             "sg_delivery_note",
             "sg_attachment",
             "image",
+            self.settings.delivery_sequence_outputs_field,
         ]
 
         versions_to_deliver = self.shotgrid_connection.find(
@@ -329,6 +335,28 @@ class DeliveryModel:
 
         return project["sg_vendorid"]
 
+    def get_output_preview_settings(self):
+        """Get the output preview settings from the ShotGrid project"""
+        project_id = self.context.project["id"]
+        filters = [
+            [
+                "id",
+                "is",
+                project_id,
+            ]
+        ]
+
+        columns = [
+            "sg_output_preview_aspect_ratio",
+            "sg_output_preview_enable_mask",
+        ]
+
+        project = self.shotgrid_connection.find_one(
+            "Project", filters, columns
+        )
+
+        return project
+
     def get_episode_code(self, sequence: dict) -> int | None:
         """Gets the Episode code related to a Sequence.
 
@@ -427,6 +455,9 @@ class DeliveryModel:
                     task=task,
                     deliver_preview=deliver_preview,
                     deliver_sequence=deliver_sequence,
+                    sequence_output_status=sg_version[
+                        self.settings.delivery_sequence_outputs_field
+                    ],
                 )
                 shot.add_version(version)
 
@@ -621,6 +652,7 @@ class DeliveryModel:
             return
 
         try:
+            input_sequence_template = self.app.get_template("input_sequence")
             delivery_folder_template = self.app.get_template("delivery_folder")
             preview_movie_template = self.app.get_template("preview_movie")
             delivery_sequence_template = self.app.get_template(
@@ -641,14 +673,25 @@ class DeliveryModel:
             if fields is not None:
                 template_fields = {**fields, **template_fields}
 
+            # Get timecode ref path
+            timecode_template_fields = {**template_fields, "version": 0}
+            timecode_ref_path = None
+            input_sequence = Path(
+                input_sequence_template.apply_fields(timecode_template_fields)
+            )
+            input_frame = input_sequence.with_name(
+                input_sequence.name % version.first_frame
+            )
+            if input_frame.is_file():
+                timecode_ref_path = input_sequence
+            else:
+                input_sequence = Path(version.sequence_path)
+                if Path(version.sequence_path % version.first_frame).is_file():
+                    timecode_ref_path = input_sequence
+
             # Get the delivery folder
             delivery_folder = Path(
                 delivery_folder_template.apply_fields(template_fields)
-            )
-
-            # Get the output preview path
-            output_preview_path = Path(
-                delivery_preview_template.apply_fields(template_fields)
             )
 
             # Get the input preview path
@@ -667,27 +710,53 @@ class DeliveryModel:
                     / delivery_folder_name
                 )
 
-                output_preview_path = (
-                    delivery_folder / output_preview_path.name
-                )
-
                 delivery_sequence_path = (
                     delivery_folder
                     / delivery_sequence_path.parent.name
                     / delivery_sequence_path.name
                 )
 
+            # Get count of total jobs
+            preview_jobs = 0
             if deliverables.deliver_preview:
-                process = NukeProcess(
-                    version,
-                    show_validation_error,
-                    show_validation_message,
-                    update_progress_bars,
-                    0.5 if deliverables.deliver_sequence else 1.0,
-                )
-                process.run(
-                    self.nuke_path,
-                    [
+                preview_jobs = len(user_settings.delivery_preview_outputs)
+            sequence_jobs = 0
+            if deliverables.deliver_sequence:
+                sequence_jobs = 1
+
+            total_jobs = preview_jobs + sequence_jobs
+            current_job = 0
+
+            def update_progress(progress: float):
+                version.progress = (progress + current_job) / total_jobs
+                update_progress_bars(version)
+
+            if deliverables.deliver_preview:
+                for output in user_settings.delivery_preview_outputs:
+
+                    preview_template_fields = {
+                        **template_fields,
+                        "delivery_preview_extension": output.extension,
+                    }
+                    # Get the output preview path
+                    output_preview_path = Path(
+                        delivery_preview_template.apply_fields(
+                            preview_template_fields
+                        )
+                    )
+                    if user_settings.delivery_location is not None:
+                        output_preview_path = (
+                            delivery_folder / output_preview_path.name
+                        )
+
+                    process = NukeProcess(
+                        version,
+                        show_validation_error,
+                        show_validation_message,
+                        update_progress,
+                        f"{output.extension.upper()} - {output.name}",
+                    )
+                    args = [
                         "-t",
                         self.slate_path,
                         str(version.first_frame),
@@ -709,14 +778,54 @@ class DeliveryModel:
                         self.font_path,
                         "--font-bold-path",
                         self.font_bold_path,
-                    ],
-                )
+                        "--write-settings",
+                        output.to_cli_string(),
+                    ]
+                    if timecode_ref_path is not None:
+                        args.extend(["--timecode-ref", str(timecode_ref_path)])
+                    if user_settings.letterbox is not None:
+                        args.extend(
+                            ["--letterbox", str(user_settings.letterbox)]
+                        )
 
-                self.logger.info(
-                    f"Finished rendering preview to {output_preview_path}."
-                )
+                    process.run(
+                        self.nuke_path,
+                        args,
+                    )
+
+                    self.logger.info(
+                        f"Finished rendering preview to {output_preview_path}."
+                    )
+
+                    current_job += 1
 
             if deliverables.deliver_sequence:
+                should_rerender = False
+                outputs = [
+                    output
+                    for output in self.settings.delivery_sequence_outputs
+                    if output.status == version.sequence_output_status
+                ]
+                if len(outputs) > 0:
+                    output = outputs[0]
+
+                    if output.settings.keys() == ["compression"]:
+                        metadata = parse_exr_metadata.read_exr_header(
+                            version.sequence_path % version.first_frame
+                        )
+                        if "compression" in metadata:
+                            if (
+                                output.settings["compression"].lower()
+                                in metadata.get("compression")
+                                .replace("_COMPRESSION", "")
+                                .lower()
+                            ):
+                                self.logger.info("MATCH COMPRESSION")
+                            else:
+                                should_rerender = True
+                    else:
+                        should_rerender = True
+
                 # Create sequence delivery folder
                 sequence_delivery_folder = delivery_sequence_path.parent
                 self.logger.info(
@@ -724,45 +833,67 @@ class DeliveryModel:
                 )
                 sequence_delivery_folder.mkdir(parents=True, exist_ok=True)
 
-                version.validation_message = "Delivering frames..."
-                show_validation_message(version)
+                if should_rerender:
+                    output = outputs[0]
 
-                can_link = False
-                if (
-                    Path(version.sequence_path).drive
-                    == delivery_sequence_path.drive
-                ):
-                    can_link = True
+                    version.validation_message = f"Rerendering frames for {output.status} - {output.name}..."
+                    show_validation_message(version)
 
-                for frame in range(
-                    version.first_frame, version.last_frame + 1
-                ):
-                    publish_file = Path(version.sequence_path % frame)
-                    delivery_file = delivery_sequence_path.with_name(
-                        delivery_sequence_path.name % frame
+                    publish_file = Path(version.sequence_path)
+
+                    process = NukeProcess(
+                        version,
+                        show_validation_error,
+                        show_validation_message,
+                        update_progress,
+                        f"{output.status} - {output.name}",
                     )
+                    args = [
+                        "-t",
+                        self.plate_path,
+                        str(version.first_frame),
+                        str(version.last_frame),
+                        publish_file.as_posix(),
+                        delivery_sequence_path.as_posix(),
+                        "--write-settings",
+                        output.to_cli_string(),
+                    ]
+                    process.run(
+                        self.nuke_path,
+                        args,
+                    )
+                else:
+                    version.validation_message = "Delivering frames..."
+                    show_validation_message(version)
 
-                    if can_link:
-                        os.link(publish_file, delivery_file)
-                    else:
-                        shutil.copyfile(publish_file, delivery_file)
+                    can_link = False
+                    if (
+                        Path(version.sequence_path).drive
+                        == delivery_sequence_path.drive
+                    ):
+                        can_link = True
 
-                    if deliverables.deliver_preview:
-                        version.progress = (
-                            0.5
-                            + (frame - version.first_frame)
+                    for frame in range(
+                        version.first_frame, version.last_frame + 1
+                    ):
+                        publish_file = Path(version.sequence_path % frame)
+                        delivery_file = delivery_sequence_path.with_name(
+                            delivery_sequence_path.name % frame
+                        )
+
+                        if can_link:
+                            os.link(publish_file, delivery_file)
+                        else:
+                            shutil.copyfile(publish_file, delivery_file)
+
+                        update_progress(
+                            (frame - version.first_frame)
                             / (version.last_frame - version.first_frame)
-                            * 0.5
                         )
-                    else:
-                        version.progress = (frame - version.first_frame) / (
-                            version.last_frame - version.first_frame
-                        )
-                    update_progress_bars(version)
 
-                self.logger.info(
-                    f"Finished linking {version.sequence_path} to {delivery_sequence_path}."
-                )
+                    self.logger.info(
+                        f"Finished linking {version.sequence_path} to {delivery_sequence_path}."
+                    )
 
             # Deliver attachment
             if version.attachment is not None:

@@ -34,6 +34,21 @@ parser.add_argument(
     type=str,
     metavar="colorspace",
 )
+parser.add_argument(
+    "--timecode-ref", type=str, help="Path to sequence with correct timecode"
+)
+parser.add_argument(
+    "-lb",
+    "--letterbox",
+    type=str,
+    help="Letterbox overlay settings. Format: <width>:<height>/<opacity>",
+)
+parser.add_argument(
+    "-ws",
+    "--write-settings",
+    type=str,
+    help="Settings for the write node as a JSON object",
+)
 
 shotgrid = parser.add_argument_group("ShotGrid")
 shotgrid.add_argument(

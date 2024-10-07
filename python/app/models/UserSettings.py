@@ -1,19 +1,30 @@
 from __future__ import annotations
 
+from . import Letterbox, PreviewOutput
+
 
 class UserSettings:
     delivery_version: int = None
     delivery_location: str = None
+    letterbox: Letterbox = None
+    delivery_preview_outputs: list[PreviewOutput] = None
     csv_fields: list[tuple[str, tuple[str, str] | str]] = []
 
     def __init__(
         self,
         delivery_version: int = None,
         delivery_location: str = None,
+        letterbox: Letterbox = None,
+        delivery_preview_outputs: list[PreviewOutput] = None,
         csv_fields: list[tuple[str, tuple[str, str] | str]] = None,
     ):
         self.delivery_version = delivery_version
         self.delivery_location = delivery_location
+        self.letterbox = letterbox
+
+        if delivery_preview_outputs is None:
+            delivery_preview_outputs = []
+        self.delivery_preview_outputs = delivery_preview_outputs
 
         if csv_fields is None:
             csv_fields = []
