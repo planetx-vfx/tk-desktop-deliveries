@@ -60,6 +60,7 @@ configuration:
   # --- LISTS ---
   delivery_preview_outputs:
     type: list
+    description: "List of preview output settings to use."
     values:
       type: dict
       items:
