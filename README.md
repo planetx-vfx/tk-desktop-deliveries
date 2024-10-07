@@ -41,7 +41,7 @@ This app will get all versions with the "Ready for Delivery" status, create slat
 
 | Name                        | Description                                               | Default value |
 |-----------------------------|-----------------------------------------------------------|---------------|
-| `delivery_preview_outputs`  |                                                           |               |
+| `delivery_preview_outputs`  | List of preview output settings to use.                   |               |
 | `delivery_sequence_outputs` | List of version statuses to match exr render settings to. |               |
 
 
