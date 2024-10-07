@@ -73,6 +73,21 @@ configuration:
         settings:
           type: dict
 
+  delivery_sequence_outputs:
+    type: list
+    description: "List of version statuses to match exr render settings to."
+    values:
+      type: dict
+      items:
+        name:
+          type: str
+        extension:
+          type: str
+        status:
+          type: str
+        settings:
+          type: dict
+
   # --- STRINGS ---
   shot_status_field:
     type: str
@@ -85,6 +100,12 @@ configuration:
     default_value: "sg_status_list"
     allows_empty: True
     description: Field to check the version status with.
+
+  delivery_sequence_outputs_field:
+    type: str
+    default_value: "sg_submitting_for"
+    allows_empty: True
+    description: Field to match the delivery sequence output settings with.
 
   shot_delivery_status:
     type: str

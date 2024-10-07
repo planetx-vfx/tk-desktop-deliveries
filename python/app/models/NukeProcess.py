@@ -30,7 +30,6 @@ class NukeProcess:
         show_validation_error: Callable[[Version], None],
         show_validation_message: Callable[[Version], None],
         update_progress_bars: Callable[[float], None],
-        progress_part: float,
         name: str = None,
     ):
         self.version = version

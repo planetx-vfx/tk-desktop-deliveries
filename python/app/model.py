@@ -36,6 +36,7 @@ from urllib.request import urlretrieve
 
 import sgtk
 
+from .external import parse_exr_metadata
 from .models import (
     Shot,
     Version,
@@ -108,6 +109,7 @@ class DeliveryModel:
             os.path.join(os.getcwd(), os.path.dirname(__file__))
         )
         self.slate_path = os.path.join(__location__, "slate_cli.py")
+        self.plate_path = os.path.join(__location__, "plate_cli.py")
 
         self.base_template_fields = {
             "prj": self.get_project_code(),
@@ -193,6 +195,7 @@ class DeliveryModel:
             "sg_delivery_note",
             "sg_attachment",
             "image",
+            self.settings.delivery_sequence_outputs_field,
         ]
 
         versions_to_deliver = self.shotgrid_connection.find(
@@ -452,6 +455,9 @@ class DeliveryModel:
                     task=task,
                     deliver_preview=deliver_preview,
                     deliver_sequence=deliver_sequence,
+                    sequence_output_status=sg_version[
+                        self.settings.delivery_sequence_outputs_field
+                    ],
                 )
                 shot.add_version(version)
 
@@ -794,6 +800,32 @@ class DeliveryModel:
                     current_job += 1
 
             if deliverables.deliver_sequence:
+                should_rerender = False
+                outputs = [
+                    output
+                    for output in self.settings.delivery_sequence_outputs
+                    if output.status == version.sequence_output_status
+                ]
+                if len(outputs) > 0:
+                    output = outputs[0]
+
+                    if output.settings.keys() == ["compression"]:
+                        metadata = parse_exr_metadata.read_exr_header(
+                            version.sequence_path % version.first_frame
+                        )
+                        if "compression" in metadata:
+                            if (
+                                output.settings["compression"].lower()
+                                in metadata.get("compression")
+                                .replace("_COMPRESSION", "")
+                                .lower()
+                            ):
+                                self.logger.info("MATCH COMPRESSION")
+                            else:
+                                should_rerender = True
+                    else:
+                        should_rerender = True
+
                 # Create sequence delivery folder
                 sequence_delivery_folder = delivery_sequence_path.parent
                 self.logger.info(
@@ -801,37 +833,67 @@ class DeliveryModel:
                 )
                 sequence_delivery_folder.mkdir(parents=True, exist_ok=True)
 
-                version.validation_message = "Delivering frames..."
-                show_validation_message(version)
+                if should_rerender:
+                    output = outputs[0]
 
-                can_link = False
-                if (
-                    Path(version.sequence_path).drive
-                    == delivery_sequence_path.drive
-                ):
-                    can_link = True
+                    version.validation_message = f"Rerendering frames for {output.status} - {output.name}..."
+                    show_validation_message(version)
 
-                for frame in range(
-                    version.first_frame, version.last_frame + 1
-                ):
-                    publish_file = Path(version.sequence_path % frame)
-                    delivery_file = delivery_sequence_path.with_name(
-                        delivery_sequence_path.name % frame
+                    publish_file = Path(version.sequence_path)
+
+                    process = NukeProcess(
+                        version,
+                        show_validation_error,
+                        show_validation_message,
+                        update_progress,
+                        f"{output.status} - {output.name}",
                     )
-
-                    if can_link:
-                        os.link(publish_file, delivery_file)
-                    else:
-                        shutil.copyfile(publish_file, delivery_file)
-
-                    update_progress(
-                        (frame - version.first_frame)
-                        / (version.last_frame - version.first_frame)
+                    args = [
+                        "-t",
+                        self.plate_path,
+                        str(version.first_frame),
+                        str(version.last_frame),
+                        publish_file.as_posix(),
+                        delivery_sequence_path.as_posix(),
+                        "--write-settings",
+                        output.to_cli_string(),
+                    ]
+                    process.run(
+                        self.nuke_path,
+                        args,
                     )
+                else:
+                    version.validation_message = "Delivering frames..."
+                    show_validation_message(version)
 
-                self.logger.info(
-                    f"Finished linking {version.sequence_path} to {delivery_sequence_path}."
-                )
+                    can_link = False
+                    if (
+                        Path(version.sequence_path).drive
+                        == delivery_sequence_path.drive
+                    ):
+                        can_link = True
+
+                    for frame in range(
+                        version.first_frame, version.last_frame + 1
+                    ):
+                        publish_file = Path(version.sequence_path % frame)
+                        delivery_file = delivery_sequence_path.with_name(
+                            delivery_sequence_path.name % frame
+                        )
+
+                        if can_link:
+                            os.link(publish_file, delivery_file)
+                        else:
+                            shutil.copyfile(publish_file, delivery_file)
+
+                        update_progress(
+                            (frame - version.first_frame)
+                            / (version.last_frame - version.first_frame)
+                        )
+
+                    self.logger.info(
+                        f"Finished linking {version.sequence_path} to {delivery_sequence_path}."
+                    )
 
             # Deliver attachment
             if version.attachment is not None:
