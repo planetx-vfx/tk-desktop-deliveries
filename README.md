@@ -39,38 +39,40 @@ This app will get all versions with the "Ready for Delivery" status, create slat
 
 ### Lists
 
-| Name                       | Description | Default value |
-|----------------------------|-------------|---------------|
-| `delivery_preview_outputs` |             |               |
+| Name                        | Description                                               | Default value |
+|-----------------------------|-----------------------------------------------------------|---------------|
+| `delivery_preview_outputs`  |                                                           |               |
+| `delivery_sequence_outputs` | List of version statuses to match exr render settings to. |               |
 
 
 ### Strings
 
-| Name                               | Description                                                                                | Default value  |
-|------------------------------------|--------------------------------------------------------------------------------------------|----------------|
-| `shot_status_field`                | Field to check the shot status with.                                                       | sg_status_list |
-| `version_status_field`             | Field to check the version status with.                                                    | sg_status_list |
-| `shot_delivery_status`             | Status of a shot that will be added to the ready for delivery list.                        | rfd            |
-| `version_delivery_status`          | Status of a version that will be added to the ready for delivery list.                     | rfd            |
-| `version_delivered_status`         | Status to set the version to if the EXRs (and preview) of the version have been delivered. | dlvr           |
-| `version_preview_delivered_status` | Status to set the version to if only a preview of the version has been delivered.          | dlvr           |
-| `shot_delivered_status`            | Status to set the shot to if the EXRs of the shot have been delivered.                     | fin            |
-| `preview_colorspace_idt`           | Input colorspace of the preview.                                                           | ACES - ACEScg  |
-| `preview_colorspace_odt`           | Output colorspace of the preview.                                                          | Output - sRGB  |
-| `sg_server_path`                   | ShotGrid server path                                                                       |                |
-| `sg_script_name`                   | ShotGrid script name                                                                       |                |
-| `sg_script_key`                    | ShotGrid script key                                                                        |                |
-| `logo_path_linux`                  | Linux path to the company logo.                                                            |                |
-| `logo_path_mac`                    | Mac path to the company logo.                                                              |                |
-| `logo_path_windows`                | Windows path to the company logo.                                                          |                |
-| `font_path_linux`                  | Linux path to the regular font to use.                                                     |                |
-| `font_bold_path_linux`             | Linux path to the bold font to use.                                                        |                |
-| `font_path_mac`                    | Mac path to the regular font to use.                                                       |                |
-| `font_bold_path_mac`               | Mac path to the bold font to use.                                                          |                |
-| `font_path_windows`                | Windows path to the regular font to use.                                                   |                |
-| `font_bold_path_windows`           | Windows path to the bold font to use.                                                      |                |
-| `nuke_path_linux`                  | Linux path to your Nuke installation for creating slates.                                  |                |
-| `nuke_path_mac`                    | Mac path to your Nuke installation for creating slates.                                    |                |
-| `nuke_path_windows`                | Windows path to your Nuke installation for creating slates.                                |                |
+| Name                               | Description                                                                                | Default value     |
+|------------------------------------|--------------------------------------------------------------------------------------------|-------------------|
+| `shot_status_field`                | Field to check the shot status with.                                                       | sg_status_list    |
+| `version_status_field`             | Field to check the version status with.                                                    | sg_status_list    |
+| `delivery_sequence_outputs_field`  | Field to match the delivery sequence output settings with.                                 | sg_submitting_for |
+| `shot_delivery_status`             | Status of a shot that will be added to the ready for delivery list.                        | rfd               |
+| `version_delivery_status`          | Status of a version that will be added to the ready for delivery list.                     | rfd               |
+| `version_delivered_status`         | Status to set the version to if the EXRs (and preview) of the version have been delivered. | dlvr              |
+| `version_preview_delivered_status` | Status to set the version to if only a preview of the version has been delivered.          | dlvr              |
+| `shot_delivered_status`            | Status to set the shot to if the EXRs of the shot have been delivered.                     | fin               |
+| `preview_colorspace_idt`           | Input colorspace of the preview.                                                           | ACES - ACEScg     |
+| `preview_colorspace_odt`           | Output colorspace of the preview.                                                          | Output - sRGB     |
+| `sg_server_path`                   | ShotGrid server path                                                                       |                   |
+| `sg_script_name`                   | ShotGrid script name                                                                       |                   |
+| `sg_script_key`                    | ShotGrid script key                                                                        |                   |
+| `logo_path_linux`                  | Linux path to the company logo.                                                            |                   |
+| `logo_path_mac`                    | Mac path to the company logo.                                                              |                   |
+| `logo_path_windows`                | Windows path to the company logo.                                                          |                   |
+| `font_path_linux`                  | Linux path to the regular font to use.                                                     |                   |
+| `font_bold_path_linux`             | Linux path to the bold font to use.                                                        |                   |
+| `font_path_mac`                    | Mac path to the regular font to use.                                                       |                   |
+| `font_bold_path_mac`               | Mac path to the bold font to use.                                                          |                   |
+| `font_path_windows`                | Windows path to the regular font to use.                                                   |                   |
+| `font_bold_path_windows`           | Windows path to the bold font to use.                                                      |                   |
+| `nuke_path_linux`                  | Linux path to your Nuke installation for creating slates.                                  |                   |
+| `nuke_path_mac`                    | Mac path to your Nuke installation for creating slates.                                    |                   |
+| `nuke_path_windows`                | Windows path to your Nuke installation for creating slates.                                |                   |
 
 
