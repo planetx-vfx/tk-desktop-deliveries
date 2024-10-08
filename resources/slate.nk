@@ -7,7 +7,7 @@ Dot {
  ypos 0
 }
 AddTimeCode {
- startcode "\[python \{nuke.root().node(\"Timecode\").metadata(\"input/timecode\", nuke.root().node(\"Timecode\").knob(\"first\").getValue()) if nuke.root().node(\"Timecode\") and \"input/timecode\" in nuke.root().node(\"Timecode\").metadata().keys() else nuke.root().node(\"INPUT\").metadata(\"input/timecode\", nuke.thisNode().knob(\"frame\").getValue())\}]"
+ startcode "\[python -exec \{\ntc = \"0\"\nif nuke.root().node(\"Timecode\") and \"input/timecode\" in nuke.root().node(\"Timecode\").metadata().keys():\n    first_frame = nuke.root().node(\"Timecode\").knob(\"first\").getValue()\n    tc = nuke.root().node(\"Timecode\").metadata(\"input/timecode\", first_frame)\nelse:\n    tc = nuke.root().node(\"INPUT\").metadata(\"input/timecode\", nuke.thisNode().knob(\"frame\").getValue())\n    if tc == \"00:00:00:00\":\n        tc = \"00:00:00:01\"\n\}]\[python tc]"
  frame 1001
  useFrame true
  name AddTimeCode
@@ -12251,8 +12251,8 @@ push $N447dd800
   disable {{!parent.copy_metadata}}
  }
  AddTimeCode {
-  startcode 0
-  frame 1000
+  startcode "\n\[python \{nuke.thisNode().metadata(\"input/timecode\", time=nuke.thisNode()\['frame'].getValue()) or \"0\"\}]"
+  frame {{parent.thumbnail_frame}}
   useFrame true
   name AddTimeCode1
   xpos 2160
