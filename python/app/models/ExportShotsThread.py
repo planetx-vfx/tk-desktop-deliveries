@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import re
 from pathlib import Path
 from typing import Callable
 
@@ -349,5 +350,13 @@ class ExportShotsThread(QtCore.QThread):
                             # Add empty string if no value found
                             csv_fields.append("")
 
+                        # Sanitize text
+                        csv_fields = [
+                            re.sub(r"[^\x20-\x7E\n\r\t]+", "", column)
+                            for column in csv_fields
+                        ]
+
+                        self.model.logger.debug("Writing row:")
                         self.model.logger.debug(list(zip(header, csv_fields)))
+
                         writer.writerow(csv_fields)
