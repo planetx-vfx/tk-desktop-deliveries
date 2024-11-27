@@ -234,6 +234,15 @@ class DeliveryView:
             for setting in ["letterbox_w", "letterbox_h", "letterbox_opacity"]:
                 self.settings[setting].setDisabled(state != QtCore.Qt.Checked)
 
+            if "preview_outputs" in self.settings:
+                for output in self.settings["preview_outputs"]:
+                    self.settings[f"{output}_letterbox"].setDisabled(
+                        state != QtCore.Qt.Checked
+                    )
+                    self.settings[f"{output}_letterbox"].setChecked(
+                        state == QtCore.Qt.Checked
+                    )
+
         self.settings["letterbox_enable"].stateChanged.connect(
             update_letterbox_state
         )
