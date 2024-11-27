@@ -198,9 +198,18 @@ class DeliveryController(QtWidgets.QWidget):
 
     def load_preview_outputs(self):
         """Load the preview output checkboxes"""
+        self.view.settings["preview_outputs"] = []
+
         for i, output in enumerate(
             self.model.settings.delivery_preview_outputs
         ):
+            widget = QtWidgets.QWidget()
+            layout = QtWidgets.QHBoxLayout()
+            layout.setSpacing(16)
+            layout.setContentsMargins(0, 0, 0, 0)
+
+            self.view.settings["preview_outputs"].append(f"preview_output_{i}")
+
             key = f"preview_output_{i}_enabled"
             self.view.settings[key] = QtWidgets.QCheckBox(
                 text=f"{output.extension.upper()} - {output.name}",
@@ -210,7 +219,21 @@ class DeliveryController(QtWidgets.QWidget):
             self.view.settings[key].stateChanged.connect(
                 self.toggle_preview_output
             )
-            self.view.preview_outputs.addWidget(self.view.settings[key])
+            layout.addWidget(self.view.settings[key])
+
+            key = f"preview_output_{i}_letterbox"
+            self.view.settings[key] = QtWidgets.QCheckBox(
+                text="Letterbox",
+                objectName=key,
+            )
+            self.view.settings[key].setChecked(
+                self.view.settings["letterbox_enable"].isChecked()
+            )
+            layout.addWidget(self.view.settings[key])
+
+            layout.addStretch()
+            widget.setLayout(layout)
+            self.view.preview_outputs.addWidget(widget)
 
     def toggle_preview_output(self, state):
         """Disable other conflicting output previews"""
@@ -440,12 +463,13 @@ class DeliveryController(QtWidgets.QWidget):
                 return None
 
         letterbox = None
-        if (
+        letterbox_is_valid = (
             self.view.settings["letterbox_enable"].isChecked()
             and self.view.settings["letterbox_w"].text() != ""
             and self.view.settings["letterbox_h"].text() != ""
             and self.view.settings["letterbox_opacity"].text() != ""
-        ):
+        )
+        if letterbox_is_valid:
             letterbox = Letterbox(
                 float(self.view.settings["letterbox_w"].text()),
                 float(self.view.settings["letterbox_h"].text()),
@@ -465,6 +489,10 @@ class DeliveryController(QtWidgets.QWidget):
                         for out in delivery_preview_outputs
                     ]
                 ):
+                    if letterbox_is_valid:
+                        output.use_letterbox = self.view.settings[
+                            f"preview_output_{i}_letterbox"
+                        ].isChecked()
                     delivery_preview_outputs.append(output)
 
         csv_fields = []
