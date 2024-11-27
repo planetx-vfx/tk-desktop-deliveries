@@ -783,7 +783,10 @@ class DeliveryModel:
                     ]
                     if timecode_ref_path is not None:
                         args.extend(["--timecode-ref", str(timecode_ref_path)])
-                    if user_settings.letterbox is not None:
+                    if (
+                        user_settings.letterbox is not None
+                        and output.use_letterbox
+                    ):
                         args.extend(
                             ["--letterbox", str(user_settings.letterbox)]
                         )
