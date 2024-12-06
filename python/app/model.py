@@ -271,7 +271,7 @@ class DeliveryModel:
 
     def get_shot_version_published_file(
         self, latest_shot_version: dict
-    ) -> dict:
+    ) -> dict | None:
         """Gets the correct published files associates with this version.
 
         Args:
@@ -281,6 +281,9 @@ class DeliveryModel:
             Published files
         """
         publishes = latest_shot_version["published_files"]
+
+        if len(publishes) == 0:
+            return None
 
         filters = [
             ["id", "is", publishes[0]["id"]],
