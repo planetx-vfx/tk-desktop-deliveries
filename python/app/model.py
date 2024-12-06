@@ -426,6 +426,20 @@ class DeliveryModel:
                 published_file = self.get_shot_version_published_file(
                     sg_version
                 )
+                sequence_path = ""
+                if published_file is not None:
+                    if sgtk.util.is_linux():
+                        sequence_path = published_file["path"][
+                            "local_path_linux"
+                        ]
+                    elif sgtk.util.is_macos():
+                        sequence_path = published_file["path"][
+                            "local_path_mac"
+                        ]
+                    elif sgtk.util.is_windows():
+                        sequence_path = published_file["path"][
+                            "local_path_windows"
+                        ]
 
                 task = None
                 if sg_version["sg_task"] is not None:
@@ -451,8 +465,8 @@ class DeliveryModel:
                     last_frame=last_frame,
                     fps=sg_version["sg_uploaded_movie_frame_rate"],
                     thumbnail=sg_version["image"],
-                    sequence_path=published_file["path"]["local_path_windows"],
                     version_number=published_file["version_number"],
+                    sequence_path=sequence_path,
                     path_to_movie=sg_version["sg_path_to_movie"],
                     submitting_for=sg_version["sg_submitting_for"],
                     delivery_note=sg_version["sg_delivery_note"],
