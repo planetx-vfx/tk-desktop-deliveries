@@ -177,7 +177,7 @@ class ShotGridSlate(object):
                 write_node=write,
             )
         else:
-            msg = "Sequence not found, aborting!"
+            msg = f"Sequence not found, aborting! {sequence_path}"
             raise Exception(msg)
 
     def __validate_sequence(
@@ -207,7 +207,7 @@ class ShotGridSlate(object):
             if sequence_filename == filename:
                 return sequence
 
-        raise Exception("No frame sequence found")
+        raise Exception(f"No frame sequence found in path {sequence_path}")
 
     def __setup_script(self):
         """Creates Nuke script with read node and correct settings
