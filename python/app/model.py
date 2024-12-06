@@ -465,8 +465,12 @@ class DeliveryModel:
                     last_frame=last_frame,
                     fps=sg_version["sg_uploaded_movie_frame_rate"],
                     thumbnail=sg_version["image"],
-                    version_number=published_file["version_number"],
                     sequence_path=sequence_path,
+                    version_number=(
+                        published_file["version_number"]
+                        if published_file
+                        else -1
+                    ),
                     path_to_movie=sg_version["sg_path_to_movie"],
                     submitting_for=sg_version["sg_submitting_for"],
                     delivery_note=sg_version["sg_delivery_note"],
