@@ -183,6 +183,7 @@ class DeliveryModel:
         ]
 
         columns = [
+            "code",
             "entity",
             "published_files",
             "sg_first_frame",
@@ -442,6 +443,7 @@ class DeliveryModel:
 
                 version = Version(
                     id=sg_version["id"],
+                    code=sg_version["code"],
                     first_frame=first_frame,
                     last_frame=last_frame,
                     fps=sg_version["sg_uploaded_movie_frame_rate"],
