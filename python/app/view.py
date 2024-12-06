@@ -339,14 +339,21 @@ class DeliveryView:
         buttons_widget_layout = QtWidgets.QVBoxLayout()
         buttons_widget.setLayout(buttons_widget_layout)
 
-        self.final_validation_label = QtWidgets.QLabel(
-            "Some shots are not exported due to errors!"
+        self.final_error_label = QtWidgets.QLabel(
+            "The delivery failed due to errors!"
         )
-        self.final_validation_label.hide()
-        self.final_validation_label.setStyleSheet(
+        self.final_error_label.hide()
+        self.final_error_label.setStyleSheet(
             "color: '#FF3E3E'; font: bold; font-size: 12px"
         )
-        buttons_widget_layout.addWidget(self.final_validation_label)
+        buttons_widget_layout.addWidget(self.final_error_label)
+
+        self.final_success_label = QtWidgets.QLabel("Delivery finished.")
+        self.final_success_label.hide()
+        self.final_success_label.setStyleSheet(
+            "color: '#8BFF3E'; font: bold; font-size: 12px"
+        )
+        buttons_widget_layout.addWidget(self.final_success_label)
 
         self.reload_button = QtWidgets.QPushButton("Reload shot list")
         buttons_widget_layout.addWidget(self.reload_button)

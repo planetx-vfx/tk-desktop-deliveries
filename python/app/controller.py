@@ -94,7 +94,8 @@ class DeliveryController(QtWidgets.QWidget):
 
     def load_shots(self):
         """Clear the olds shots, then fetches the shots on the model."""
-        self.view.final_validation_label.hide()
+        self.view.final_error_label.hide()
+        self.view.final_success_label.hide()
 
         for shot in self.view.shot_widget_references:
             self.view.shot_widget_references[shot]["widget"].hide()
@@ -309,7 +310,8 @@ class DeliveryController(QtWidgets.QWidget):
 
     def export_versions(self):
         """Runs the export function on the model."""
-        self.view.final_validation_label.hide()
+        self.view.final_error_label.hide()
+        self.view.final_success_label.hide()
 
         # Lock checkboxes
         for key, version in self.view.shot_widget_references.items():
@@ -319,7 +321,7 @@ class DeliveryController(QtWidgets.QWidget):
         user_settings = self.get_user_settings()
 
         if user_settings is None:
-            self.view.final_validation_label.show()
+            self.view.final_error_label.show()
             return
 
         # Close settings
@@ -343,6 +345,8 @@ class DeliveryController(QtWidgets.QWidget):
             version["shot_deliver_sequence"].setDisabled(False)
             version["shot_deliver_preview"].setDisabled(False)
 
+        self.view.final_success_label.show()
+
     def show_validation_error(self, version: Version) -> None:
         """Sets the validation error text on the shot widget.
 
@@ -355,7 +359,7 @@ class DeliveryController(QtWidgets.QWidget):
         self.view.shot_widget_references[version.id_str][
             "validation_label"
         ].setStyleSheet("color: '#FF3E3E'; font: bold; font-size: 12px")
-        self.view.final_validation_label.show()
+        self.view.final_error_label.show()
 
     def show_validation_message(self, version: Version) -> None:
         """Sets the validation message on the shot widget.
