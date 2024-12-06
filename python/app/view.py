@@ -415,19 +415,22 @@ class DeliveryView:
 
         shot_widget_vertical_layout = QtWidgets.QVBoxLayout()
 
-        with urllib.request.urlopen(version.thumbnail) as response:
-            image_data = response.read()
+        if version.thumbnail is not None and version.thumbnail != "":
+            with urllib.request.urlopen(version.thumbnail) as response:
+                image_data = response.read()
 
-        # Load image into QPixmap
-        pixmap = QtGui.QPixmap()
-        pixmap.loadFromData(image_data)
-        scaled_pixmap = pixmap.scaledToWidth(
-            128, QtCore.Qt.SmoothTransformation
-        )
+            # Load image into QPixmap
+            pixmap = QtGui.QPixmap()
+            pixmap.loadFromData(image_data)
+            scaled_pixmap = pixmap.scaledToWidth(
+                128, QtCore.Qt.SmoothTransformation
+            )
 
-        image_label = QtWidgets.QLabel()
-        image_label.setPixmap(scaled_pixmap)
-        shot_widget_main_layout.addWidget(image_label)
+            image_label = QtWidgets.QLabel()
+            image_label.setPixmap(scaled_pixmap)
+            shot_widget_main_layout.addWidget(image_label)
+        else:
+            shot_widget_main_layout.addSpacing(128)
 
         shot_name_label = QtWidgets.QLabel(
             f"Sequence {shot.sequence} - Shot {shot.code} - Version {version.version_number}"
