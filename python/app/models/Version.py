@@ -4,6 +4,7 @@ from __future__ import annotations
 class Version:
     id: int
     id_str: str
+    code: str
     first_frame: int
     last_frame: int
     fps: int
@@ -27,6 +28,7 @@ class Version:
     def __init__(
         self,
         id: int,
+        code: str,
         first_frame: int,
         last_frame: int,
         fps: int,
@@ -44,6 +46,7 @@ class Version:
     ):
         self.id = id
         self.id_str = str(id)
+        self.code = code
         self.first_frame = first_frame
         self.last_frame = last_frame
         self.fps = fps

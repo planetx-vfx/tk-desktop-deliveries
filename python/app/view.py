@@ -348,14 +348,21 @@ class DeliveryView:
         buttons_widget_layout = QtWidgets.QVBoxLayout()
         buttons_widget.setLayout(buttons_widget_layout)
 
-        self.final_validation_label = QtWidgets.QLabel(
-            "Some shots are not exported due to errors!"
+        self.final_error_label = QtWidgets.QLabel(
+            "The delivery failed due to errors!"
         )
-        self.final_validation_label.hide()
-        self.final_validation_label.setStyleSheet(
+        self.final_error_label.hide()
+        self.final_error_label.setStyleSheet(
             "color: '#FF3E3E'; font: bold; font-size: 12px"
         )
-        buttons_widget_layout.addWidget(self.final_validation_label)
+        buttons_widget_layout.addWidget(self.final_error_label)
+
+        self.final_success_label = QtWidgets.QLabel("Delivery finished.")
+        self.final_success_label.hide()
+        self.final_success_label.setStyleSheet(
+            "color: '#8BFF3E'; font: bold; font-size: 12px"
+        )
+        buttons_widget_layout.addWidget(self.final_success_label)
 
         self.reload_button = QtWidgets.QPushButton("Reload shot list")
         buttons_widget_layout.addWidget(self.reload_button)
@@ -417,19 +424,22 @@ class DeliveryView:
 
         shot_widget_vertical_layout = QtWidgets.QVBoxLayout()
 
-        with urllib.request.urlopen(version.thumbnail) as response:
-            image_data = response.read()
+        if version.thumbnail is not None and version.thumbnail != "":
+            with urllib.request.urlopen(version.thumbnail) as response:
+                image_data = response.read()
 
-        # Load image into QPixmap
-        pixmap = QtGui.QPixmap()
-        pixmap.loadFromData(image_data)
-        scaled_pixmap = pixmap.scaledToWidth(
-            128, QtCore.Qt.SmoothTransformation
-        )
+            # Load image into QPixmap
+            pixmap = QtGui.QPixmap()
+            pixmap.loadFromData(image_data)
+            scaled_pixmap = pixmap.scaledToWidth(
+                128, QtCore.Qt.SmoothTransformation
+            )
 
-        image_label = QtWidgets.QLabel()
-        image_label.setPixmap(scaled_pixmap)
-        shot_widget_main_layout.addWidget(image_label)
+            image_label = QtWidgets.QLabel()
+            image_label.setPixmap(scaled_pixmap)
+            shot_widget_main_layout.addWidget(image_label)
+        else:
+            shot_widget_main_layout.addSpacing(128)
 
         shot_name_label = QtWidgets.QLabel(
             f"Sequence {shot.sequence} - Shot {shot.code} - Version {version.version_number}"
