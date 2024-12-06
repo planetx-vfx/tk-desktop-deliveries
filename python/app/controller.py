@@ -327,6 +327,11 @@ class DeliveryController(QtWidgets.QWidget):
         # Close settings
         self.view.settings_widget.setCollapsed(True)
 
+        if not self.model.validate_all_shots(
+            self.show_validation_error, self.show_validation_message
+        ):
+            return
+
         self.model.export_versions(
             user_settings,
             self.show_validation_error,
