@@ -42,12 +42,9 @@ class ExportShotsThread(QtCore.QThread):
         self.get_deliverables = get_deliverables
 
     def run(self):
-        validated_shots = self.model.validate_all_shots(
-            self.show_validation_error, self.show_validation_message
-        )
         version_deliverables = {}
         episodes = []
-        for shot in validated_shots:
+        for shot in self.model.shots_to_deliver:
             for version in shot.get_versions():
                 deliverables = self.get_deliverables(version)
 
@@ -128,7 +125,7 @@ class ExportShotsThread(QtCore.QThread):
                 "template_fields": template_fields,
             }
 
-        for shot in validated_shots:
+        for shot in self.model.shots_to_deliver:
             for version in shot.get_versions():
                 if version.id in version_deliverables:
                     self.model.deliver_version(
@@ -145,7 +142,7 @@ class ExportShotsThread(QtCore.QThread):
         for episode in episodes:
             # Create csv
             self.create_csv(
-                validated_shots,
+                self.model.shots_to_deliver,
                 episode,
                 csv_episode_data[episode]["delivery_folder"],
                 csv_episode_data[episode]["template_fields"],

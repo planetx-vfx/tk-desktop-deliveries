@@ -183,6 +183,7 @@ class DeliveryModel:
         ]
 
         columns = [
+            "code",
             "entity",
             "published_files",
             "sg_first_frame",
@@ -270,7 +271,7 @@ class DeliveryModel:
 
     def get_shot_version_published_file(
         self, latest_shot_version: dict
-    ) -> dict:
+    ) -> dict | None:
         """Gets the correct published files associates with this version.
 
         Args:
@@ -280,6 +281,9 @@ class DeliveryModel:
             Published files
         """
         publishes = latest_shot_version["published_files"]
+
+        if len(publishes) == 0:
+            return None
 
         filters = [
             ["id", "is", publishes[0]["id"]],
@@ -416,12 +420,26 @@ class DeliveryModel:
                 last_frame = (
                     sg_version["sg_last_frame"]
                     if sg_version["sg_last_frame"]
-                    else 0
+                    else -1
                 )
 
                 published_file = self.get_shot_version_published_file(
                     sg_version
                 )
+                sequence_path = ""
+                if published_file is not None:
+                    if sgtk.util.is_linux():
+                        sequence_path = published_file["path"][
+                            "local_path_linux"
+                        ]
+                    elif sgtk.util.is_macos():
+                        sequence_path = published_file["path"][
+                            "local_path_mac"
+                        ]
+                    elif sgtk.util.is_windows():
+                        sequence_path = published_file["path"][
+                            "local_path_windows"
+                        ]
 
                 task = None
                 if sg_version["sg_task"] is not None:
@@ -442,12 +460,17 @@ class DeliveryModel:
 
                 version = Version(
                     id=sg_version["id"],
+                    code=sg_version["code"],
                     first_frame=first_frame,
                     last_frame=last_frame,
                     fps=sg_version["sg_uploaded_movie_frame_rate"],
                     thumbnail=sg_version["image"],
-                    sequence_path=published_file["path"]["local_path_windows"],
-                    version_number=published_file["version_number"],
+                    sequence_path=sequence_path,
+                    version_number=(
+                        published_file["version_number"]
+                        if published_file
+                        else -1
+                    ),
                     path_to_movie=sg_version["sg_path_to_movie"],
                     submitting_for=sg_version["sg_submitting_for"],
                     delivery_note=sg_version["sg_delivery_note"],
@@ -500,7 +523,7 @@ class DeliveryModel:
         self,
         show_validation_error: Callable[[Version], None],
         show_validation_message: Callable[[Version], None],
-    ) -> list:
+    ) -> bool:
         """Goes over all the shots and checks if all frames exist.
 
         Args:
@@ -515,112 +538,116 @@ class DeliveryModel:
         """
         self.logger.info("Starting validation of shots.")
 
-        successfully_validated_shots = []
+        success = True
         for shot in self.shots_to_deliver:
             self.logger.info(
                 f"Validating sequence {shot.sequence}, shot {shot.code}."
             )
-            successfully_validated_versions = []
             for version in shot.get_versions():
-                try:
-                    if version.deliver_preview:
-                        self.validate_movie(shot, version)
-                    if version.deliver_sequence:
-                        self.validate_sequence_filetype(version)
-                        self.validate_all_frames_exist(version)
+                errors = []
+                errors.extend(self.validate_fields(version))
 
-                    successfully_validated_versions.append(version)
+                try:
+                    if version.deliver_sequence:
+                        # self.validate_sequence_filetype(version)
+                        self.validate_all_frames_exist(version)
+                except ValidationError as error_message:
+                    errors.append(str(error_message))
+
+                if len(errors) == 0:
                     self.logger.info("Validation passed.")
 
                     version.validation_message = (
                         "Initial validation checks passed!"
                     )
                     show_validation_message(version)
+                else:
+                    success = False
+                    self.logger.error(
+                        f'Version "{version.code}" ({version.id}) of shot {shot.sequence} {shot.code} had the following errors:'
+                    )
+                    for error in errors:
+                        self.logger.error("- " + error)
 
-                except ValidationError as error_message:
-                    self.logger.error(f"Validation failed: {error_message}")
+                    error_message = "\n".join(errors)
                     version.validation_error = str(error_message)
 
                     # This is kinda sketchy, I know
                     show_validation_error(version)
 
-            if len(successfully_validated_versions) == len(
-                shot.get_versions()
-            ):
-                successfully_validated_shots.append(shot)
+        return success
 
-        return successfully_validated_shots
-
-    def validate_movie(self, shot: Shot, version: Version) -> None:
-        """Checks if the movie exists.
+    def validate_fields(self, version: Version) -> list[str]:
+        """
+        Validate ShotGrid fields required for delivery.
 
         Args:
-            shot: Shot information
             version: Version information
 
-        Raises:
-            ValidationError: Error if validation fails.
+        Returns:
+            Errors that occurred.
         """
-        if not os.path.exists(version.path_to_movie):
-            self.logger.error(
-                f"A version of shot {shot.sequence} {shot.code} ({shot.id}) has a movie linked that doesn't exist."
-            )
-            error_message = (
-                "The version has a movie linked that doesn't exist."
-            )
-            raise ValidationError(error_message)
+        version_errors = []
 
-    def validate_all_frames_exist(self, version: Version) -> None:
+        if version.first_frame == -1:
+            version_errors.append("The sg_first_frame field is empty.")
+        if version.last_frame == -1:
+            version_errors.append("The sg_last_frame field is empty.")
+
+        if version.fps is None or version.fps == "":
+            version_errors.append(
+                "The sg_uploaded_movie_frame_rate field is empty."
+            )
+
+        if version.path_to_movie is None or version.path_to_movie == "":
+            version_errors.append("The path_to_movie field is empty.")
+        elif not os.path.isfile(version.path_to_movie):
+            version_errors.append(
+                "The path_to_movie field points to a nonexistent file."
+            )
+
+        if version.sequence_path is None or version.sequence_path == "":
+            version_errors.append("The published file(path) is empty.")
+        else:
+            if version.sequence_path.endswith(".mov"):
+                version_errors.append(
+                    "Linked version file is a reference MOV, not an EXR sequence."
+                )
+
+            if version.version_number == -1:
+                version_errors.append(
+                    "The linked published file doesn't have a version."
+                )
+
+        return version_errors
+
+    def validate_all_frames_exist(self, version: Version) -> list[str]:
         """Checks if all frames in the shot sequence exist
 
         Args:
             version: Version information
 
-        Raises:
-            ValidationError: Error when validation fails
+        Returns:
+            Errors that occurred.
         """
-        if version.first_frame == -1:
-            self.logger.error(
-                "Missing frame range data. Please check if first_frame and last_frame are set properly on the version info."
-            )
-            error_message = "Shot version is missing frame range data. Was it published correctly?"
-            raise ValidationError(error_message)
+        if version.first_frame == -1 or version.last_frame == -1:
+            return [
+                "Shot version is missing frame range data (sg_first_frame, sg_last_frame)."
+            ]
 
+        errors = []
         for frame in range(version.first_frame, version.last_frame):
-
             try:
                 frame_file_path = Path(version.sequence_path % frame)
-            except TypeError as e:
-                self.logger.error(
-                    "Filepath formatting failed. Probably because linked file on this version is not an EXR sequence."
-                )
-                error_message = "Could not format filepath. Are the EXRs correctly linked to this shot version?"
-                raise ValidationError(error_message) from e
+            except TypeError:
+                return [
+                    "Could not format filepath. Are the EXRs correctly linked?"
+                ]
 
             if not frame_file_path.is_file():
-                self.logger.error(f"Could not find file at {frame_file_path}.")
-                error_message = (
-                    f"Can't find frame {frame}. Does it exist on disk?"
-                )
-                raise ValidationError(error_message)
+                errors.append(f"Can't find frame {frame}.")
 
-    def validate_sequence_filetype(self, version: Version) -> None:
-        """Checks if the sequence path filetype is an EXR.
-
-        Args:
-            version: Version information
-
-        Raises:
-            ValidationError: Error if validation fails.
-        """
-        if version.sequence_path.endswith(".mov"):
-            self.logger.error(
-                "Found MOV on latest version, not an EXR. This often happens because the ingest reference version is still the latest version."
-            )
-            error_message = (
-                "Linked version file is a reference MOV, not an EXR sequence."
-            )
-            raise ValidationError(error_message)
+        return errors
 
     def deliver_version(
         self,
@@ -823,7 +850,7 @@ class DeliveryModel:
                                 .replace("_COMPRESSION", "")
                                 .lower()
                             ):
-                                self.logger.info("MATCH COMPRESSION")
+                                self.logger.info("Match compression")
                             else:
                                 should_rerender = True
                     else:
