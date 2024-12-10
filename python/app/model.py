@@ -28,6 +28,7 @@ Updated by Max de Groot 2024.
 
 from __future__ import annotations
 
+import json
 import os
 import shutil
 from pathlib import Path
@@ -757,6 +758,28 @@ class DeliveryModel:
                             delivery_folder / output_preview_path.name
                         )
 
+                    episode = ""
+                    scene = ""
+                    if shot.episode is not None:
+                        episode = shot.episode
+                        scene = ""
+                    elif "_" in shot.sequence:
+                        episode, scene = shot.sequence.split("_")
+
+                    slate_data = {
+                        "version_name": f"v{version.version_number:03d}",
+                        "submission_note": version.delivery_note,
+                        "submitting_for": version.submitting_for,
+                        "shot_name": shot.code,
+                        "shot_types": version.task.name,
+                        "vfx_scope_of_work": shot.description,
+                        "show": self.get_project()["name"],
+                        "episode": episode,
+                        "scene": scene,
+                        "sequence_name": shot.sequence,
+                        "vendor": self.base_template_fields["vnd"],
+                    }
+
                     process = NukeProcess(
                         version,
                         show_validation_error,
@@ -772,12 +795,7 @@ class DeliveryModel:
                         str(version.fps),
                         preview_movie_file.as_posix(),
                         output_preview_path.as_posix(),
-                        self.settings.sg_server_path,
-                        self.settings.sg_script_name,
-                        self.settings.sg_script_key,
                         self.logo_path,
-                        "--version-id",
-                        version.id_str,
                         "-idt",
                         self.settings.preview_colorspace_idt,
                         "-odt",
@@ -788,6 +806,8 @@ class DeliveryModel:
                         self.font_bold_path,
                         "--write-settings",
                         output.to_cli_string(),
+                        "--slate-data",
+                        json.dumps(slate_data),
                     ]
                     if timecode_ref_path is not None:
                         args.extend(["--timecode-ref", str(timecode_ref_path)])
