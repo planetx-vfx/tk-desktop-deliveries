@@ -48,9 +48,6 @@ Group {
  xpos -480
  ypos 213
  addUserKnob {20 fields l Fields t "All Of the value inputs to the slate."}
- addUserKnob {1 shotName l "Shot Name"}
- addUserKnob {26 info_message l Info T "<font color=\"green\">Succes!</font>"}
- addUserKnob {26 _1 l "" +STARTLINE}
  addUserKnob {1 f_version_name l "Version Name" t "This field is to be filled out with the unique version string for this media and match the name of the file.\n\nFollow the show's naming guidelines when filling this field out.\n\nExtension and frame padding are not required on this field.\n\nex. \"abc_001_001_comp_v003\"\n��"}
  addUserKnob {43 f_submission_note l "Submission Note"}
  addUserKnob {1 f_submitting_for l "Submitting For" t "What is the intent of this version?\n\nWIP or Final are the standard options, but this is left as free text if a vendor or show needs aditional fields"}
