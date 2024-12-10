@@ -149,19 +149,6 @@ configuration:
     allows_empty: True
     description: Output colorspace of the preview.
 
-  sg_server_path:
-    type: str
-    allows_empty: False
-    description: ShotGrid server path
-  sg_script_name:
-    type: str
-    allows_empty: False
-    description: ShotGrid script name
-  sg_script_key:
-    type: str
-    allows_empty: False
-    description: ShotGrid script key
-
   # --- PATHS ---
   logo_path_linux:
     type: str

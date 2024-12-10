@@ -28,6 +28,7 @@ Updated by Max de Groot 2024.
 
 from __future__ import annotations
 
+import json
 import os
 import shutil
 from pathlib import Path
@@ -111,13 +112,14 @@ class DeliveryModel:
         self.slate_path = os.path.join(__location__, "slate_cli.py")
         self.plate_path = os.path.join(__location__, "plate_cli.py")
 
+        self.sg_project = None
         self.base_template_fields = {
             "prj": self.get_project_code(),
             "delivery_version": 1,
             "vnd": self.get_vendor_id(),
         }
 
-        controller.load_letterbox_defaults(self.get_output_preview_settings())
+        controller.load_letterbox_defaults(self.get_project())
 
     def quit(self):
         """
@@ -297,50 +299,14 @@ class DeliveryModel:
             columns,
         )
 
-    def get_project_code(self) -> str:
-        """Gets the ShotGrid project code.
+    def get_project(self) -> dict:
+        """Gets the ShotGrid project.
 
         Returns:
-            Project code"""
-        project_id = self.context.project["id"]
-        filters = [
-            [
-                "id",
-                "is",
-                project_id,
-            ]
-        ]
+            Project"""
+        if self.sg_project is not None:
+            return self.sg_project
 
-        columns = ["sg_short_name"]
-        project = self.shotgrid_connection.find_one(
-            "Project", filters, columns
-        )
-
-        return project["sg_short_name"]
-
-    def get_vendor_id(self) -> str:
-        """Gets the vendor id.
-
-        Returns:
-            Vendor id"""
-        project_id = self.context.project["id"]
-        filters = [
-            [
-                "id",
-                "is",
-                project_id,
-            ]
-        ]
-
-        columns = ["sg_vendorid"]
-        project = self.shotgrid_connection.find_one(
-            "Project", filters, columns
-        )
-
-        return project["sg_vendorid"]
-
-    def get_output_preview_settings(self):
-        """Get the output preview settings from the ShotGrid project"""
         project_id = self.context.project["id"]
         filters = [
             [
@@ -351,15 +317,31 @@ class DeliveryModel:
         ]
 
         columns = [
+            "name",
+            "sg_short_name",
+            "sg_vendorid",
             "sg_output_preview_aspect_ratio",
             "sg_output_preview_enable_mask",
         ]
-
-        project = self.shotgrid_connection.find_one(
+        self.sg_project = self.shotgrid_connection.find_one(
             "Project", filters, columns
         )
 
-        return project
+        return self.sg_project
+
+    def get_project_code(self) -> str:
+        """Gets the ShotGrid project code.
+
+        Returns:
+            Project code"""
+        return self.get_project()["sg_short_name"]
+
+    def get_vendor_id(self) -> str:
+        """Gets the vendor id.
+
+        Returns:
+            Vendor id"""
+        return self.get_project()["sg_vendorid"]
 
     def get_episode_code(self, sequence: dict) -> int | None:
         """Gets the Episode code related to a Sequence.
@@ -776,6 +758,28 @@ class DeliveryModel:
                             delivery_folder / output_preview_path.name
                         )
 
+                    episode = ""
+                    scene = ""
+                    if shot.episode is not None:
+                        episode = shot.episode
+                        scene = ""
+                    elif "_" in shot.sequence:
+                        episode, scene = shot.sequence.split("_")
+
+                    slate_data = {
+                        "version_name": f"v{version.version_number:03d}",
+                        "submission_note": version.delivery_note,
+                        "submitting_for": version.submitting_for,
+                        "shot_name": shot.code,
+                        "shot_types": version.task.name,
+                        "vfx_scope_of_work": shot.description,
+                        "show": self.get_project()["name"],
+                        "episode": episode,
+                        "scene": scene,
+                        "sequence_name": shot.sequence,
+                        "vendor": self.base_template_fields["vnd"],
+                    }
+
                     process = NukeProcess(
                         version,
                         show_validation_error,
@@ -791,12 +795,7 @@ class DeliveryModel:
                         str(version.fps),
                         preview_movie_file.as_posix(),
                         output_preview_path.as_posix(),
-                        self.settings.sg_server_path,
-                        self.settings.sg_script_name,
-                        self.settings.sg_script_key,
                         self.logo_path,
-                        "--version-id",
-                        version.id_str,
                         "-idt",
                         self.settings.preview_colorspace_idt,
                         "-odt",
@@ -807,6 +806,8 @@ class DeliveryModel:
                         self.font_bold_path,
                         "--write-settings",
                         output.to_cli_string(),
+                        "--slate-data",
+                        json.dumps(slate_data),
                     ]
                     if timecode_ref_path is not None:
                         args.extend(["--timecode-ref", str(timecode_ref_path)])
