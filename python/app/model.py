@@ -111,13 +111,14 @@ class DeliveryModel:
         self.slate_path = os.path.join(__location__, "slate_cli.py")
         self.plate_path = os.path.join(__location__, "plate_cli.py")
 
+        self.sg_project = None
         self.base_template_fields = {
             "prj": self.get_project_code(),
             "delivery_version": 1,
             "vnd": self.get_vendor_id(),
         }
 
-        controller.load_letterbox_defaults(self.get_output_preview_settings())
+        controller.load_letterbox_defaults(self.get_project())
 
     def quit(self):
         """
@@ -297,50 +298,14 @@ class DeliveryModel:
             columns,
         )
 
-    def get_project_code(self) -> str:
-        """Gets the ShotGrid project code.
+    def get_project(self) -> dict:
+        """Gets the ShotGrid project.
 
         Returns:
-            Project code"""
-        project_id = self.context.project["id"]
-        filters = [
-            [
-                "id",
-                "is",
-                project_id,
-            ]
-        ]
+            Project"""
+        if self.sg_project is not None:
+            return self.sg_project
 
-        columns = ["sg_short_name"]
-        project = self.shotgrid_connection.find_one(
-            "Project", filters, columns
-        )
-
-        return project["sg_short_name"]
-
-    def get_vendor_id(self) -> str:
-        """Gets the vendor id.
-
-        Returns:
-            Vendor id"""
-        project_id = self.context.project["id"]
-        filters = [
-            [
-                "id",
-                "is",
-                project_id,
-            ]
-        ]
-
-        columns = ["sg_vendorid"]
-        project = self.shotgrid_connection.find_one(
-            "Project", filters, columns
-        )
-
-        return project["sg_vendorid"]
-
-    def get_output_preview_settings(self):
-        """Get the output preview settings from the ShotGrid project"""
         project_id = self.context.project["id"]
         filters = [
             [
@@ -351,15 +316,31 @@ class DeliveryModel:
         ]
 
         columns = [
+            "name",
+            "sg_short_name",
+            "sg_vendorid",
             "sg_output_preview_aspect_ratio",
             "sg_output_preview_enable_mask",
         ]
-
-        project = self.shotgrid_connection.find_one(
+        self.sg_project = self.shotgrid_connection.find_one(
             "Project", filters, columns
         )
 
-        return project
+        return self.sg_project
+
+    def get_project_code(self) -> str:
+        """Gets the ShotGrid project code.
+
+        Returns:
+            Project code"""
+        return self.get_project()["sg_short_name"]
+
+    def get_vendor_id(self) -> str:
+        """Gets the vendor id.
+
+        Returns:
+            Vendor id"""
+        return self.get_project()["sg_vendorid"]
 
     def get_episode_code(self, sequence: dict) -> int | None:
         """Gets the Episode code related to a Sequence.
