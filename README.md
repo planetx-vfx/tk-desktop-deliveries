@@ -71,5 +71,6 @@ This app will get all versions with the "Ready for Delivery" status, create slat
 | `nuke_path_linux`                  | Linux path to your Nuke installation for creating slates.                                  |                   |
 | `nuke_path_mac`                    | Mac path to your Nuke installation for creating slates.                                    |                   |
 | `nuke_path_windows`                | Windows path to your Nuke installation for creating slates.                                |                   |
+| `sentry_dsn`                       | Sentry DSN Url                                                                             |                   |
 
 
