@@ -189,6 +189,11 @@ configuration:
     type: str
     description: Windows path to your Nuke installation for creating slates.
 
+  sentry_dsn:
+    type: str
+    default_value: ""
+    allows_empty: True
+    description: Sentry DSN Url
 
 # this app works in all engines - it does not contain
 # any host application specific commands

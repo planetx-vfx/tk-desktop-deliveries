@@ -21,6 +21,9 @@
 # SOFTWARE.
 
 
+import getpass
+from pathlib import Path
+
 from sgtk.platform import Application
 
 
@@ -35,5 +38,72 @@ class tkShotGridDeliveries(Application):
 
     def deliveries(self):
         """This function will open the application"""
+        self.setup_sentry()
+
         app_payload = self.import_module("app")
         app_payload.controller.open_delivery_app(self)
+
+    def setup_sentry(self):
+        """
+        Add Sentry error handling.
+        """
+        try:
+            import sentry_sdk
+
+            dsn = self.get_setting("sentry_dsn")
+            if dsn is None or dsn == "":
+                self.logger.error("Setting up Sentry failed. No DSN provided")
+                return
+
+            environment = "production"
+            version = self.version
+            if version == "Undefined":
+                version = "0.0.0+dev"
+                environment = "development"
+
+            sentry_sdk.set_user({"id": getpass.getuser()})
+
+            sentry_sdk.set_context(
+                "app",
+                {
+                    "app_name": self.display_name,
+                    "app_version": version,
+                },
+            )
+
+            sentry_sdk.set_tags(
+                {
+                    "shotgrid.project.name": self.context.project["name"],
+                    "shotgrid.project.id": self.context.project["id"],
+                }
+            )
+
+            def before_send(event, hint) -> None:
+                """Update event data before sending to Sentry."""
+                paths = []
+                for value in event["exception"]["values"]:
+                    for frame in value["stacktrace"]["frames"]:
+                        abs_path = Path(frame["abs_path"]).parent.as_posix()
+                        paths.append(abs_path)
+
+                base_path = Path(__file__).parent.as_posix()
+
+                if not any(base_path in path for path in paths):
+                    return None
+
+                return event
+
+            sentry_sdk.init(
+                dsn=dsn,
+                traces_sample_rate=1.0,
+                enable_tracing=True,
+                attach_stacktrace=True,
+                include_source_context=True,
+                before_send=before_send,
+                release=version,
+                environment=environment,
+            )
+
+            self.logger.info("Successfully setup Sentry.")
+        except:
+            self.logger.error("Setting up Sentry failed.")
