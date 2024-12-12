@@ -85,7 +85,7 @@ class PlateRender(object):
                 write_node=write,
             )
         else:
-            msg = "Sequence not found, aborting!"
+            msg = f"Sequence not found, aborting! ({self.input_path})"
             raise Exception(msg)
 
     def __validate_sequence(
@@ -115,7 +115,7 @@ class PlateRender(object):
             if sequence_filename == filename:
                 return sequence
 
-        raise Exception("No frame sequence found")
+        raise Exception(f"No frame sequence found in {sequence_directory}")
 
     def __setup_script(self):
         """Creates Nuke script with read node and correct settings
