@@ -124,6 +124,10 @@ class ShotGridSlate(object):
                 msg = f"Invalid slate data. ({slate_data})"
                 raise Exception(msg)
 
+        self.first_render_frame = self.first_frame
+        if self.slate_data["input_has_slate"]:
+            self.first_render_frame += 1
+
         # Get script directory to add gizmo
         script_directory = os.path.dirname(os.path.realpath(__file__))
         node_path = os.path.abspath(
@@ -197,7 +201,7 @@ class ShotGridSlate(object):
             attribute: created read node
         """
         # Setup Nuke script
-        nuke.root().knob("first_frame").setValue(self.first_frame)
+        nuke.root().knob("first_frame").setValue(self.first_render_frame)
         nuke.root().knob("last_frame").setValue(self.last_frame)
         nuke.root().knob("fps").setValue(self.fps)
         nuke.root().knob("colorManagement").setValue("OCIO")
@@ -209,19 +213,17 @@ class ShotGridSlate(object):
         read = nuke.createNode("Read")
         read.knob("file").setValue(self.sequence_path)
 
-        # first_sequence_frame = int(min(sequence[1]))
-        # last_sequence_frame = int(max(sequence[1]))
-        frame_in = 1
-        frame_out = self.last_frame - self.first_frame + frame_in
+        frame_in = 2 if self.slate_data["input_has_slate"] else 1
+        frame_out = self.last_frame - self.first_frame + 1
 
         # Set found frame range by sequence find function
         read.knob("first").setValue(frame_in)
-        read.knob("origfirst").setValue(frame_in)
+        read.knob("origfirst").setValue(1)
         read.knob("last").setValue(frame_out)
         read.knob("origlast").setValue(frame_out)
 
         read.knob("frame_mode").setValue(1)
-        read.knob("frame").setValue(str(self.first_frame))
+        read.knob("frame").setValue(str(self.first_render_frame))
 
         read.knob("colorspace").setValue(self.colorspace_idt)
         read.knob("on_error").setValue("checkerboard")
@@ -316,12 +318,12 @@ class ShotGridSlate(object):
         if self.slate_data["scene"] != "":
             slate["f_scene"].setValue(self.slate_data["scene"])
 
-        slate["f_frames_first"].setValue(self.first_frame - 1)
+        slate["f_frames_first"].setValue(self.first_render_frame - 1)
         slate["f_frames_last"].setValue(self.last_frame)
 
-        slate.knob("active_frame").setValue(self.first_frame - 1)
+        slate.knob("active_frame").setValue(self.first_render_frame - 1)
         slate.knob("thumbnail_frame").setValue(
-            int((self.first_frame + self.last_frame) / 2)
+            int((self.first_render_frame + self.last_frame) / 2)
         )
 
         # Get correct colorspace
@@ -411,7 +413,9 @@ subprocess.Popen(cmd, shell=True, encoding="utf-8")
         """
 
         try:
-            nuke.execute(write_node, self.first_frame - 1, self.last_frame)
+            nuke.execute(
+                write_node, self.first_render_frame - 1, self.last_frame
+            )
             print("Rendering complete")
 
         except Exception as error:
