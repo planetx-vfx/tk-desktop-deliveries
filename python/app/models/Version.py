@@ -83,6 +83,33 @@ class Version:
         self.validation_error = ""
         self.progress = 0
 
+    def as_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "id_str": self.id_str,
+            "code": self.code,
+            "first_frame": self.first_frame,
+            "last_frame": self.last_frame,
+            "fps": self.fps,
+            "version_number": self.version_number,
+            "thumbnail": self.thumbnail,
+            "sequence_path": self.sequence_path,
+            "path_to_movie": self.path_to_movie,
+            "frames_have_slate": self.frames_have_slate,
+            "movie_has_slate": self.movie_has_slate,
+            "task": (
+                self.task.as_dict() if self.task is not None else "undefined"
+            ),
+            "submitting_for": self.submitting_for,
+            "delivery_note": self.delivery_note,
+            "deliver_preview": self.deliver_preview,
+            "deliver_sequence": self.deliver_sequence,
+            "sequence_output_status": self.sequence_output_status,
+            "validation_message": self.validation_message,
+            "validation_error": self.validation_error,
+            "progress": self.progress,
+        }
+
 
 class Task:
     id: int
@@ -91,3 +118,9 @@ class Task:
     def __init__(self, id: int, name: str):
         self.id = id
         self.name = name
+
+    def as_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "name": self.name,
+        }
