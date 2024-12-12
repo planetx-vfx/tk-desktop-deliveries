@@ -173,10 +173,13 @@ class ShotGridSlate(object):
         Returns:
             str or False: if validated returns sequence containing frame list
         """
-        sequence_directory = os.path.dirname(sequence_path)
-        sequence_filename = os.path.basename(sequence_path)
+        sequence_path = Path(sequence_path)
+        sequence_directory = sequence_path.parent
+        sequence_filename = sequence_path.name
 
-        sequences = self.__get_frame_sequences(sequence_directory)
+        sequences = self.__get_frame_sequences(
+            sequence_directory, [sequence_path.suffix[1:]]
+        )
 
         for sequence in sequences:
             filename = os.path.basename(sequence[0])
