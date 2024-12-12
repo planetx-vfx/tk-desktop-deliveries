@@ -237,6 +237,10 @@ class DeliveryModel:
             self.shots_to_deliver, key=lambda shot: (shot.sequence, shot.code)
         )
 
+        self.logger.debug("Found shots to deliver:")
+        for shot in self.shots_to_deliver:
+            self.logger.debug(json.dumps(shot.as_dict(), indent=4))
+
         return self.shots_to_deliver
 
     def get_latest_shot_version(self, shot_information: dict) -> dict:
