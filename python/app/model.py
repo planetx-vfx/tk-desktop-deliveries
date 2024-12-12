@@ -192,6 +192,7 @@ class DeliveryModel:
             "sg_last_frame",
             "sg_task",
             "sg_uploaded_movie_frame_rate",
+            "sg_frames_have_slate",
             "sg_movie_has_slate",
             "sg_path_to_movie",
             "sg_submitting_for",
@@ -454,6 +455,8 @@ class DeliveryModel:
                         else -1
                     ),
                     path_to_movie=sg_version["sg_path_to_movie"],
+                    frames_have_slate=sg_version["sg_frames_have_slate"],
+                    movie_has_slate=sg_version["sg_movie_has_slate"],
                     submitting_for=sg_version["sg_submitting_for"],
                     delivery_note=sg_version["sg_delivery_note"],
                     attachment=sg_version["sg_attachment"],
@@ -778,6 +781,7 @@ class DeliveryModel:
                         "scene": scene,
                         "sequence_name": shot.sequence,
                         "vendor": self.base_template_fields["vnd"],
+                        "input_has_slate": version.movie_has_slate,
                     }
 
                     process = NukeProcess(
@@ -872,6 +876,10 @@ class DeliveryModel:
 
                     publish_file = Path(version.sequence_path)
 
+                    first_frame = version.first_frame
+                    if version.frames_have_slate:
+                        first_frame += 1
+
                     process = NukeProcess(
                         version,
                         show_validation_error,
@@ -882,7 +890,7 @@ class DeliveryModel:
                     args = [
                         "-t",
                         self.plate_path,
-                        str(version.first_frame),
+                        str(first_frame),
                         str(version.last_frame),
                         publish_file.as_posix(),
                         delivery_sequence_path.as_posix(),
@@ -904,9 +912,11 @@ class DeliveryModel:
                     ):
                         can_link = True
 
-                    for frame in range(
-                        version.first_frame, version.last_frame + 1
-                    ):
+                    first_frame = version.first_frame
+                    if version.frames_have_slate:
+                        first_frame += 1
+
+                    for frame in range(first_frame, version.last_frame + 1):
                         publish_file = Path(version.sequence_path % frame)
                         delivery_file = delivery_sequence_path.with_name(
                             delivery_sequence_path.name % frame
@@ -918,8 +928,8 @@ class DeliveryModel:
                             shutil.copyfile(publish_file, delivery_file)
 
                         update_progress(
-                            (frame - version.first_frame)
-                            / (version.last_frame - version.first_frame)
+                            (frame - first_frame)
+                            / (version.last_frame - first_frame)
                         )
 
                     self.logger.info(

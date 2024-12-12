@@ -12,6 +12,8 @@ class Version:
     thumbnail: str
     sequence_path: str | None
     path_to_movie: str | None
+    frames_have_slate: bool
+    movie_has_slate: bool
     task: Task | None
     submitting_for: str
     delivery_note: str
@@ -36,6 +38,8 @@ class Version:
         thumbnail: str,
         sequence_path: str,
         path_to_movie: str,
+        frames_have_slate: bool = False,
+        movie_has_slate: bool = False,
         task: Task = None,
         submitting_for: str = "",
         delivery_note: str = "",
@@ -52,6 +56,8 @@ class Version:
         self.fps = fps
         self.version_number = version_number
         self.thumbnail = thumbnail
+        self.frames_have_slate = frames_have_slate
+        self.movie_has_slate = movie_has_slate
 
         if sequence_path and sequence_path != "":
             self.sequence_path = sequence_path

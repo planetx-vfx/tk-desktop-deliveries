@@ -300,10 +300,12 @@ class ExportShotsThread(QtCore.QThread):
                                         continue
 
                                     if file_name.endswith(".exr"):
-                                        metadata = (
-                                            parse_exr_metadata.read_exr_header(
-                                                output_file_path
-                                                % version.first_frame
+                                        metadata = parse_exr_metadata.read_exr_header(
+                                            output_file_path
+                                            % (
+                                                version.first_frame + 1
+                                                if version.frames_have_slate
+                                                else version.first_frame
                                             )
                                         )
                                         if "compression" in metadata:
