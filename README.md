@@ -59,9 +59,6 @@ This app will get all versions with the "Ready for Delivery" status, create slat
 | `shot_delivered_status`            | Status to set the shot to if the EXRs of the shot have been delivered.                     | fin               |
 | `preview_colorspace_idt`           | Input colorspace of the preview.                                                           | ACES - ACEScg     |
 | `preview_colorspace_odt`           | Output colorspace of the preview.                                                          | Output - sRGB     |
-| `sg_server_path`                   | ShotGrid server path                                                                       |                   |
-| `sg_script_name`                   | ShotGrid script name                                                                       |                   |
-| `sg_script_key`                    | ShotGrid script key                                                                        |                   |
 | `logo_path_linux`                  | Linux path to the company logo.                                                            |                   |
 | `logo_path_mac`                    | Mac path to the company logo.                                                              |                   |
 | `logo_path_windows`                | Windows path to the company logo.                                                          |                   |
@@ -74,5 +71,6 @@ This app will get all versions with the "Ready for Delivery" status, create slat
 | `nuke_path_linux`                  | Linux path to your Nuke installation for creating slates.                                  |                   |
 | `nuke_path_mac`                    | Mac path to your Nuke installation for creating slates.                                    |                   |
 | `nuke_path_windows`                | Windows path to your Nuke installation for creating slates.                                |                   |
+| `sentry_dsn`                       | Sentry DSN Url                                                                             |                   |
 
 

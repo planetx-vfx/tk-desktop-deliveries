@@ -227,9 +227,7 @@ class ExportShotsThread(QtCore.QThread):
                                 version_template_fields
                             )
                         )
-                        to_deliver.append(
-                            (sequence_path.name, sequence_path.as_posix(), "")
-                        )
+                        to_deliver.append((sequence_path, ""))
                     if deliverables.deliver_preview:
                         for (
                             output
@@ -245,8 +243,7 @@ class ExportShotsThread(QtCore.QThread):
                             )
                             to_deliver.append(
                                 (
-                                    preview_path.name,
-                                    preview_path.as_posix(),
+                                    preview_path,
                                     output.name,
                                 )
                             )
@@ -277,8 +274,24 @@ class ExportShotsThread(QtCore.QThread):
                         else:
                             csv_data[entity] = {}
 
-                    for file_name, output_file_path, codec in to_deliver:
+                    for file_path, codec in to_deliver:
+                        file_name = file_path.name
+                        output_file_path = file_path.as_posix()
+
                         csv_fields = []
+
+                        if not file_path.exists():
+                            error_msg = f'The file(s) of the delivered version "{version.code}" could not be found! Skipping row in CSV. {file_path.as_posix()}'
+                            try:
+                                first_frame_path = file_path.with_name(
+                                    file_name % version.last_frame
+                                )
+                                if not first_frame_path.exists():
+                                    self.model.logger.error(error_msg)
+                                    continue
+                            except:
+                                self.model.logger.error(error_msg)
+                                continue
 
                         for key, value in self.user_settings.csv_fields:
                             if isinstance(value, str):
@@ -300,19 +313,22 @@ class ExportShotsThread(QtCore.QThread):
                                         continue
 
                                     if file_name.endswith(".exr"):
-                                        metadata = (
-                                            parse_exr_metadata.read_exr_header(
+                                        try:
+                                            metadata = parse_exr_metadata.read_exr_header(
                                                 output_file_path
-                                                % version.first_frame
+                                                % version.last_frame
                                             )
-                                        )
-                                        if "compression" in metadata:
-                                            csv_fields.append(
-                                                metadata.get(
-                                                    "compression"
-                                                ).replace("_COMPRESSION", "")
-                                            )
-                                        else:
+                                            if "compression" in metadata:
+                                                csv_fields.append(
+                                                    metadata.get(
+                                                        "compression", ""
+                                                    ).replace(
+                                                        "_COMPRESSION", ""
+                                                    )
+                                                )
+                                            else:
+                                                csv_fields.append("")
+                                        except:
                                             csv_fields.append("")
                                         continue
                                     else:

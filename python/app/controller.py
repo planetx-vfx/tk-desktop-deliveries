@@ -69,6 +69,9 @@ class DeliveryController(QtWidgets.QWidget):
         self.load_csv_templates()
         self.load_preview_outputs()
 
+        self.progress_values = {}
+        self.progress_amounts = 0
+
     def closeEvent(self, event):
         """
         Handle window close event
@@ -94,6 +97,8 @@ class DeliveryController(QtWidgets.QWidget):
 
     def load_shots(self):
         """Clear the olds shots, then fetches the shots on the model."""
+        self.view.progress_bar.hide()
+        self.view.progress_bar.setValue(0)
         self.view.final_error_label.hide()
         self.view.final_success_label.hide()
 
@@ -355,6 +360,8 @@ class DeliveryController(QtWidgets.QWidget):
         ):
             return
 
+        self.setup_progress(user_settings)
+
         self.model.export_versions(
             user_settings,
             self.show_validation_error,
@@ -363,6 +370,28 @@ class DeliveryController(QtWidgets.QWidget):
             self.finish_export_versions,
             self.get_deliverables,
         )
+
+    def setup_progress(self, user_settings: UserSettings):
+        """
+        Setup global progress bar at start of export.
+        """
+        self.progress_values = {}
+        self.progress_amounts = 0
+        self.view.progress_bar.show()
+        self.view.progress_bar.setValue(0)
+
+        for shot in self.model.shots_to_deliver:
+            for version in shot.get_versions():
+                deliverables = self.get_deliverables(version)
+
+                amount = int(deliverables.deliver_preview) * len(
+                    user_settings.delivery_preview_outputs
+                ) + int(deliverables.deliver_sequence)
+                self.progress_amounts += amount
+                self.progress_values[version.id_str] = {
+                    "value": 0,
+                    "amount": amount,
+                }
 
     def finish_export_versions(self):
         """
@@ -374,6 +403,7 @@ class DeliveryController(QtWidgets.QWidget):
             version["shot_deliver_preview"].setDisabled(False)
 
         self.view.final_success_label.show()
+        self.view.progress_bar.hide()
 
     def show_validation_error(self, version: Version) -> None:
         """Sets the validation error text on the shot widget.
@@ -403,7 +433,7 @@ class DeliveryController(QtWidgets.QWidget):
         ].setStyleSheet("color: '#8BFF3E'; font: normal; font-size: 10px")
 
     def update_progress_bar(self, version: Version) -> None:
-        """Updates the progress bar on a shot.
+        """Updates the global progress bar and on a version.
 
         Args:
             version: Version to change progress bar on
@@ -411,6 +441,16 @@ class DeliveryController(QtWidgets.QWidget):
         self.view.shot_widget_references[version.id_str][
             "shot_progress_bar"
         ].setValue(version.progress * 100)
+        self.progress_values[version.id_str]["value"] = version.progress
+
+        global_progress = 0
+
+        for value in self.progress_values.values():
+            global_progress += (
+                value["value"] * value["amount"] / self.progress_amounts
+            )
+
+        self.view.progress_bar.setValue(global_progress * 99)
 
     def get_deliverables(self, version: Version) -> Deliverables:
         """

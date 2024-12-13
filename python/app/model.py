@@ -28,8 +28,10 @@ Updated by Max de Groot 2024.
 
 from __future__ import annotations
 
+import json
 import os
 import shutil
+import traceback
 from pathlib import Path
 from typing import Callable
 from urllib.request import urlretrieve
@@ -111,13 +113,14 @@ class DeliveryModel:
         self.slate_path = os.path.join(__location__, "slate_cli.py")
         self.plate_path = os.path.join(__location__, "plate_cli.py")
 
+        self.sg_project = None
         self.base_template_fields = {
             "prj": self.get_project_code(),
             "delivery_version": 1,
             "vnd": self.get_vendor_id(),
         }
 
-        controller.load_letterbox_defaults(self.get_output_preview_settings())
+        controller.load_letterbox_defaults(self.get_project())
 
     def quit(self):
         """
@@ -190,6 +193,7 @@ class DeliveryModel:
             "sg_last_frame",
             "sg_task",
             "sg_uploaded_movie_frame_rate",
+            "sg_frames_have_slate",
             "sg_movie_has_slate",
             "sg_path_to_movie",
             "sg_submitting_for",
@@ -233,6 +237,10 @@ class DeliveryModel:
         self.shots_to_deliver = sorted(
             self.shots_to_deliver, key=lambda shot: (shot.sequence, shot.code)
         )
+
+        self.logger.debug("Found shots to deliver:")
+        for shot in self.shots_to_deliver:
+            self.logger.debug(json.dumps(shot.as_dict(), indent=4))
 
         return self.shots_to_deliver
 
@@ -297,50 +305,14 @@ class DeliveryModel:
             columns,
         )
 
-    def get_project_code(self) -> str:
-        """Gets the ShotGrid project code.
+    def get_project(self) -> dict:
+        """Gets the ShotGrid project.
 
         Returns:
-            Project code"""
-        project_id = self.context.project["id"]
-        filters = [
-            [
-                "id",
-                "is",
-                project_id,
-            ]
-        ]
+            Project"""
+        if self.sg_project is not None:
+            return self.sg_project
 
-        columns = ["sg_short_name"]
-        project = self.shotgrid_connection.find_one(
-            "Project", filters, columns
-        )
-
-        return project["sg_short_name"]
-
-    def get_vendor_id(self) -> str:
-        """Gets the vendor id.
-
-        Returns:
-            Vendor id"""
-        project_id = self.context.project["id"]
-        filters = [
-            [
-                "id",
-                "is",
-                project_id,
-            ]
-        ]
-
-        columns = ["sg_vendorid"]
-        project = self.shotgrid_connection.find_one(
-            "Project", filters, columns
-        )
-
-        return project["sg_vendorid"]
-
-    def get_output_preview_settings(self):
-        """Get the output preview settings from the ShotGrid project"""
         project_id = self.context.project["id"]
         filters = [
             [
@@ -351,15 +323,31 @@ class DeliveryModel:
         ]
 
         columns = [
+            "name",
+            "sg_short_name",
+            "sg_vendorid",
             "sg_output_preview_aspect_ratio",
             "sg_output_preview_enable_mask",
         ]
-
-        project = self.shotgrid_connection.find_one(
+        self.sg_project = self.shotgrid_connection.find_one(
             "Project", filters, columns
         )
 
-        return project
+        return self.sg_project
+
+    def get_project_code(self) -> str:
+        """Gets the ShotGrid project code.
+
+        Returns:
+            Project code"""
+        return self.get_project()["sg_short_name"]
+
+    def get_vendor_id(self) -> str:
+        """Gets the vendor id.
+
+        Returns:
+            Vendor id"""
+        return self.get_project()["sg_vendorid"]
 
     def get_episode_code(self, sequence: dict) -> int | None:
         """Gets the Episode code related to a Sequence.
@@ -472,6 +460,8 @@ class DeliveryModel:
                         else -1
                     ),
                     path_to_movie=sg_version["sg_path_to_movie"],
+                    frames_have_slate=sg_version["sg_frames_have_slate"],
+                    movie_has_slate=sg_version["sg_movie_has_slate"],
                     submitting_for=sg_version["sg_submitting_for"],
                     delivery_note=sg_version["sg_delivery_note"],
                     attachment=sg_version["sg_attachment"],
@@ -776,6 +766,29 @@ class DeliveryModel:
                             delivery_folder / output_preview_path.name
                         )
 
+                    episode = ""
+                    scene = ""
+                    if shot.episode is not None:
+                        episode = shot.episode
+                        scene = ""
+                    elif "_" in shot.sequence:
+                        episode, scene = shot.sequence.split("_")
+
+                    slate_data = {
+                        "version_name": f"v{version.version_number:03d}",
+                        "submission_note": version.delivery_note,
+                        "submitting_for": version.submitting_for,
+                        "shot_name": shot.code,
+                        "shot_types": version.task.name,
+                        "vfx_scope_of_work": shot.description,
+                        "show": self.get_project()["name"],
+                        "episode": episode,
+                        "scene": scene,
+                        "sequence_name": shot.sequence,
+                        "vendor": self.base_template_fields["vnd"],
+                        "input_has_slate": version.movie_has_slate,
+                    }
+
                     process = NukeProcess(
                         version,
                         show_validation_error,
@@ -791,12 +804,7 @@ class DeliveryModel:
                         str(version.fps),
                         preview_movie_file.as_posix(),
                         output_preview_path.as_posix(),
-                        self.settings.sg_server_path,
-                        self.settings.sg_script_name,
-                        self.settings.sg_script_key,
                         self.logo_path,
-                        "--version-id",
-                        version.id_str,
                         "-idt",
                         self.settings.preview_colorspace_idt,
                         "-odt",
@@ -807,6 +815,8 @@ class DeliveryModel:
                         self.font_bold_path,
                         "--write-settings",
                         output.to_cli_string(),
+                        "--slate-data",
+                        json.dumps(slate_data),
                     ]
                     if timecode_ref_path is not None:
                         args.extend(["--timecode-ref", str(timecode_ref_path)])
@@ -871,6 +881,10 @@ class DeliveryModel:
 
                     publish_file = Path(version.sequence_path)
 
+                    first_frame = version.first_frame
+                    if version.frames_have_slate:
+                        first_frame += 1
+
                     process = NukeProcess(
                         version,
                         show_validation_error,
@@ -881,7 +895,7 @@ class DeliveryModel:
                     args = [
                         "-t",
                         self.plate_path,
-                        str(version.first_frame),
+                        str(first_frame),
                         str(version.last_frame),
                         publish_file.as_posix(),
                         delivery_sequence_path.as_posix(),
@@ -903,9 +917,11 @@ class DeliveryModel:
                     ):
                         can_link = True
 
-                    for frame in range(
-                        version.first_frame, version.last_frame + 1
-                    ):
+                    first_frame = version.first_frame
+                    if version.frames_have_slate:
+                        first_frame += 1
+
+                    for frame in range(first_frame, version.last_frame + 1):
                         publish_file = Path(version.sequence_path % frame)
                         delivery_file = delivery_sequence_path.with_name(
                             delivery_sequence_path.name % frame
@@ -917,8 +933,8 @@ class DeliveryModel:
                             shutil.copyfile(publish_file, delivery_file)
 
                         update_progress(
-                            (frame - version.first_frame)
-                            / (version.last_frame - version.first_frame)
+                            (frame - first_frame)
+                            / (version.last_frame - first_frame)
                         )
 
                     self.logger.info(
@@ -995,8 +1011,8 @@ class DeliveryModel:
             self.logger.error(error)
             version.validation_error = "A Nuke license error occurred!"
             show_validation_error(version)
-        except Exception as error:
-            self.logger.error(error)
+        except Exception:
+            self.logger.error(traceback.format_exc())
             version.validation_error = "An error occurred while making the delivery, please check logs!"
             show_validation_error(version)
 

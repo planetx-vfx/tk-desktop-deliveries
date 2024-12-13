@@ -149,19 +149,6 @@ configuration:
     allows_empty: True
     description: Output colorspace of the preview.
 
-  sg_server_path:
-    type: str
-    allows_empty: False
-    description: ShotGrid server path
-  sg_script_name:
-    type: str
-    allows_empty: False
-    description: ShotGrid script name
-  sg_script_key:
-    type: str
-    allows_empty: False
-    description: ShotGrid script key
-
   # --- PATHS ---
   logo_path_linux:
     type: str
@@ -202,6 +189,11 @@ configuration:
     type: str
     description: Windows path to your Nuke installation for creating slates.
 
+  sentry_dsn:
+    type: str
+    default_value: ""
+    allows_empty: True
+    description: Sentry DSN Url
 
 # this app works in all engines - it does not contain
 # any host application specific commands

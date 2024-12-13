@@ -12,14 +12,8 @@ parser.add_argument("last_frame", type=int)
 parser.add_argument("fps", type=float)
 parser.add_argument("sequence_path", type=str)
 parser.add_argument("slate_path", type=str)
-parser.add_argument("shotgrid_site", type=str)
-parser.add_argument("script_name", type=str)
-parser.add_argument("script_key", type=str)
 parser.add_argument("logo_path", type=str)
 
-parser.add_argument(
-    "-c", "--company", default="ShotGrid", type=str, metavar="name"
-)
 parser.add_argument(
     "-idt",
     "--colorspace-idt",
@@ -49,19 +43,11 @@ parser.add_argument(
     type=str,
     help="Settings for the write node as a JSON object",
 )
-
-shotgrid = parser.add_argument_group("ShotGrid")
-shotgrid.add_argument(
-    "--publish-id",
-    type=int,
-    metavar="id",
-    help="Publish id of published file to link to the version.",
-)
-shotgrid.add_argument(
-    "--version-id",
-    type=int,
-    metavar="id",
-    help="Version id on ShotGrid to update. If none is provided, a new version will be created.",
+parser.add_argument(
+    "-slate",
+    "--slate-data",
+    type=str,
+    help="JSON data of slate data.",
 )
 
 fonts = parser.add_argument_group("Fonts")

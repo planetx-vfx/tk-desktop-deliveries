@@ -40,3 +40,15 @@ class Shot:
     def add_version(self, version: Version):
         self._versions.append(version)
         self._versions = sorted(self._versions, key=lambda v: v.version_number)
+
+    def as_dict(self) -> dict:
+        return {
+            "episode": self.episode,
+            "sequence": self.sequence,
+            "code": self.code,
+            "id": self.id,
+            "description": self.description,
+            "project_code": self.project_code,
+            "progress": self.progress,
+            "versions": [version.as_dict() for version in self._versions],
+        }
