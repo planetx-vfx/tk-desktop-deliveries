@@ -65,7 +65,7 @@ class DeliveryView:
         self.layout = QtWidgets.QVBoxLayout(main_widget)
         self.layout.addWidget(self.get_settings_widget())
         self.layout.addWidget(self.get_shots_list_widget())
-        self.layout.addWidget(self.get_buttons_widget())
+        self.layout.addWidget(self.get_footer_widget())
 
         main_widget.setStyleSheet(
             """
@@ -338,15 +338,19 @@ class DeliveryView:
 
         return self.shots_list_scroll_area
 
-    def get_buttons_widget(self) -> QtWidgets.QWidget:
+    def get_footer_widget(self) -> QtWidgets.QWidget:
         """Gets the buttons widget of the layout.
 
         Returns:
             Widget containing buttons.
         """
-        buttons_widget = QtWidgets.QWidget()
-        buttons_widget_layout = QtWidgets.QVBoxLayout()
-        buttons_widget.setLayout(buttons_widget_layout)
+        footer_widget = QtWidgets.QWidget()
+        footer_widget_layout = QtWidgets.QVBoxLayout()
+        footer_widget.setLayout(footer_widget_layout)
+
+        self.progress_bar = QtWidgets.QProgressBar()
+        self.progress_bar.hide()
+        footer_widget_layout.addWidget(self.progress_bar)
 
         self.final_error_label = QtWidgets.QLabel(
             "The delivery failed due to errors!"
@@ -355,27 +359,27 @@ class DeliveryView:
         self.final_error_label.setStyleSheet(
             "color: '#FF3E3E'; font: bold; font-size: 12px"
         )
-        buttons_widget_layout.addWidget(self.final_error_label)
+        footer_widget_layout.addWidget(self.final_error_label)
 
         self.final_success_label = QtWidgets.QLabel("Delivery finished.")
         self.final_success_label.hide()
         self.final_success_label.setStyleSheet(
             "color: '#8BFF3E'; font: bold; font-size: 12px"
         )
-        buttons_widget_layout.addWidget(self.final_success_label)
+        footer_widget_layout.addWidget(self.final_success_label)
 
         self.reload_button = QtWidgets.QPushButton("Reload shot list")
-        buttons_widget_layout.addWidget(self.reload_button)
+        footer_widget_layout.addWidget(self.reload_button)
 
         self.export_shots_button = QtWidgets.QPushButton("Export shots")
-        buttons_widget_layout.addWidget(self.export_shots_button)
+        footer_widget_layout.addWidget(self.export_shots_button)
 
         self.open_delivery_folder_button = QtWidgets.QPushButton(
             "Open delivery folder"
         )
-        buttons_widget_layout.addWidget(self.open_delivery_folder_button)
+        footer_widget_layout.addWidget(self.open_delivery_folder_button)
 
-        return buttons_widget
+        return footer_widget
 
     def get_loading_widget(self) -> QtWidgets.QWidget:
         """Gets the loading widget for the layout.
