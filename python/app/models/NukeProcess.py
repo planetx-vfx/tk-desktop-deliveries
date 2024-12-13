@@ -106,4 +106,25 @@ class NukeProcess:
             QtWidgets.QApplication.processEvents()
 
         if self._error_message != "":
+            if (
+                "AddTimeCode: Invalid start time code" in self._error_message
+                and "--timecode-ref" in args
+            ):
+                new_args = args
+                i = new_args.index("--timecode-ref")
+                logger.error(
+                    f"Restarting render without timecode, the timecode ref didn't have a valid timecode. {new_args[i + 1]}"
+                )
+                del new_args[i : i + 2]
+                self.reset()
+                self.run(nuke_path, new_args)
+                return
             raise Exception(self._error_message)
+
+    def reset(self):
+        """Reset the NukeProcess to restart a render."""
+        self._has_started = False
+        self._has_rendered = False
+        self.update_progress_bars(0)
+        self._error_message = ""
+        self._error = None
