@@ -94,9 +94,12 @@ class ShotGridSlate(object):
         self.fps = fps
         self.colorspace_idt = colorspace_idt
         self.colorspace_odt = colorspace_odt
-        self.timecode_ref = timecode_ref.replace(os.sep, "/")
         self.font_path = font_path
         self.font_bold_path = font_bold_path
+
+        self.timecode_ref = None
+        if timecode_ref is not None:
+            self.timecode_ref = timecode_ref.replace(os.sep, "/")
 
         self.letterbox = None
         if letterbox is not None:

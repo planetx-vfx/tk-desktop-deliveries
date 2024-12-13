@@ -31,6 +31,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import traceback
 from pathlib import Path
 from typing import Callable
 from urllib.request import urlretrieve
@@ -1010,8 +1011,8 @@ class DeliveryModel:
             self.logger.error(error)
             version.validation_error = "A Nuke license error occurred!"
             show_validation_error(version)
-        except Exception as error:
-            self.logger.error(error)
+        except Exception:
+            self.logger.error(traceback.format_exc())
             version.validation_error = "An error occurred while making the delivery, please check logs!"
             show_validation_error(version)
 
