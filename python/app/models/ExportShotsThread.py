@@ -152,6 +152,18 @@ class ExportShotsThread(QtCore.QThread):
 
         self.finish_export_versions()
 
+    def format_field(self, field: any) -> str:
+        if field is None:
+            return ""
+
+        if isinstance(field, str):
+            return re.sub(r"[^\x20-\x7E\n\r\t]+", "", field)
+
+        try:
+            return str(field)
+        except:
+            return ""
+
     def create_csv(
         self,
         validated_shots: list,
@@ -352,21 +364,19 @@ class ExportShotsThread(QtCore.QThread):
                                     csv_fields.append("")
                                     continue
 
-                            if entity in csv_data:
-                                if (
-                                    field in csv_data[entity]
-                                    and csv_data[entity][field] is not None
-                                ):
-                                    csv_fields.append(csv_data[entity][field])
-                                    continue
+                            if entity in csv_data and (
+                                field in csv_data[entity]
+                                and csv_data[entity][field] is not None
+                            ):
+                                csv_fields.append(csv_data[entity][field])
+                                continue
 
                             # Add empty string if no value found
                             csv_fields.append("")
 
                         # Sanitize text
                         csv_fields = [
-                            re.sub(r"[^\x20-\x7E\n\r\t]+", "", column)
-                            for column in csv_fields
+                            self.format_field(field) for field in csv_fields
                         ]
 
                         self.model.logger.debug("Writing row:")
