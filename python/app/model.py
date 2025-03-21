@@ -945,14 +945,10 @@ class DeliveryModel:
 
             # Deliver attachment
             if version.attachment is not None and (
-                len(
-                    [
-                        value
-                        for key, value in user_settings.csv_fields
-                        if value == ("version", "attachment")
-                    ]
+                any(
+                    value == ("version", "attachment")
+                    for key, value in user_settings.csv_fields
                 )
-                > 0
             ):
                 name = version.attachment["name"]
                 if version.attachment["link_type"] == "upload":
