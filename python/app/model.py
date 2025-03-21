@@ -782,7 +782,7 @@ class DeliveryModel:
 
                     slate_data = {
                         "version_name": f"v{version.version_number:03d}",
-                        "submission_note": version.delivery_note,
+                        "submission_note": version.submission_note,
                         "submitting_for": version.submitting_for,
                         "shot_name": shot.code,
                         "shot_types": version.task.name,
