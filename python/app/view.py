@@ -280,9 +280,21 @@ class DeliveryView:
         csv_heading_layout.setContentsMargins(0, 0, 0, 0)
 
         csv_label = QtWidgets.QLabel("CSV Fields (ℹ)")
-        csv_label.setToolTip(
-            "<b>Available fields:</b><br>- file.name<br>- file.codec<br>- file.folder<br>- project.*<br>- shot.*<br>- version.*<br><br>* are all ShotGrid fields for the corresponding entity.<br>Use {} for an expression, or none for regular text."
-        )
+        csv_label_tooltip = [
+            "<b>Available fields:</b>",
+            "- file.name",
+            "- file.codec",
+            "- file.folder",
+            "- date.&lt;format&gt;",
+            "- project.*",
+            "- shot.*",
+            "- version.*",
+            "",
+            "&lt;format&gt; is a date format using Python Date Format Codes.",
+            "* are all ShotGrid fields for the corresponding entity.",
+            "Use {} for an expression, or none for regular text.",
+        ]
+        csv_label.setToolTip("<br>".join(csv_label_tooltip))
 
         csv_heading_layout.addWidget(csv_label)
         csv_heading_layout.addStretch()
