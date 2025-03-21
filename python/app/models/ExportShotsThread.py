@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import re
+from datetime import datetime
 from pathlib import Path
 from typing import Callable
 
@@ -152,6 +153,18 @@ class ExportShotsThread(QtCore.QThread):
 
         self.finish_export_versions()
 
+    def format_field(self, field: any) -> str:
+        if field is None:
+            return ""
+
+        if isinstance(field, str):
+            return re.sub(r"[^\x20-\x7E\n\r\t]+", "", field)
+
+        try:
+            return str(field)
+        except:
+            return ""
+
     def create_csv(
         self,
         validated_shots: list,
@@ -253,7 +266,7 @@ class ExportShotsThread(QtCore.QThread):
                         entity,
                         fields,
                     ) in self.user_settings.get_csv_entities():
-                        if entity == "file":
+                        if entity in ["file", "date"]:
                             continue
 
                         entity_id = None
@@ -352,21 +365,33 @@ class ExportShotsThread(QtCore.QThread):
                                     csv_fields.append("")
                                     continue
 
-                            if entity in csv_data:
-                                if (
-                                    field in csv_data[entity]
-                                    and csv_data[entity][field] is not None
-                                ):
-                                    csv_fields.append(csv_data[entity][field])
-                                    continue
+                            if entity == "date":
+                                date = datetime.now()
+
+                                # Try to format the date
+                                try:
+                                    date_string = date.strftime(field)
+                                except:
+                                    date_string = str(date)
+                                    msg = f'Failed to convert date to format "{field}".'
+                                    self.model.logger.error(msg)
+
+                                csv_fields.append(date_string)
+                                continue
+
+                            if entity in csv_data and (
+                                field in csv_data[entity]
+                                and csv_data[entity][field] is not None
+                            ):
+                                csv_fields.append(csv_data[entity][field])
+                                continue
 
                             # Add empty string if no value found
                             csv_fields.append("")
 
                         # Sanitize text
                         csv_fields = [
-                            re.sub(r"[^\x20-\x7E\n\r\t]+", "", column)
-                            for column in csv_fields
+                            self.format_field(field) for field in csv_fields
                         ]
 
                         self.model.logger.debug("Writing row:")

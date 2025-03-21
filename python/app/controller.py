@@ -61,8 +61,18 @@ class DeliveryController(QtWidgets.QWidget):
         """
         self.app = sgtk.platform.current_bundle()
         self.logger = self.app.logger
+
+        default_csv_fields = self.app.get_setting("default_csv", {})
+
+        if any(
+            not isinstance(value, (str, int, float, bool))
+            for key, value in default_csv_fields.items()
+        ):
+            error = 'One or more values of the "default_csv" setting is of an invalid type.'
+            raise TypeError(error)
+
         self.view = view.DeliveryView()
-        self.view.create_user_interface(self)
+        self.view.create_user_interface(self, default_csv_fields)
         self.model = model.DeliveryModel(self)
         self.connect_buttons()
         self.load_shots()
@@ -557,13 +567,19 @@ class DeliveryController(QtWidgets.QWidget):
                 if value.startswith("{"):
                     if value.endswith("}"):
                         if "." in value:
-                            entity, field = value[1:-1].split(".")
+                            entry = value[1:-1].split(".")
+
+                            entity = entry[0]
+                            field = None
+                            if len(entry) > 1:
+                                field = ".".join(entry[1:])
 
                             if entity in [
                                 "file",
                                 "project",
                                 "shot",
                                 "version",
+                                "date",
                             ]:
                                 if entity == "file" and field not in [
                                     "name",
@@ -571,6 +587,17 @@ class DeliveryController(QtWidgets.QWidget):
                                     "compression",
                                     "folder",
                                 ]:
+                                    success = False
+
+                                if (
+                                    entity
+                                    in [
+                                        "project",
+                                        "shot",
+                                        "version",
+                                    ]
+                                    and field is None
+                                ):
                                     success = False
 
                                 # Add field as expression
@@ -581,12 +608,11 @@ class DeliveryController(QtWidgets.QWidget):
                             success = False
                     else:
                         success = False
+                elif value.endswith("}"):
+                    success = False
                 else:
-                    if value.endswith("}"):
-                        success = False
-                    else:
-                        # Regular text
-                        csv_fields.append((key, value))
+                    # Regular text
+                    csv_fields.append((key, value))
 
                 if success:
                     item.reset_validation()

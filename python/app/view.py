@@ -53,17 +53,20 @@ class DeliveryView:
         self.shot_widget_references = {}
         self.settings = {}
 
-    def create_user_interface(self, main_widget: QtWidgets.QWidget):
+    def create_user_interface(
+        self, main_widget: QtWidgets.QWidget, default_csv_fields: dict
+    ):
         """Creates the UI of the window.
 
         Args:
             main_widget: The main application widget. We get this from the controller because
             I couldn't get it to work properly otherwise..
+            default_csv_fields: Dictionary of the default CSV fields and values
         """
         QtWidgets.QWidget.__init__(main_widget)
 
         self.layout = QtWidgets.QVBoxLayout(main_widget)
-        self.layout.addWidget(self.get_settings_widget())
+        self.layout.addWidget(self.get_settings_widget(default_csv_fields))
         self.layout.addWidget(self.get_shots_list_widget())
         self.layout.addWidget(self.get_footer_widget())
 
@@ -139,7 +142,9 @@ class DeliveryView:
 
         return explanation_widget
 
-    def get_settings_widget(self) -> QtWidgets.QWidget:
+    def get_settings_widget(
+        self, default_csv_fields: dict
+    ) -> QtWidgets.QWidget:
         """
         Gets the settings widget for the layout.
 
@@ -275,9 +280,21 @@ class DeliveryView:
         csv_heading_layout.setContentsMargins(0, 0, 0, 0)
 
         csv_label = QtWidgets.QLabel("CSV Fields (ℹ)")
-        csv_label.setToolTip(
-            "<b>Available fields:</b><br>- file.name<br>- file.codec<br>- file.folder<br>- project.*<br>- shot.*<br>- version.*<br><br>* are all ShotGrid fields for the corresponding entity.<br>Use {} for an expression, or none for regular text."
-        )
+        csv_label_tooltip = [
+            "<b>Available fields:</b>",
+            "- file.name",
+            "- file.codec",
+            "- file.folder",
+            "- date.&lt;format&gt;",
+            "- project.*",
+            "- shot.*",
+            "- version.*",
+            "",
+            "&lt;format&gt; is a date format using Python Date Format Codes.",
+            "* are all ShotGrid fields for the corresponding entity.",
+            "Use {} for an expression, or none for regular text.",
+        ]
+        csv_label.setToolTip("<br>".join(csv_label_tooltip))
 
         csv_heading_layout.addWidget(csv_label)
         csv_heading_layout.addStretch()
@@ -301,18 +318,9 @@ class DeliveryView:
         csv_settings.addWidget(csv_heading)
 
         self.settings["csv_fields"] = OrderedList()
-        self.settings["csv_fields"].add_item("Version Name", "{file.name}")
-        self.settings["csv_fields"].add_item("Link", "{shot.code}")
-        self.settings["csv_fields"].add_item(
-            "VFX Scope of Work", "{shot.description}"
-        )
-        self.settings["csv_fields"].add_item("Vendor", "{project.sg_vendorid}")
-        self.settings["csv_fields"].add_item(
-            "Submitting For", "{version.sg_submitting_for}"
-        )
-        self.settings["csv_fields"].add_item(
-            "Submission Note", "{version.sg_delivery_note}"
-        )
+        for key, value in default_csv_fields.items():
+            self.settings["csv_fields"].add_item(key, str(value))
+
         csv_settings.addWidget(self.settings["csv_fields"])
 
         self.settings_widget.addWidget(csv_settings)

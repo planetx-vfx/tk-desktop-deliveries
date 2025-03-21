@@ -196,10 +196,10 @@ class DeliveryModel:
             "sg_frames_have_slate",
             "sg_movie_has_slate",
             "sg_path_to_movie",
-            "sg_submitting_for",
-            "sg_delivery_note",
-            "sg_attachment",
             "image",
+            self.settings.submitting_for_field,
+            self.settings.submission_note_field,
+            self.settings.attachment_field,
             self.settings.delivery_sequence_outputs_field,
         ]
 
@@ -207,9 +207,7 @@ class DeliveryModel:
             "Version", filters, columns
         )
 
-        shot_ids = set(
-            [version["entity"]["id"] for version in versions_to_deliver]
-        )
+        shot_ids = {version["entity"]["id"] for version in versions_to_deliver}
         shots_to_deliver = []
 
         for shot_id in shot_ids:
@@ -399,17 +397,8 @@ class DeliveryModel:
             )
 
             for sg_version in sg_shot["versions"]:
-                first_frame = (
-                    sg_version["sg_first_frame"]
-                    if sg_version["sg_first_frame"]
-                    else -1
-                )
-
-                last_frame = (
-                    sg_version["sg_last_frame"]
-                    if sg_version["sg_last_frame"]
-                    else -1
-                )
+                first_frame = sg_version["sg_first_frame"]
+                last_frame = sg_version["sg_last_frame"]
 
                 published_file = self.get_shot_version_published_file(
                     sg_version
@@ -456,21 +445,27 @@ class DeliveryModel:
                     sequence_path=sequence_path,
                     version_number=(
                         published_file["version_number"]
-                        if published_file
+                        if published_file is not None
                         else -1
                     ),
                     path_to_movie=sg_version["sg_path_to_movie"],
                     frames_have_slate=sg_version["sg_frames_have_slate"],
                     movie_has_slate=sg_version["sg_movie_has_slate"],
-                    submitting_for=sg_version["sg_submitting_for"],
-                    delivery_note=sg_version["sg_delivery_note"],
-                    attachment=sg_version["sg_attachment"],
+                    submitting_for=sg_version.get(
+                        self.settings.submitting_for_field, ""
+                    ),
+                    submission_note=sg_version.get(
+                        self.settings.submission_note_field, ""
+                    ),
+                    attachment=sg_version.get(
+                        self.settings.attachment_field, ""
+                    ),
                     task=task,
                     deliver_preview=deliver_preview,
                     deliver_sequence=deliver_sequence,
-                    sequence_output_status=sg_version[
-                        self.settings.delivery_sequence_outputs_field
-                    ],
+                    sequence_output_status=sg_version.get(
+                        self.settings.delivery_sequence_outputs_field, ""
+                    ),
                 )
                 shot.add_version(version)
 
@@ -579,21 +574,27 @@ class DeliveryModel:
         """
         version_errors = []
 
-        if version.first_frame == -1:
-            version_errors.append("The sg_first_frame field is empty.")
-        if version.last_frame == -1:
-            version_errors.append("The sg_last_frame field is empty.")
+        if version.first_frame is None or version.first_frame < 0:
+            version_errors.append(
+                "The sg_first_frame field on this version is empty or invalid."
+            )
+        if version.last_frame is None or version.last_frame < 0:
+            version_errors.append(
+                "The sg_last_frame field on this version is empty or invalid."
+            )
 
         if version.fps is None or version.fps == "":
             version_errors.append(
-                "The sg_uploaded_movie_frame_rate field is empty."
+                "The sg_uploaded_movie_frame_rate field on this version is empty."
             )
 
         if version.path_to_movie is None or version.path_to_movie == "":
-            version_errors.append("The path_to_movie field is empty.")
+            version_errors.append(
+                "The path_to_movie field on this version is empty."
+            )
         elif not os.path.isfile(version.path_to_movie):
             version_errors.append(
-                "The path_to_movie field points to a nonexistent file."
+                "The path_to_movie field on this version points to a nonexistent file."
             )
 
         if version.sequence_path is None or version.sequence_path == "":
@@ -601,7 +602,7 @@ class DeliveryModel:
         else:
             if version.sequence_path.endswith(".mov"):
                 version_errors.append(
-                    "Linked version file is a reference MOV, not an EXR sequence."
+                    "Linked version file on this version is a reference MOV, not an EXR sequence."
                 )
 
             if version.version_number == -1:
@@ -620,7 +621,12 @@ class DeliveryModel:
         Returns:
             Errors that occurred.
         """
-        if version.first_frame == -1 or version.last_frame == -1:
+        if (
+            version.first_frame is None
+            or version.first_frame < 0
+            or version.last_frame is None
+            or version.last_frame < 0
+        ):
             return [
                 "Shot version is missing frame range data (sg_first_frame, sg_last_frame)."
             ]
@@ -776,7 +782,7 @@ class DeliveryModel:
 
                     slate_data = {
                         "version_name": f"v{version.version_number:03d}",
-                        "submission_note": version.delivery_note,
+                        "submission_note": version.submission_note,
                         "submitting_for": version.submitting_for,
                         "shot_name": shot.code,
                         "shot_types": version.task.name,
@@ -942,34 +948,27 @@ class DeliveryModel:
                     )
 
             # Deliver attachment
-            if version.attachment is not None:
-                if (
-                    len(
-                        [
-                            value
-                            for key, value in user_settings.csv_fields
-                            if value == ("version", "attachment")
-                        ]
-                    )
-                    > 0
-                ):
-                    name = version.attachment["name"]
-                    if version.attachment["link_type"] == "upload":
-                        url = version.attachment["url"]
-                        urlretrieve(url, delivery_folder / name)
-                    elif version.attachment["link_type"] == "local":
-                        file_path = None
-                        if sgtk.util.is_linux():
-                            file_path = version.attachment["local_path_linux"]
-                        elif sgtk.util.is_macos():
-                            file_path = version.attachment["local_path_mac"]
-                        elif sgtk.util.is_windows():
-                            file_path = version.attachment[
-                                "local_path_windows"
-                            ]
+            if version.attachment is not None and (
+                any(
+                    value == ("version", "attachment")
+                    for key, value in user_settings.csv_fields
+                )
+            ):
+                name = version.attachment["name"]
+                if version.attachment["link_type"] == "upload":
+                    url = version.attachment["url"]
+                    urlretrieve(url, delivery_folder / name)
+                elif version.attachment["link_type"] == "local":
+                    file_path = None
+                    if sgtk.util.is_linux():
+                        file_path = version.attachment["local_path_linux"]
+                    elif sgtk.util.is_macos():
+                        file_path = version.attachment["local_path_mac"]
+                    elif sgtk.util.is_windows():
+                        file_path = version.attachment["local_path_windows"]
 
-                        if file_path is not None:
-                            shutil.copyfile(file_path, delivery_folder / name)
+                    if file_path is not None:
+                        shutil.copyfile(file_path, delivery_folder / name)
 
             # Update version data
             version_data = {}
