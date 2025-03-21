@@ -89,6 +89,17 @@ configuration:
         settings:
           type: dict
 
+  default_csv:
+    type: dict
+    description: "Dict of default values for the CSV."
+    default_value:
+      Version Name: "{file.name}"
+      Link: "{shot.code}"
+      VFX Scope of Work: "{shot.description}"
+      Vendor: "{project.sg_vendorid}"
+      Submitting For: "{version.sg_submitting_for}"
+      Submission Note: "{version.sg_submission_note}"
+
   # --- STRINGS ---
   shot_status_field:
     type: str
@@ -101,6 +112,24 @@ configuration:
     default_value: "sg_status_list"
     allows_empty: True
     description: Field to check the version status with.
+
+  submitting_for_field:
+    type: str
+    default_value: "sg_submitting_for"
+    allows_empty: True
+    description: Field to use on the slate in "Submitting for".
+
+  submission_note_field:
+    type: str
+    default_value: "sg_submission_note"
+    allows_empty: True
+    description: Field to use on the slate in "Submission note".
+
+  attachment_field:
+    type: str
+    default_value: "sg_attachment"
+    allows_empty: True
+    description: Field to get the attachment from. Field should be of type File/Link (url).
 
   delivery_sequence_outputs_field:
     type: str

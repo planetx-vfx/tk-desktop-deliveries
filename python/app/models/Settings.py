@@ -10,9 +10,16 @@ class Settings:
 
     delivery_preview_outputs: list[PreviewOutput]
     delivery_sequence_outputs: list[SequenceOutput]
-    delivery_sequence_outputs_field: str
+
+    # Fields
     shot_status_field: str
     version_status_field: str
+    submitting_for_field: str
+    submission_note_field: str
+    attachment_field: str
+    delivery_sequence_outputs_field: str
+
+    # Statuses
     shot_delivery_status: str
     version_delivery_status: str
     version_delivered_status: str
@@ -48,9 +55,12 @@ class Settings:
             )
 
         for setting in [
-            "delivery_sequence_outputs_field",
             "shot_status_field",
             "version_status_field",
+            "submitting_for_field",
+            "submission_note_field",
+            "attachment_field",
+            "delivery_sequence_outputs_field",
             "shot_delivery_status",
             "version_delivery_status",
             "version_delivered_status",

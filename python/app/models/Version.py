@@ -16,7 +16,7 @@ class Version:
     movie_has_slate: bool
     task: Task | None
     submitting_for: str
-    delivery_note: str
+    submission_note: str
 
     deliver_preview: bool
     deliver_sequence: bool
@@ -42,7 +42,7 @@ class Version:
         movie_has_slate: bool = False,
         task: Task = None,
         submitting_for: str = "",
-        delivery_note: str = "",
+        submission_note: str = "",
         attachment: dict = None,
         deliver_preview: bool = True,
         deliver_sequence: bool = True,
@@ -71,7 +71,7 @@ class Version:
 
         self.task = task
         self.submitting_for = submitting_for
-        self.delivery_note = delivery_note
+        self.submission_note = submission_note
         self.attachment = attachment
 
         self.deliver_preview = deliver_preview
@@ -101,7 +101,7 @@ class Version:
                 self.task.as_dict() if self.task is not None else "undefined"
             ),
             "submitting_for": self.submitting_for,
-            "delivery_note": self.delivery_note,
+            "submission_note": self.submission_note,
             "deliver_preview": self.deliver_preview,
             "deliver_sequence": self.deliver_sequence,
             "sequence_output_status": self.sequence_output_status,
