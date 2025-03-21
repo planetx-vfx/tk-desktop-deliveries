@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import re
+from datetime import datetime
 from pathlib import Path
 from typing import Callable
 
@@ -265,7 +266,7 @@ class ExportShotsThread(QtCore.QThread):
                         entity,
                         fields,
                     ) in self.user_settings.get_csv_entities():
-                        if entity == "file":
+                        if entity in ["file", "date"]:
                             continue
 
                         entity_id = None
@@ -363,6 +364,20 @@ class ExportShotsThread(QtCore.QThread):
                                 else:
                                     csv_fields.append("")
                                     continue
+
+                            if entity == "date":
+                                date = datetime.now()
+
+                                # Try to format the date
+                                try:
+                                    date_string = date.strftime(field)
+                                except:
+                                    date_string = str(date)
+                                    msg = f'Failed to convert date to format "{field}".'
+                                    self.model.logger.error(msg)
+
+                                csv_fields.append(date_string)
+                                continue
 
                             if entity in csv_data and (
                                 field in csv_data[entity]
