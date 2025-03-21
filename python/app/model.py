@@ -196,10 +196,10 @@ class DeliveryModel:
             "sg_frames_have_slate",
             "sg_movie_has_slate",
             "sg_path_to_movie",
-            "sg_submitting_for",
-            "sg_delivery_note",
-            "sg_attachment",
             "image",
+            self.settings.submitting_for_field,
+            self.settings.submission_note_field,
+            self.settings.attachment_field,
             self.settings.delivery_sequence_outputs_field,
         ]
 
@@ -207,9 +207,7 @@ class DeliveryModel:
             "Version", filters, columns
         )
 
-        shot_ids = set(
-            [version["entity"]["id"] for version in versions_to_deliver]
-        )
+        shot_ids = {version["entity"]["id"] for version in versions_to_deliver}
         shots_to_deliver = []
 
         for shot_id in shot_ids:
@@ -453,15 +451,21 @@ class DeliveryModel:
                     path_to_movie=sg_version["sg_path_to_movie"],
                     frames_have_slate=sg_version["sg_frames_have_slate"],
                     movie_has_slate=sg_version["sg_movie_has_slate"],
-                    submitting_for=sg_version["sg_submitting_for"],
-                    delivery_note=sg_version["sg_delivery_note"],
-                    attachment=sg_version["sg_attachment"],
+                    submitting_for=sg_version.get(
+                        self.settings.submitting_for_field, ""
+                    ),
+                    submission_note=sg_version.get(
+                        self.settings.submission_note_field, ""
+                    ),
+                    attachment=sg_version.get(
+                        self.settings.attachment_field, ""
+                    ),
                     task=task,
                     deliver_preview=deliver_preview,
                     deliver_sequence=deliver_sequence,
-                    sequence_output_status=sg_version[
-                        self.settings.delivery_sequence_outputs_field
-                    ],
+                    sequence_output_status=sg_version.get(
+                        self.settings.delivery_sequence_outputs_field, ""
+                    ),
                 )
                 shot.add_version(version)
 

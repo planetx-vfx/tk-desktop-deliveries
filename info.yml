@@ -102,6 +102,24 @@ configuration:
     allows_empty: True
     description: Field to check the version status with.
 
+  submitting_for_field:
+    type: str
+    default_value: "sg_submitting_for"
+    allows_empty: True
+    description: Field to use on the slate in "Submitting for".
+
+  submission_note_field:
+    type: str
+    default_value: "sg_submission_note"
+    allows_empty: True
+    description: Field to use on the slate in "Submission note".
+
+  attachment_field:
+    type: str
+    default_value: "sg_attachment"
+    allows_empty: True
+    description: Field to get the attachment from. Field should be of type File/Link (url).
+
   delivery_sequence_outputs_field:
     type: str
     default_value: "sg_submitting_for"
