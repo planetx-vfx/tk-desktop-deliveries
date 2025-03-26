@@ -84,6 +84,8 @@ class DeliveryModel:
 
         self.settings = Settings(app)
 
+        self.extra_fields = self.settings.compile_extra_fields()
+
         if sgtk.util.is_linux():
             self.nuke_path = "{}".format(app.get_setting("nuke_path_linux"))
             self.logo_path = "{}".format(app.get_setting("logo_path_linux"))
@@ -185,26 +187,30 @@ class DeliveryModel:
             ],
         ]
 
-        columns = [
-            "code",
-            "entity",
-            "published_files",
-            "sg_first_frame",
-            "sg_last_frame",
-            "sg_task",
-            "sg_uploaded_movie_frame_rate",
-            "sg_frames_have_slate",
-            "sg_movie_has_slate",
-            "sg_path_to_movie",
-            "image",
-            self.settings.submitting_for_field,
-            self.settings.submission_note_field,
-            self.settings.attachment_field,
-            self.settings.delivery_sequence_outputs_field,
-        ]
+        columns = list(
+            {
+                "code",
+                "entity",
+                "published_files",
+                "sg_first_frame",
+                "sg_last_frame",
+                "sg_task",
+                "sg_uploaded_movie_frame_rate",
+                "sg_frames_have_slate",
+                "sg_movie_has_slate",
+                "sg_path_to_movie",
+                "image",
+                *self.extra_fields.get("Version", []),
+            }
+        )
 
         versions_to_deliver = self.shotgrid_connection.find(
             "Version", filters, columns
+        )
+
+        # Process entity overrides
+        versions_to_deliver = self.process_entity_overrides(
+            "Version", versions_to_deliver
         )
 
         shot_ids = {version["entity"]["id"] for version in versions_to_deliver}
@@ -218,9 +224,13 @@ class DeliveryModel:
                     "sg_sequence",
                     "code",
                     "description",
-                    self.settings.shot_status_field,
+                    *self.extra_fields.get("Shot", []),
                 ],
             )
+
+            # Process entity overrides
+            sg_shot = self.process_entity_overrides("Shot", sg_shot)
+
             sg_shot["versions"] = [
                 version
                 for version in versions_to_deliver
@@ -242,51 +252,16 @@ class DeliveryModel:
 
         return self.shots_to_deliver
 
-    def get_latest_shot_version(self, shot_information: dict) -> dict:
-        """Gets the latest version of the shot with some handy information.
-
-        Args:
-            shot_information: Information on shot to get version for
-
-        Returns:
-            Latest version of shot
-        """
-        filters = [
-            ["entity", "is", {"type": "Shot", "id": shot_information["id"]}],
-        ]
-
-        columns = [
-            "published_files",
-            "sg_first_frame",
-            "sg_last_frame",
-        ]
-
-        sorting = [
-            {
-                "column": "created_at",
-                "direction": "desc",
-            }
-        ]
-
-        return self.shotgrid_connection.find_one(
-            "Version",
-            filters,
-            columns,
-            sorting,
-        )
-
-    def get_shot_version_published_file(
-        self, latest_shot_version: dict
-    ) -> dict | None:
+    def get_version_published_file(self, version: dict) -> dict | None:
         """Gets the correct published files associates with this version.
 
         Args:
-            latest_shot_version: Latest shot version information
+            version: Version information
 
         Returns:
             Published files
         """
-        publishes = latest_shot_version["published_files"]
+        publishes = version["published_files"]
 
         if len(publishes) == 0:
             return None
@@ -295,13 +270,27 @@ class DeliveryModel:
             ["id", "is", publishes[0]["id"]],
         ]
 
-        columns = ["path", "published_file_type", "version_number"]
+        columns = list(
+            {
+                "path",
+                "published_file_type",
+                "version_number",
+                *self.extra_fields.get("PublishedFile", []),
+            }
+        )
 
-        return self.shotgrid_connection.find_one(
+        published_file = self.shotgrid_connection.find_one(
             "PublishedFile",
             filters,
             columns,
         )
+
+        # Process entity overrides
+        published_file = self.process_entity_overrides(
+            "PublishedFile", published_file
+        )
+
+        return published_file
 
     def get_project(self) -> dict:
         """Gets the ShotGrid project.
@@ -320,16 +309,22 @@ class DeliveryModel:
             ]
         ]
 
-        columns = [
-            "name",
-            "sg_short_name",
-            "sg_vendorid",
-            "sg_output_preview_aspect_ratio",
-            "sg_output_preview_enable_mask",
-        ]
-        self.sg_project = self.shotgrid_connection.find_one(
+        columns = list(
+            {
+                "name",
+                "sg_short_name",
+                "sg_vendorid",
+                "sg_output_preview_aspect_ratio",
+                "sg_output_preview_enable_mask",
+                *self.extra_fields.get("Project", []),
+            }
+        )
+
+        sg_project = self.shotgrid_connection.find_one(
             "Project", filters, columns
         )
+
+        self.sg_project = self.process_entity_overrides("Project", sg_project)
 
         return self.sg_project
 
@@ -400,9 +395,7 @@ class DeliveryModel:
                 first_frame = sg_version["sg_first_frame"]
                 last_frame = sg_version["sg_last_frame"]
 
-                published_file = self.get_shot_version_published_file(
-                    sg_version
-                )
+                published_file = self.get_version_published_file(sg_version)
                 sequence_path = ""
                 if published_file is not None:
                     if sgtk.util.is_linux():
@@ -503,6 +496,40 @@ class DeliveryModel:
             template_fields["Episode"] = shot.episode
 
         return template_fields
+
+    def process_entity_overrides(
+        self, entity_type: str, entities: dict | list
+    ) -> dict | list:
+        """
+        Apply the version overrides from the configuration to ShotGrid loaded data
+
+        Args:
+            entity_type: The type of entity to look for
+            entities: A dict or list of dicts
+        """
+        return_type = type(entities)
+        if isinstance(entities, dict):
+            entities = [entities]
+
+        overrides = self.settings.get_version_overrides(entity_type)
+
+        if len(overrides) == 0:
+            if return_type is dict:
+                return entities[0]
+            else:
+                return entities
+
+        for entity in entities:
+            self.logger.info(
+                "Applying %s overrides to a %s.", len(overrides), entity_type
+            )
+            for override in overrides:
+                entity = override.process(entity)
+
+        if return_type is dict:
+            return entities[0]
+        else:
+            return entities
 
     def validate_all_shots(
         self,

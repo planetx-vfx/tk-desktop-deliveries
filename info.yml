@@ -100,6 +100,18 @@ configuration:
       Submitting For: "{version.sg_submitting_for}"
       Submission Note: "{version.sg_submission_note}"
 
+  version_overrides:
+    type: list
+    description: "List of overrides to replace ShotGrid data with. The keys are ShotGrid field names."
+    values:
+      type: dict
+      items:
+        entity_type:
+          type: str
+          description: "Allowed values are: Version, PublishedFile"
+        match: { type: dict }
+        replace: { type: dict }
+
   # --- STRINGS ---
   shot_status_field:
     type: str

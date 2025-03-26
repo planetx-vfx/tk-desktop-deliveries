@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from . import PreviewOutput, SequenceOutput
+from .VersionOverride import VersionOverride
 
 
 class Settings:
@@ -10,6 +11,7 @@ class Settings:
 
     delivery_preview_outputs: list[PreviewOutput]
     delivery_sequence_outputs: list[SequenceOutput]
+    version_overrides: list[VersionOverride]
 
     # Fields
     shot_status_field: str
@@ -54,6 +56,11 @@ class Settings:
                 SequenceOutput.from_dict(output)
             )
 
+        version_overrides = self._app.get_setting("version_overrides")
+        self.version_overrides = []
+        for output in version_overrides:
+            self.version_overrides.append(VersionOverride.from_dict(output))
+
         for setting in [
             "shot_status_field",
             "version_status_field",
@@ -73,3 +80,70 @@ class Settings:
             "preview_colorspace_odt",
         ]:
             setattr(self, setting, self._app.get_setting(setting))
+
+    def get_version_overrides(self, entity_type: str) -> list[VersionOverride]:
+        """
+        Get a list of VersionOverrides for a specific entity type
+
+        Args:
+            entity_type: Entity type to filter
+        """
+        return [
+            override
+            for override in self.version_overrides
+            if override.entity_type == entity_type
+        ]
+
+    def compile_extra_fields(self):
+        """
+        Get a dict of all extra fields to request from ShotGrid for specific entities.
+        """
+        extra_fields: dict[str, list[str]] = {
+            "Version": [
+                self.version_status_field,
+                self.submitting_for_field,
+                self.submission_note_field,
+                self.attachment_field,
+                self.delivery_sequence_outputs_field,
+            ],
+            "Shot": [
+                self.shot_status_field,
+            ],
+        }
+
+        for override in self.version_overrides:
+            fields = override.get_fields()
+
+            if override.entity_type in extra_fields:
+                extra_fields[override.entity_type].extend(fields)
+            else:
+                extra_fields[override.entity_type] = fields
+
+        return extra_fields
+
+    def validate_fields(self):
+        """
+        Check if the required fields exist on the entities.
+        """
+        missing_fields: dict[str, list[str]] = {}
+        extra_fields = self.compile_extra_fields()
+
+        for entity_type, fields in extra_fields.items():
+            schema = self._app.shotgun.schema_field_read(entity_type)
+
+            for field in fields:
+                if field not in schema:
+                    if entity_type in missing_fields:
+                        missing_fields[entity_type].append(field)
+                    else:
+                        missing_fields[entity_type] = [field]
+
+        if not missing_fields:
+            return
+
+        msg = "Some fields that are configured, don't exist on the requested entities:"
+
+        for entity_type, fields in missing_fields.items():
+            msg += f"\n    {entity_type}: {', '.join(fields)}"
+
+        raise ValueError(msg)
