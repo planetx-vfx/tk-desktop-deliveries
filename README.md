@@ -39,10 +39,11 @@ This app will get all versions with the "Ready for Delivery" status, create slat
 
 ### Lists
 
-| Name                        | Description                                               | Default value |
-|-----------------------------|-----------------------------------------------------------|---------------|
-| `delivery_preview_outputs`  | List of preview output settings to use.                   |               |
-| `delivery_sequence_outputs` | List of version statuses to match exr render settings to. |               |
+| Name                        | Description                                                                         | Default value |
+|-----------------------------|-------------------------------------------------------------------------------------|---------------|
+| `delivery_preview_outputs`  | List of preview output settings to use.                                             |               |
+| `delivery_sequence_outputs` | List of version statuses to match exr render settings to.                           |               |
+| `version_overrides`         | List of overrides to replace ShotGrid data with. The keys are ShotGrid field names. |               |
 
 
 ### Dictionaries
