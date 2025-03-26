@@ -277,13 +277,28 @@ class ExportShotsThread(QtCore.QThread):
                         elif entity == "version":
                             entity_id = version.id
 
+                        entity_type = entity[0].upper() + entity[1:]
+
+                        fields = list(
+                            {
+                                *fields,
+                                *self.model.settings.compile_extra_fields().get(
+                                    entity_type, []
+                                ),
+                            }
+                        )
+
                         sg_entity = self.model.shotgrid_connection.find_one(
-                            entity[0].upper() + entity[1:],
+                            entity_type,
                             [["id", "is", entity_id]],
                             fields,
                         )
                         if sg_entity is not None:
-                            csv_data[entity] = sg_entity
+                            csv_data[entity] = (
+                                self.model.process_entity_overrides(
+                                    entity_type, sg_entity
+                                )
+                            )
                         else:
                             csv_data[entity] = {}
 

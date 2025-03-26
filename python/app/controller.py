@@ -36,7 +36,7 @@ import sgtk
 from sgtk.platform.qt5 import QtWidgets, QtCore
 
 from . import model, view
-from .models import Version, Deliverables, UserSettings, Letterbox
+from .models import Version, Deliverables, UserSettings, Letterbox, Settings
 from .widgets import OrderedListItem
 
 
@@ -64,12 +64,15 @@ class DeliveryController(QtWidgets.QWidget):
 
         default_csv_fields = self.app.get_setting("default_csv", {})
 
+        # Validation
         if any(
             not isinstance(value, (str, int, float, bool))
             for key, value in default_csv_fields.items()
         ):
             error = 'One or more values of the "default_csv" setting is of an invalid type.'
             raise TypeError(error)
+
+        Settings(self.app).validate_fields()
 
         self.view = view.DeliveryView()
         self.view.create_user_interface(self, default_csv_fields)
