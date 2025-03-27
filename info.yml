@@ -190,6 +190,12 @@ configuration:
     allows_empty: True
     description: Output colorspace of the preview.
 
+  # --- BOOLEANS ---
+  add_slate_to_sequence:
+    type: bool
+    default_value: false
+    description: If a slate frame should be added before the delivered sequence
+
   # --- PATHS ---
   logo_path_linux:
     type: str

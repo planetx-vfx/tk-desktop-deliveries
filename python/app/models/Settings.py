@@ -31,6 +31,8 @@ class Settings:
     preview_colorspace_idt: str
     preview_colorspace_odt: str
 
+    add_slate_to_sequence: bool
+
     def __init__(self, app):
         self._app = app
 
@@ -71,6 +73,7 @@ class Settings:
             "shot_delivered_status",
             "preview_colorspace_idt",
             "preview_colorspace_odt",
+            "add_slate_to_sequence",
         ]:
             setattr(self, setting, self._app.get_setting(setting))
 
