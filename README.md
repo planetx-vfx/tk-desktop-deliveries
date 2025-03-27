@@ -85,3 +85,10 @@ This app will get all versions with the "Ready for Delivery" status, create slat
 | `sentry_dsn`                       | Sentry DSN Url                                                                             |                    |
 
 
+### Booleans
+
+| Name                    | Description                                                    | Default value |
+|-------------------------|----------------------------------------------------------------|---------------|
+| `add_slate_to_sequence` | If a slate frame should be added before the delivered sequence | False         |
+
+
