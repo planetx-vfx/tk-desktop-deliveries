@@ -28,12 +28,10 @@ class Settings:
     version_preview_delivered_status: str
     shot_delivered_status: str
 
-    sg_server_path: str
-    sg_script_name: str
-    sg_script_key: str
-
     preview_colorspace_idt: str
     preview_colorspace_odt: str
+
+    add_slate_to_sequence: bool
 
     def __init__(self, app):
         self._app = app
@@ -73,11 +71,9 @@ class Settings:
             "version_delivered_status",
             "version_preview_delivered_status",
             "shot_delivered_status",
-            "sg_server_path",
-            "sg_script_name",
-            "sg_script_key",
             "preview_colorspace_idt",
             "preview_colorspace_odt",
+            "add_slate_to_sequence",
         ]:
             setattr(self, setting, self._app.get_setting(setting))
 

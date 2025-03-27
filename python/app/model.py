@@ -799,28 +799,7 @@ class DeliveryModel:
                             delivery_folder / output_preview_path.name
                         )
 
-                    episode = ""
-                    scene = ""
-                    if shot.episode is not None:
-                        episode = shot.episode
-                        scene = ""
-                    elif "_" in shot.sequence:
-                        episode, scene = shot.sequence.split("_")
-
-                    slate_data = {
-                        "version_name": f"v{version.version_number:03d}",
-                        "submission_note": version.submission_note,
-                        "submitting_for": version.submitting_for,
-                        "shot_name": shot.code,
-                        "shot_types": version.task.name,
-                        "vfx_scope_of_work": shot.description,
-                        "show": self.get_project()["name"],
-                        "episode": episode,
-                        "scene": scene,
-                        "sequence_name": shot.sequence,
-                        "vendor": self.base_template_fields["vnd"],
-                        "input_has_slate": version.movie_has_slate,
-                    }
+                    slate_data = self._get_slate_data(version, shot)
 
                     process = NukeProcess(
                         version,
@@ -874,14 +853,16 @@ class DeliveryModel:
 
             if deliverables.deliver_sequence:
                 should_rerender = False
-                outputs = [
-                    output
-                    for output in self.settings.delivery_sequence_outputs
-                    if output.status == version.sequence_output_status
-                ]
-                if len(outputs) > 0:
-                    output = outputs[0]
+                output = next(
+                    (
+                        output
+                        for output in self.settings.delivery_sequence_outputs
+                        if output.status == version.sequence_output_status
+                    ),
+                    None,
+                )
 
+                if output is not None:
                     if output.settings.keys() == ["compression"]:
                         metadata = parse_exr_metadata.read_exr_header(
                             version.sequence_path % version.first_frame
@@ -906,25 +887,13 @@ class DeliveryModel:
                 )
                 sequence_delivery_folder.mkdir(parents=True, exist_ok=True)
 
-                if should_rerender:
-                    output = outputs[0]
-
-                    version.validation_message = f"Rerendering frames for {output.status} - {output.name}..."
-                    show_validation_message(version)
-
+                if should_rerender or self.settings.add_slate_to_sequence:
                     publish_file = Path(version.sequence_path)
 
                     first_frame = version.first_frame
                     if version.frames_have_slate:
                         first_frame += 1
 
-                    process = NukeProcess(
-                        version,
-                        show_validation_error,
-                        show_validation_message,
-                        update_progress,
-                        f"{output.status} - {output.name}",
-                    )
                     args = [
                         "-t",
                         self.plate_path,
@@ -932,14 +901,62 @@ class DeliveryModel:
                         str(version.last_frame),
                         publish_file.as_posix(),
                         delivery_sequence_path.as_posix(),
-                        "--write-settings",
-                        output.to_cli_string(),
                     ]
+
+                    render_name = "main"
+                    if output is not None:
+                        render_name = f"{output.status} - {output.name}"
+
+                        version.validation_message = (
+                            f"Rerendering frames for {render_name}..."
+                        )
+                        show_validation_message(version)
+
+                        args.extend(
+                            [
+                                "--write-settings",
+                                (
+                                    output.to_cli_string()
+                                    if output is not None
+                                    else {}
+                                ),
+                            ]
+                        )
+
+                    process = NukeProcess(
+                        version,
+                        show_validation_error,
+                        show_validation_message,
+                        update_progress,
+                        render_name,
+                    )
+
+                    if self.settings.add_slate_to_sequence:
+                        slate_data = self._get_slate_data(version, shot)
+
+                        args.extend(
+                            [
+                                "--logo-path",
+                                self.logo_path,
+                                "-odt",
+                                self.settings.preview_colorspace_odt,
+                                "--slate-data",
+                                json.dumps(slate_data),
+                                "--font-path",
+                                self.font_path,
+                                "--font-bold-path",
+                                self.font_bold_path,
+                            ]
+                        )
+
+                        if not should_rerender:
+                            args.append("--slate-only")
+
                     process.run(
                         self.nuke_path,
                         args,
                     )
-                else:
+                if not should_rerender:
                     version.validation_message = "Delivering frames..."
                     show_validation_message(version)
 
@@ -1071,3 +1088,34 @@ class DeliveryModel:
             get_deliverables,
         )
         self.export_shots_thread.start()
+
+    def _get_slate_data(self, version, shot):
+        """
+        Compile the slate data object
+
+        Args:
+            version (Version): Version to use
+            shot (Shot): Shot to use
+        """
+        episode = ""
+        scene = ""
+        if shot.episode is not None:
+            episode = shot.episode
+            scene = ""
+        elif "_" in shot.sequence:
+            episode, scene = shot.sequence.split("_")
+
+        return {
+            "version_name": f"v{version.version_number:03d}",
+            "submission_note": version.submission_note,
+            "submitting_for": version.submitting_for,
+            "shot_name": shot.code,
+            "shot_types": version.task.name,
+            "vfx_scope_of_work": shot.description,
+            "show": self.get_project()["name"],
+            "episode": episode,
+            "scene": scene,
+            "sequence_name": shot.sequence,
+            "vendor": self.base_template_fields["vnd"],
+            "input_has_slate": version.movie_has_slate,
+        }
