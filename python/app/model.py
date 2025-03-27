@@ -799,28 +799,7 @@ class DeliveryModel:
                             delivery_folder / output_preview_path.name
                         )
 
-                    episode = ""
-                    scene = ""
-                    if shot.episode is not None:
-                        episode = shot.episode
-                        scene = ""
-                    elif "_" in shot.sequence:
-                        episode, scene = shot.sequence.split("_")
-
-                    slate_data = {
-                        "version_name": f"v{version.version_number:03d}",
-                        "submission_note": version.submission_note,
-                        "submitting_for": version.submitting_for,
-                        "shot_name": shot.code,
-                        "shot_types": version.task.name,
-                        "vfx_scope_of_work": shot.description,
-                        "show": self.get_project()["name"],
-                        "episode": episode,
-                        "scene": scene,
-                        "sequence_name": shot.sequence,
-                        "vendor": self.base_template_fields["vnd"],
-                        "input_has_slate": version.movie_has_slate,
-                    }
+                    slate_data = self._get_slate_data(version, shot)
 
                     process = NukeProcess(
                         version,
@@ -1071,3 +1050,34 @@ class DeliveryModel:
             get_deliverables,
         )
         self.export_shots_thread.start()
+
+    def _get_slate_data(self, version, shot):
+        """
+        Compile the slate data object
+
+        Args:
+            version (Version): Version to use
+            shot (Shot): Shot to use
+        """
+        episode = ""
+        scene = ""
+        if shot.episode is not None:
+            episode = shot.episode
+            scene = ""
+        elif "_" in shot.sequence:
+            episode, scene = shot.sequence.split("_")
+
+        return {
+            "version_name": f"v{version.version_number:03d}",
+            "submission_note": version.submission_note,
+            "submitting_for": version.submitting_for,
+            "shot_name": shot.code,
+            "shot_types": version.task.name,
+            "vfx_scope_of_work": shot.description,
+            "show": self.get_project()["name"],
+            "episode": episode,
+            "scene": scene,
+            "sequence_name": shot.sequence,
+            "vendor": self.base_template_fields["vnd"],
+            "input_has_slate": version.movie_has_slate,
+        }
