@@ -3,7 +3,9 @@ pipeline, ensuring correct file naming, status tracking, and structured output.
 
 ## User interface
 
-![delivery_export](https://github.com/nfa-vfxim/tk-desktop-deliveries/assets/63094424/46c7fbab-84c8-401e-8627-eb25b315b313)
+|                                                 Home                                                  |                                                 Settings                                                  |
+|:-----------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------:|
+| ![delivery_app_home](https://github.com/user-attachments/assets/ce7a4d97-6832-4002-87c4-bf9266acf802) | ![delivery_app_settings](https://github.com/user-attachments/assets/bc03fe7a-b96c-4d12-80ed-82ddb85b4de0) |
 
 ## ✨ Features
 
