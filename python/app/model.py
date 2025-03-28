@@ -1105,6 +1105,10 @@ class DeliveryModel:
         elif "_" in shot.sequence:
             episode, scene = shot.sequence.split("_")
 
+        optional_fields = self.settings.get_slate_extra_fields(
+            self.get_version_template_fields(shot, version)
+        )
+
         return {
             "version_name": f"v{version.version_number:03d}",
             "submission_note": version.submission_note,
@@ -1118,4 +1122,5 @@ class DeliveryModel:
             "sequence_name": shot.sequence,
             "vendor": self.base_template_fields["vnd"],
             "input_has_slate": version.movie_has_slate,
+            "optional_fields": optional_fields,
         }

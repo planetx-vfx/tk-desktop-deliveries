@@ -112,6 +112,11 @@ configuration:
         match: { type: dict }
         replace: { type: dict }
 
+  slate_extra_fields:
+    type: dict
+    description: "Extra fields to display on the slate. Max 6. You can use Nuke TCL expressions or a ShotGrid Template definition."
+    default_value: {}
+
   # --- STRINGS ---
   shot_status_field:
     type: str

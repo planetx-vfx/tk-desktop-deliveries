@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from tank.template import TemplateString
+
 from . import PreviewOutput, SequenceOutput
 from .VersionOverride import VersionOverride
 
@@ -33,6 +35,8 @@ class Settings:
 
     add_slate_to_sequence: bool
 
+    slate_extra_fields: dict = {}
+
     def __init__(self, app):
         self._app = app
 
@@ -58,6 +62,21 @@ class Settings:
         self.version_overrides = []
         for output in version_overrides:
             self.version_overrides.append(VersionOverride.from_dict(output))
+
+        keys = {}
+        # Loop through all template objects and collect their keys
+        # This only gets the keys that are used in actual templates.
+        for template in self._app.sgtk.templates.values():
+            for key, value in template.keys.items():
+                keys[key] = value
+
+        slate_extra_fields = self._app.get_setting("slate_extra_fields")
+        self.slate_extra_fields = {}
+        for key, value in slate_extra_fields.items():
+            if "{" in value and "}" in value:
+                self.slate_extra_fields[key] = TemplateString(value, keys, key)
+            else:
+                self.slate_extra_fields[key] = value
 
         for setting in [
             "shot_status_field",
@@ -89,6 +108,29 @@ class Settings:
             for override in self.version_overrides
             if override.entity_type == entity_type
         ]
+
+    def get_slate_extra_fields(self, fields: dict):
+        """
+        Parse the extra slate field templates and return a dict of the values
+
+        Args:
+            fields (dict): Fields to apply to the templates
+        """
+        extra_fields = {}
+
+        for key, template in self.slate_extra_fields.items():
+            if isinstance(template, TemplateString):
+                try:
+                    extra_fields[key] = template.apply_fields(fields)
+                except Exception as err:
+                    extra_fields[key] = "-"
+                    self._app.logger.error(
+                        f"An error occurred while loading the slate extra fields: {err}"
+                    )
+            else:
+                extra_fields[key] = template
+
+        return extra_fields
 
     def compile_extra_fields(self):
         """
