@@ -310,6 +310,14 @@ class PlateRender(object):
 
         slate.knob("f_media_color").setValue(colorspace_odt)
 
+        # Optional Fields, max 6
+        if "optional_fields" in self.slate_data:
+            for i, (key, value) in enumerate(
+                list(self.slate_data["optional_fields"].items())[0:6]
+            ):
+                slate[f"f_opt{i+1}_key"].setValue(key)
+                slate[f"f_opt{i+1}_value"].setValue(value)
+
         # Set fonts
         slate.knob("font").setValue(self.font_path)
         slate.knob("font_bold").setValue(self.font_bold_path)
