@@ -2982,7 +2982,7 @@ push $N2f718000
   addUserKnob {1 field_value l "Field Value"}
   field_value "\[value parent.f_opt1_value]"
   addUserKnob {3 max_lines l "Max Lines" t "the maximum lines allowed for this box. More lines will trigger a crop and the addition of an ..."}
-  max_lines 1
+  max_lines 2
   addUserKnob {6 render_full_height l "Render Full Height" t "Always Render the box at the full possible height defined by Max Lines." -STARTLINE}
   addUserKnob {26 _2 l "" +STARTLINE}
   addUserKnob {20 Style t "controls for the visual style of the field."}
@@ -3533,7 +3533,7 @@ push $N27eba800
   addUserKnob {1 field_value l "Field Value"}
   field_value "\[value parent.f_opt2_value]"
   addUserKnob {3 max_lines l "Max Lines" t "the maximum lines allowed for this box. More lines will trigger a crop and the addition of an ..."}
-  max_lines 1
+  max_lines 2
   addUserKnob {6 render_full_height l "Render Full Height" t "Always Render the box at the full possible height defined by Max Lines." -STARTLINE}
   addUserKnob {26 _2 l "" +STARTLINE}
   addUserKnob {20 Style t "controls for the visual style of the field."}
@@ -4084,7 +4084,7 @@ push $N2362f000
   addUserKnob {1 field_value l "Field Value"}
   field_value "\[value parent.f_opt3_value]"
   addUserKnob {3 max_lines l "Max Lines" t "the maximum lines allowed for this box. More lines will trigger a crop and the addition of an ..."}
-  max_lines 1
+  max_lines 2
   addUserKnob {6 render_full_height l "Render Full Height" t "Always Render the box at the full possible height defined by Max Lines." -STARTLINE}
   addUserKnob {26 _2 l "" +STARTLINE}
   addUserKnob {20 Style t "controls for the visual style of the field."}
@@ -4635,7 +4635,7 @@ push $N29d65800
   addUserKnob {1 field_value l "Field Value"}
   field_value "\[value parent.f_opt4_value]"
   addUserKnob {3 max_lines l "Max Lines" t "the maximum lines allowed for this box. More lines will trigger a crop and the addition of an ..."}
-  max_lines 1
+  max_lines 2
   addUserKnob {6 render_full_height l "Render Full Height" t "Always Render the box at the full possible height defined by Max Lines." -STARTLINE}
   addUserKnob {26 _2 l "" +STARTLINE}
   addUserKnob {20 Style t "controls for the visual style of the field."}
@@ -5186,7 +5186,7 @@ push $N2fad6000
   addUserKnob {1 field_value l "Field Value"}
   field_value "\[value parent.f_opt5_value]"
   addUserKnob {3 max_lines l "Max Lines" t "the maximum lines allowed for this box. More lines will trigger a crop and the addition of an ..."}
-  max_lines 1
+  max_lines 2
   addUserKnob {6 render_full_height l "Render Full Height" t "Always Render the box at the full possible height defined by Max Lines." -STARTLINE}
   addUserKnob {26 _2 l "" +STARTLINE}
   addUserKnob {20 Style t "controls for the visual style of the field."}
@@ -5737,7 +5737,7 @@ push $N41c2c800
   addUserKnob {1 field_value l "Field Value"}
   field_value "\[value parent.f_opt6_value]"
   addUserKnob {3 max_lines l "Max Lines" t "the maximum lines allowed for this box. More lines will trigger a crop and the addition of an ..."}
-  max_lines 1
+  max_lines 2
   addUserKnob {6 render_full_height l "Render Full Height" t "Always Render the box at the full possible height defined by Max Lines." -STARTLINE}
   addUserKnob {26 _2 l "" +STARTLINE}
   addUserKnob {20 Style t "controls for the visual style of the field."}
