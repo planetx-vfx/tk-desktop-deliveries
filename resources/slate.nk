@@ -7429,6 +7429,8 @@ set N440dc400 [stack 0]
   ypos 3495
  }
  Transform {
+  translate {505 -258}
+  scale 0.5
   center {1220 630}
   name Transform1
   xpos 3384
