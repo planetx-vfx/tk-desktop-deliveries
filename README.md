@@ -48,9 +48,10 @@ This app will get all versions with the "Ready for Delivery" status, create slat
 
 ### Dictionaries
 
-| Name          | Description                         | Default value                                                                                                                                                                                                                            |
-|---------------|-------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `default_csv` | Dict of default values for the CSV. | {'Version Name': '{file.name}', 'Link': '{shot.code}', 'VFX Scope of Work': '{shot.description}', 'Vendor': '{project.sg_vendorid}', 'Submitting For': '{version.sg_submitting_for}', 'Submission Note': '{version.sg_submission_note}'} |
+| Name                 | Description                                                                                                      | Default value                                                                                                                                                                                                                            |
+|----------------------|------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `default_csv`        | Dict of default values for the CSV.                                                                              | {'Version Name': '{file.name}', 'Link': '{shot.code}', 'VFX Scope of Work': '{shot.description}', 'Vendor': '{project.sg_vendorid}', 'Submitting For': '{version.sg_submitting_for}', 'Submission Note': '{version.sg_submission_note}'} |
+| `slate_extra_fields` | Extra fields to display on the slate. Max 6. You can use Nuke TCL expressions or a ShotGrid Template definition. | {}                                                                                                                                                                                                                                       |
 
 
 ### Strings
