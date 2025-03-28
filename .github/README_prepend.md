@@ -9,10 +9,10 @@ pipeline, ensuring correct file naming, status tracking, and structured output.
 
 ### 🔧 Template-Based Delivery Configuration
 
-- **Flexible Template Support**: Define output locations and naming conventions for input sequences, preview movies,
-  delivery folders, submission forms, and more using customizable templates.
-- **Granular Field Control**: Templates use context-aware fields such as `version`, `task_name`, `SEQ`, and
-  `delivery_version` for precise file organization and consistency.
+Define output locations and naming conventions for input sequences, preview movies, delivery folders, submission forms,
+and more using customizable templates.
+
+---
 
 ### 🔁 Status Tracking & Automation
 
@@ -52,6 +52,8 @@ version_delivered_status: dlvr
 version_preview_delivered_status: dledit
 shot_delivered_status: dlvr
 ```
+
+---
 
 ### 🎞️ Sequence & Preview Output Control
 
@@ -201,6 +203,8 @@ font_bold_path_linux: /mnt/fonts/RobotoSlab-Bold.ttf
 
 > If any font path is left blank for a platform, a default system font will be used.
 
+---
+
 ### 📄 CSV Submission & Metadata
 
 On delivery a CSV will be created with the fields specified in the settings.
@@ -245,6 +249,8 @@ default_csv:
 This is useful for including additional review materials (like PDFs, reference images, or any other supplementary
 material) as part of your delivery package.
 
+---
+
 ### 🧠 Version Field Overrides
 
 - **Custom Field Replacement**: Replace values in ShotGrid fields using `version_overrides`. This is useful for
@@ -265,6 +271,8 @@ version_overrides:
     match: { task.name: v000 }
     replace: { task.name: Comp, version_number: 0 }
 ```
+
+---
 
 ### ♻️ Delivery Override & Merge
 
@@ -295,6 +303,8 @@ follow the default path/version logic.
 > [!WARNING]
 > Be cautious when overriding both version and path — the app will not automatically prevent overwriting unless the
 > destination is locked externally.
+
+---
 
 ### 📊 Error Reporting through Sentry (Optional)
 
