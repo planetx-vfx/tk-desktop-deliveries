@@ -228,15 +228,15 @@ These values can use expressions by wrapping a field with {}, or you can just ad
 
 The following fields are available in the CSV values:
 
-| Value                         | Description                                                                                                                      |
-|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
-| file.name                     | The outputted file name                                                                                                          |
-| file.codec / file.compression | The codec (video) or compression (exr) of the outputted file                                                                     |
-| file.folder                   | The name of the delivery folder                                                                                                  |
-| date.<format>                 | <format> is a date format using [Python Date Format Codes](https://www.w3schools.com/python/gloss_python_date_format_codes.asp). |
-| project.*                     | A ShotGrid field on the current Project                                                                                          |
-| shot.*                        | A ShotGrid field on the Shot                                                                                                     |
-| version.                      | A ShotGrid field on the Version                                                                                                  |
+| Value                         | Description                                                                                                                            |
+|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| file.name                     | The outputted file name                                                                                                                |
+| file.codec / file.compression | The codec (video) or compression (exr) of the outputted file                                                                           |
+| file.folder                   | The name of the delivery folder                                                                                                        |
+| date.&lt;format&gt;           | &lt;format&gt; is a date format using [Python Date Format Codes](https://www.w3schools.com/python/gloss_python_date_format_codes.asp). |
+| project.*                     | A ShotGrid field on the current Project                                                                                                |
+| shot.*                        | A ShotGrid field on the Shot                                                                                                           |
+| version.                      | A ShotGrid field on the Version                                                                                                        |
 
 #### Save a template
 
