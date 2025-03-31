@@ -398,8 +398,9 @@ quickly.
 
 ### Booleans
 
-| Name                    | Description                                                    | Default value |
-|-------------------------|----------------------------------------------------------------|---------------|
-| `add_slate_to_sequence` | If a slate frame should be added before the delivered sequence | False         |
+| Name                    | Description                                                                | Default value |
+|-------------------------|----------------------------------------------------------------------------|---------------|
+| `add_slate_to_sequence` | If a slate frame should be added before the delivered sequence             | False         |
+| `continuous_versioning` | If the delivery versions should always increment, independent of the date. | False         |
 
 
