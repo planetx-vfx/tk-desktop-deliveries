@@ -586,6 +586,7 @@ class DeliveryController(QtWidgets.QWidget):
                             ]:
                                 if entity == "file" and field not in [
                                     "name",
+                                    "name_ranged",
                                     "codec",
                                     "compression",
                                     "folder",

@@ -332,6 +332,23 @@ class ExportShotsThread(QtCore.QThread):
                                 if field == "name":
                                     csv_fields.append(file_name)
                                     continue
+                                if field == "name_ranged":
+                                    new_file_name = file_name
+
+                                    # Extract frame pattern and replace with frame range
+                                    frame_pattern = re.compile("(%0(\d)d)")
+                                    frame_match = re.search(
+                                        frame_pattern, new_file_name
+                                    )
+                                    if frame_match:
+                                        full_frame_spec = frame_match.group(1)
+                                        new_file_name = new_file_name.replace(
+                                            full_frame_spec,
+                                            f"[{version.first_frame}-{version.last_frame}]",
+                                        )
+
+                                    csv_fields.append(new_file_name)
+                                    continue
 
                                 elif (
                                     field == "codec" or field == "compression"
