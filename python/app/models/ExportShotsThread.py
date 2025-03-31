@@ -79,23 +79,43 @@ class ExportShotsThread(QtCore.QThread):
             }
 
             if self.user_settings.delivery_version is None:
-                unsafe_folder_version = True
-                while unsafe_folder_version:
-                    tmp_delivery_folder = Path(
-                        delivery_folder_template.apply_fields(template_fields)
-                    )
+                fields = []
 
-                    # Override delivery location from user settings
+                base_template_path = Path(
+                    delivery_folder_template.apply_fields(template_fields)
+                ).parent
+                base_path = base_template_path
+
+                # Override delivery location from user settings
+                if self.user_settings.delivery_location is not None:
+                    base_path = Path(self.user_settings.delivery_location)
+
+                for item in base_path.iterdir():
+                    if item.is_file():
+                        continue
+
+                    # If iterating over non-templated folders, fake the base folder for getting the fields
                     if self.user_settings.delivery_location is not None:
-                        base_path = Path(self.user_settings.delivery_location)
-                        tmp_delivery_folder = (
-                            base_path / tmp_delivery_folder.name
-                        )
+                        item = base_template_path / item.name
 
-                    if tmp_delivery_folder.is_dir():
-                        template_fields["delivery_version"] += 1
-                    else:
-                        unsafe_folder_version = False
+                    try:
+                        fields.append(
+                            delivery_folder_template.get_fields(str(item))
+                        )
+                    except:
+                        continue
+
+                # Compile the version numbers. Filter on date if not using continuous versioning.
+                delivered_versions = [
+                    field["delivery_version"]
+                    for field in fields
+                    if self.model.settings.continuous_versioning
+                    or field["delivery_date"].date() == datetime.now().date()
+                ]
+
+                template_fields["delivery_version"] = (
+                    max(delivered_versions or [0]) + 1
+                )
             else:
                 template_fields["delivery_version"] = (
                     self.user_settings.delivery_version
