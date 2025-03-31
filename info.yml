@@ -201,6 +201,11 @@ configuration:
     default_value: false
     description: If a slate frame should be added before the delivered sequence
 
+  continuous_versioning:
+    type: bool
+    default_value: false
+    description: If the delivery versions should always increment, independent of the date.
+
   # --- PATHS ---
   logo_path_linux:
     type: str

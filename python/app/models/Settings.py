@@ -33,7 +33,8 @@ class Settings:
     preview_colorspace_idt: str
     preview_colorspace_odt: str
 
-    add_slate_to_sequence: bool
+    add_slate_to_sequence: bool = False
+    continuous_versioning: bool = False
 
     slate_extra_fields: dict = {}
 
@@ -93,6 +94,7 @@ class Settings:
             "preview_colorspace_idt",
             "preview_colorspace_odt",
             "add_slate_to_sequence",
+            "continuous_versioning",
         ]:
             setattr(self, setting, self._app.get_setting(setting))
 
