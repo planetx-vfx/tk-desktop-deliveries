@@ -1132,9 +1132,6 @@ class DeliveryModel:
                 "delivery_lut"
             ).apply_fields(template_fields)
 
-            self.logger.info(input_lut)
-            self.logger.info(delivery_lut)
-
             if input_lut.is_file():
                 delivery_lut = delivery_lut.replace(
                     str(delivery_folder_org), str(delivery_folder)
