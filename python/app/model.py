@@ -830,6 +830,11 @@ class DeliveryModel:
             # Deliver attachment
             self._deliver_attachment(version, user_settings, delivery_folder)
 
+            # Deliver lut
+            self._deliver_lut(
+                delivery_folder, delivery_folder_org, template_fields
+            )
+
             # Update version data
             version_data = {}
 
@@ -1104,6 +1109,37 @@ class DeliveryModel:
 
                 if file_path is not None:
                     shutil.copyfile(file_path, delivery_folder / name)
+
+    def _deliver_lut(
+        self,
+        delivery_folder: Path,
+        delivery_folder_org: Path,
+        template_fields: dict,
+    ):
+        if (
+            self.app.get_template("input_lut") is not None
+            and self.app.get_template("delivery_lut") is not None
+        ):
+            input_lut = Path(
+                self.app.get_template("input_lut").apply_fields(
+                    template_fields
+                )
+            )
+            delivery_lut: str = self.app.get_template(
+                "delivery_lut"
+            ).apply_fields(template_fields)
+
+            self.logger.info(input_lut)
+            self.logger.info(delivery_lut)
+
+            if input_lut.is_file():
+                delivery_lut = delivery_lut.replace(
+                    str(delivery_folder_org), str(delivery_folder)
+                )
+
+                Path(delivery_lut).parent.mkdir(parents=True, exist_ok=True)
+
+                shutil.copyfile(input_lut, delivery_lut)
 
     def export_versions(
         self,
