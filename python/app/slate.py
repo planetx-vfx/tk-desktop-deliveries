@@ -37,7 +37,6 @@ from pathlib import Path
 
 import PyOpenColorIO as OCIO
 import nuke
-import shotgun_api3
 
 
 class Letterbox:
