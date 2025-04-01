@@ -304,6 +304,31 @@ class ExportShotsThread(QtCore.QThread):
                                 )
                             )
 
+                    if (
+                        self.model.app.get_template("input_lut") is not None
+                        and self.model.app.get_template("delivery_lut")
+                        is not None
+                    ):
+                        delivery_lut = Path(
+                            Path(
+                                self.model.app.get_template(
+                                    "delivery_lut"
+                                ).apply_fields(version_template_fields)
+                            )
+                            .as_posix()
+                            .replace(
+                                delivery_folder_org.as_posix(),
+                                delivery_folder.as_posix(),
+                            )
+                        )
+
+                        to_deliver.append(
+                            (
+                                delivery_lut,
+                                "",
+                            )
+                        )
+
                     csv_data = {}
                     for (
                         entity,
