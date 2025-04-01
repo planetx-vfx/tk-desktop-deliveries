@@ -743,6 +743,7 @@ class DeliveryModel:
             delivery_folder = Path(
                 delivery_folder_template.apply_fields(template_fields)
             )
+            delivery_folder_org = delivery_folder
 
             # Get the input preview path
             preview_movie_file = Path(version.path_to_movie)
@@ -760,10 +761,10 @@ class DeliveryModel:
                     / delivery_folder_name
                 )
 
-                delivery_sequence_path = (
-                    delivery_folder
-                    / delivery_sequence_path.parent.name
-                    / delivery_sequence_path.name
+                delivery_sequence_path = Path(
+                    delivery_sequence_path.as_posix().replace(
+                        str(delivery_folder_org), str(delivery_folder)
+                    )
                 )
 
             # Get count of total jobs
@@ -783,11 +784,11 @@ class DeliveryModel:
 
             if deliverables.deliver_preview:
                 for output in user_settings.delivery_preview_outputs:
-
                     preview_template_fields = {
                         **template_fields,
                         "delivery_preview_extension": output.extension,
                     }
+
                     # Get the output preview path
                     output_preview_path = Path(
                         delivery_preview_template.apply_fields(
@@ -795,224 +796,39 @@ class DeliveryModel:
                         )
                     )
                     if user_settings.delivery_location is not None:
-                        output_preview_path = (
-                            delivery_folder / output_preview_path.name
+                        output_preview_path = Path(
+                            output_preview_path.as_posix().replace(
+                                str(delivery_folder_org), str(delivery_folder)
+                            )
                         )
 
-                    slate_data = self._get_slate_data(version, shot)
-
-                    process = NukeProcess(
+                    self._deliver_preview(
+                        shot,
                         version,
+                        output,
+                        user_settings,
+                        preview_movie_file,
+                        output_preview_path,
+                        timecode_ref_path,
                         show_validation_error,
                         show_validation_message,
                         update_progress,
-                        f"{output.extension.upper()} - {output.name}",
-                    )
-                    args = [
-                        "-t",
-                        self.slate_path,
-                        str(version.first_frame),
-                        str(version.last_frame),
-                        str(version.fps),
-                        preview_movie_file.as_posix(),
-                        output_preview_path.as_posix(),
-                        self.logo_path,
-                        "-idt",
-                        self.settings.preview_colorspace_idt,
-                        "-odt",
-                        self.settings.preview_colorspace_odt,
-                        "--font-path",
-                        self.font_path,
-                        "--font-bold-path",
-                        self.font_bold_path,
-                        "--write-settings",
-                        output.to_cli_string(),
-                        "--slate-data",
-                        json.dumps(slate_data),
-                    ]
-                    if timecode_ref_path is not None:
-                        args.extend(["--timecode-ref", str(timecode_ref_path)])
-                    if (
-                        user_settings.letterbox is not None
-                        and output.use_letterbox
-                    ):
-                        args.extend(
-                            ["--letterbox", str(user_settings.letterbox)]
-                        )
-
-                    process.run(
-                        self.nuke_path,
-                        args,
-                    )
-
-                    self.logger.info(
-                        f"Finished rendering preview to {output_preview_path}."
                     )
 
                     current_job += 1
 
             if deliverables.deliver_sequence:
-                should_rerender = False
-                output = next(
-                    (
-                        output
-                        for output in self.settings.delivery_sequence_outputs
-                        if output.status == version.sequence_output_status
-                    ),
-                    None,
+                self._deliver_sequence(
+                    shot,
+                    version,
+                    delivery_sequence_path,
+                    show_validation_error,
+                    show_validation_message,
+                    update_progress,
                 )
-
-                if output is not None:
-                    if output.settings.keys() == ["compression"]:
-                        metadata = parse_exr_metadata.read_exr_header(
-                            version.sequence_path % version.first_frame
-                        )
-                        if "compression" in metadata:
-                            if (
-                                output.settings["compression"].lower()
-                                in metadata.get("compression")
-                                .replace("_COMPRESSION", "")
-                                .lower()
-                            ):
-                                self.logger.info("Match compression")
-                            else:
-                                should_rerender = True
-                    else:
-                        should_rerender = True
-
-                # Create sequence delivery folder
-                sequence_delivery_folder = delivery_sequence_path.parent
-                self.logger.info(
-                    f"Creating folder for delivery {sequence_delivery_folder}."
-                )
-                sequence_delivery_folder.mkdir(parents=True, exist_ok=True)
-
-                if should_rerender or self.settings.add_slate_to_sequence:
-                    publish_file = Path(version.sequence_path)
-
-                    first_frame = version.first_frame
-                    if version.frames_have_slate:
-                        first_frame += 1
-
-                    args = [
-                        "-t",
-                        self.plate_path,
-                        str(first_frame),
-                        str(version.last_frame),
-                        publish_file.as_posix(),
-                        delivery_sequence_path.as_posix(),
-                    ]
-
-                    render_name = "main"
-                    if output is not None:
-                        render_name = f"{output.status} - {output.name}"
-
-                        version.validation_message = (
-                            f"Rerendering frames for {render_name}..."
-                        )
-                        show_validation_message(version)
-
-                        args.extend(
-                            [
-                                "--write-settings",
-                                (
-                                    output.to_cli_string()
-                                    if output is not None
-                                    else {}
-                                ),
-                            ]
-                        )
-
-                    process = NukeProcess(
-                        version,
-                        show_validation_error,
-                        show_validation_message,
-                        update_progress,
-                        render_name,
-                    )
-
-                    if self.settings.add_slate_to_sequence:
-                        slate_data = self._get_slate_data(version, shot)
-
-                        args.extend(
-                            [
-                                "--logo-path",
-                                self.logo_path,
-                                "-odt",
-                                self.settings.preview_colorspace_odt,
-                                "--slate-data",
-                                json.dumps(slate_data),
-                                "--font-path",
-                                self.font_path,
-                                "--font-bold-path",
-                                self.font_bold_path,
-                            ]
-                        )
-
-                        if not should_rerender:
-                            args.append("--slate-only")
-
-                    process.run(
-                        self.nuke_path,
-                        args,
-                    )
-                if not should_rerender:
-                    version.validation_message = "Delivering frames..."
-                    show_validation_message(version)
-
-                    can_link = False
-                    if (
-                        Path(version.sequence_path).drive
-                        == delivery_sequence_path.drive
-                    ):
-                        can_link = True
-
-                    first_frame = version.first_frame
-                    if version.frames_have_slate:
-                        first_frame += 1
-
-                    for frame in range(first_frame, version.last_frame + 1):
-                        publish_file = Path(version.sequence_path % frame)
-                        delivery_file = delivery_sequence_path.with_name(
-                            delivery_sequence_path.name % frame
-                        )
-
-                        if can_link:
-                            os.link(publish_file, delivery_file)
-                        else:
-                            shutil.copyfile(publish_file, delivery_file)
-
-                        update_progress(
-                            (frame - first_frame)
-                            / (version.last_frame - first_frame)
-                        )
-
-                    self.logger.info(
-                        f"Finished linking {version.sequence_path} to {delivery_sequence_path}."
-                    )
 
             # Deliver attachment
-            if version.attachment is not None and (
-                any(
-                    value == ("version", "attachment")
-                    for key, value in user_settings.csv_fields
-                )
-            ):
-                name = version.attachment["name"]
-                if version.attachment["link_type"] == "upload":
-                    url = version.attachment["url"]
-                    urlretrieve(url, delivery_folder / name)
-                elif version.attachment["link_type"] == "local":
-                    file_path = None
-                    if sgtk.util.is_linux():
-                        file_path = version.attachment["local_path_linux"]
-                    elif sgtk.util.is_macos():
-                        file_path = version.attachment["local_path_mac"]
-                    elif sgtk.util.is_windows():
-                        file_path = version.attachment["local_path_windows"]
-
-                    if file_path is not None:
-                        shutil.copyfile(file_path, delivery_folder / name)
+            self._deliver_attachment(version, user_settings, delivery_folder)
 
             # Update version data
             version_data = {}
@@ -1058,6 +874,236 @@ class DeliveryModel:
             self.logger.error(traceback.format_exc())
             version.validation_error = "An error occurred while making the delivery, please check logs!"
             show_validation_error(version)
+
+    def _deliver_preview(
+        self,
+        shot: Shot,
+        version: Version,
+        output,
+        user_settings: UserSettings,
+        preview_movie_file: Path,
+        output_preview_path: Path,
+        timecode_ref_path: Path | None,
+        show_validation_error,
+        show_validation_message,
+        update_progress,
+    ):
+
+        slate_data = self._get_slate_data(version, shot)
+
+        process = NukeProcess(
+            version,
+            show_validation_error,
+            show_validation_message,
+            update_progress,
+            f"{output.extension.upper()} - {output.name}",
+        )
+        args = [
+            "-t",
+            self.slate_path,
+            str(version.first_frame),
+            str(version.last_frame),
+            str(version.fps),
+            preview_movie_file.as_posix(),
+            output_preview_path.as_posix(),
+            self.logo_path,
+            "-idt",
+            self.settings.preview_colorspace_idt,
+            "-odt",
+            self.settings.preview_colorspace_odt,
+            "--font-path",
+            self.font_path,
+            "--font-bold-path",
+            self.font_bold_path,
+            "--write-settings",
+            output.to_cli_string(),
+            "--slate-data",
+            json.dumps(slate_data),
+        ]
+        if timecode_ref_path is not None:
+            args.extend(["--timecode-ref", str(timecode_ref_path)])
+        if user_settings.letterbox is not None and output.use_letterbox:
+            args.extend(["--letterbox", str(user_settings.letterbox)])
+
+        process.run(
+            self.nuke_path,
+            args,
+        )
+
+        self.logger.info(
+            f"Finished rendering preview to {output_preview_path}."
+        )
+
+    def _deliver_sequence(
+        self,
+        shot: Shot,
+        version: Version,
+        delivery_sequence_path: Path,
+        show_validation_error,
+        show_validation_message,
+        update_progress,
+    ):
+        should_rerender = False
+        output = next(
+            (
+                output
+                for output in self.settings.delivery_sequence_outputs
+                if output.status == version.sequence_output_status
+            ),
+            None,
+        )
+
+        if output is not None:
+            if output.settings.keys() == ["compression"]:
+                metadata = parse_exr_metadata.read_exr_header(
+                    version.sequence_path % version.first_frame
+                )
+                if "compression" in metadata:
+                    if (
+                        output.settings["compression"].lower()
+                        in metadata.get("compression")
+                        .replace("_COMPRESSION", "")
+                        .lower()
+                    ):
+                        self.logger.info("Match compression")
+                    else:
+                        should_rerender = True
+            else:
+                should_rerender = True
+
+        # Create sequence delivery folder
+        sequence_delivery_folder = delivery_sequence_path.parent
+        self.logger.info(
+            f"Creating folder for delivery {sequence_delivery_folder}."
+        )
+        sequence_delivery_folder.mkdir(parents=True, exist_ok=True)
+
+        if should_rerender or self.settings.add_slate_to_sequence:
+            publish_file = Path(version.sequence_path)
+
+            first_frame = version.first_frame
+            if version.frames_have_slate:
+                first_frame += 1
+
+            args = [
+                "-t",
+                self.plate_path,
+                str(first_frame),
+                str(version.last_frame),
+                publish_file.as_posix(),
+                delivery_sequence_path.as_posix(),
+            ]
+
+            render_name = "main"
+            if output is not None:
+                render_name = f"{output.status} - {output.name}"
+
+                version.validation_message = (
+                    f"Rerendering frames for {render_name}..."
+                )
+                show_validation_message(version)
+
+                args.extend(
+                    [
+                        "--write-settings",
+                        (output.to_cli_string() if output is not None else {}),
+                    ]
+                )
+
+            process = NukeProcess(
+                version,
+                show_validation_error,
+                show_validation_message,
+                update_progress,
+                render_name,
+            )
+
+            if self.settings.add_slate_to_sequence:
+                slate_data = self._get_slate_data(version, shot)
+
+                args.extend(
+                    [
+                        "--logo-path",
+                        self.logo_path,
+                        "-odt",
+                        self.settings.preview_colorspace_odt,
+                        "--slate-data",
+                        json.dumps(slate_data),
+                        "--font-path",
+                        self.font_path,
+                        "--font-bold-path",
+                        self.font_bold_path,
+                    ]
+                )
+
+                if not should_rerender:
+                    args.append("--slate-only")
+
+            process.run(
+                self.nuke_path,
+                args,
+            )
+        if not should_rerender:
+            version.validation_message = "Delivering frames..."
+            show_validation_message(version)
+
+            can_link = False
+            if (
+                Path(version.sequence_path).drive
+                == delivery_sequence_path.drive
+            ):
+                can_link = True
+
+            first_frame = version.first_frame
+            if version.frames_have_slate:
+                first_frame += 1
+
+            for frame in range(first_frame, version.last_frame + 1):
+                publish_file = Path(version.sequence_path % frame)
+                delivery_file = delivery_sequence_path.with_name(
+                    delivery_sequence_path.name % frame
+                )
+
+                if can_link:
+                    os.link(publish_file, delivery_file)
+                else:
+                    shutil.copyfile(publish_file, delivery_file)
+
+                update_progress(
+                    (frame - first_frame) / (version.last_frame - first_frame)
+                )
+
+            self.logger.info(
+                f"Finished linking {version.sequence_path} to {delivery_sequence_path}."
+            )
+
+    def _deliver_attachment(
+        self,
+        version: Version,
+        user_settings: UserSettings,
+        delivery_folder: Path,
+    ):
+        if version.attachment is not None and (
+            any(
+                value == ("version", "attachment")
+                for key, value in user_settings.csv_fields
+            )
+        ):
+            name = version.attachment["name"]
+            if version.attachment["link_type"] == "upload":
+                url = version.attachment["url"]
+                urlretrieve(url, delivery_folder / name)
+            elif version.attachment["link_type"] == "local":
+                file_path = None
+                if sgtk.util.is_linux():
+                    file_path = version.attachment["local_path_linux"]
+                elif sgtk.util.is_macos():
+                    file_path = version.attachment["local_path_mac"]
+                elif sgtk.util.is_windows():
+                    file_path = version.attachment["local_path_windows"]
+
+                if file_path is not None:
+                    shutil.copyfile(file_path, delivery_folder / name)
 
     def export_versions(
         self,
