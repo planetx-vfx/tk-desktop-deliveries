@@ -32,6 +32,12 @@ configuration:
     fields: context, version, SEQ, *
     description: "Template to deliver the sequences from."
 
+  input_lut:
+    type: template
+    fields: context, *
+    allows_empty: True
+    description: "Template of the LUT files."
+
   delivery_folder:
     type: template
     fields: prj, delivery_date, delivery_version
@@ -46,6 +52,12 @@ configuration:
     type: template
     fields: context, prj, delivery_date, delivery_version, task_name, version, delivery_preview_extension, *
     description: "Template to deliver the previews to."
+
+  delivery_lut:
+    type: template
+    fields: context, prj, delivery_date, delivery_version, task_name, version, *
+    allows_empty: True
+    description: "Template to deliver the LUT files to."
 
   csv_submission_form:
     type: template
