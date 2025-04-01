@@ -748,23 +748,12 @@ class DeliveryModel:
             # Get the input preview path
             preview_movie_file = Path(version.path_to_movie)
 
-            # Get the output frame delivery path
-            delivery_sequence_path = Path(
-                delivery_sequence_template.apply_fields(template_fields)
-            )
-
             # Override delivery location from user settings
             if user_settings.delivery_location is not None:
                 delivery_folder_name = delivery_folder.name
                 delivery_folder = (
                     Path(user_settings.delivery_location)
                     / delivery_folder_name
-                )
-
-                delivery_sequence_path = Path(
-                    delivery_sequence_path.as_posix().replace(
-                        str(delivery_folder_org), str(delivery_folder)
-                    )
                 )
 
             # Get count of total jobs
@@ -798,7 +787,8 @@ class DeliveryModel:
                     if user_settings.delivery_location is not None:
                         output_preview_path = Path(
                             output_preview_path.as_posix().replace(
-                                str(delivery_folder_org), str(delivery_folder)
+                                delivery_folder_org.as_posix(),
+                                delivery_folder.as_posix(),
                             )
                         )
 
@@ -818,6 +808,19 @@ class DeliveryModel:
                     current_job += 1
 
             if deliverables.deliver_sequence:
+                # Get the output frame delivery path
+                delivery_sequence_path = Path(
+                    delivery_sequence_template.apply_fields(template_fields)
+                )
+
+                if user_settings.delivery_location is not None:
+                    delivery_sequence_path = Path(
+                        delivery_sequence_path.as_posix().replace(
+                            delivery_folder_org.as_posix(),
+                            delivery_folder.as_posix(),
+                        )
+                    )
+
                 self._deliver_sequence(
                     shot,
                     version,
