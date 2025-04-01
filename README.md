@@ -340,9 +340,11 @@ quickly.
 |-----------------------|---------------------------------------------|---------------|--------------------------------------------------------------------------------------------------|
 | `preview_movie`       | Template of the preview files.              |               | context, *                                                                                       |
 | `input_sequence`      | Template to deliver the sequences from.     |               | context, version, SEQ, *                                                                         |
+| `input_lut`           | Template of the LUT files.                  |               | context, *                                                                                       |
 | `delivery_folder`     | Folder to deliver to.                       |               | prj, delivery_date, delivery_version                                                             |
 | `delivery_sequence`   | Template to deliver the sequences to.       |               | context, prj, delivery_date, delivery_version, task_name, version, SEQ, *                        |
 | `delivery_preview`    | Template to deliver the previews to.        |               | context, prj, delivery_date, delivery_version, task_name, version, delivery_preview_extension, * |
+| `delivery_lut`        | Template to deliver the LUT files to.       |               | context, prj, delivery_date, delivery_version, task_name, version, *                             |
 | `csv_submission_form` | Template to deliver the submission form to. |               | prj, delivery_date, delivery_version                                                             |
 | `csv_template_folder` | Folder to saves CSV templates.              |               | context, *                                                                                       |
 
