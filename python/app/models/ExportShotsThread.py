@@ -203,9 +203,18 @@ class ExportShotsThread(QtCore.QThread):
         csv_submission_form_path: Path = Path(
             csv_submission_form_template.apply_fields(template_fields)
         )
+
+        delivery_folder_org = Path(
+            self.model.app.get_template("delivery_folder").apply_fields(
+                template_fields
+            )
+        )
+
         if self.user_settings.delivery_location is not None:
-            csv_submission_form_path = (
-                delivery_folder / csv_submission_form_path.name
+            csv_submission_form_path = Path(
+                csv_submission_form_path.as_posix().replace(
+                    delivery_folder_org.as_posix(), delivery_folder.as_posix()
+                )
             )
 
         existing_rows = []
@@ -256,8 +265,15 @@ class ExportShotsThread(QtCore.QThread):
                     to_deliver = []
                     if deliverables.deliver_sequence:
                         sequence_path = Path(
-                            delivery_sequence_template.apply_fields(
-                                version_template_fields
+                            Path(
+                                delivery_sequence_template.apply_fields(
+                                    version_template_fields
+                                )
+                            )
+                            .as_posix()
+                            .replace(
+                                delivery_folder_org.as_posix(),
+                                delivery_folder.as_posix(),
                             )
                         )
                         to_deliver.append((sequence_path, ""))
@@ -270,8 +286,15 @@ class ExportShotsThread(QtCore.QThread):
                                 "delivery_preview_extension": output.extension,
                             }
                             preview_path = Path(
-                                delivery_preview_template.apply_fields(
-                                    output_template_fields
+                                Path(
+                                    delivery_preview_template.apply_fields(
+                                        output_template_fields
+                                    )
+                                )
+                                .as_posix()
+                                .replace(
+                                    delivery_folder_org.as_posix(),
+                                    delivery_folder.as_posix(),
                                 )
                             )
                             to_deliver.append(
