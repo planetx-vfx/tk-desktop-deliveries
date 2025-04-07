@@ -50,6 +50,7 @@ from .models import (
     LoadShotsThread,
 )
 from .models.Errors import LicenseError
+from .models.FootageFormat import FootageFormat, FootageFormatType
 from .models.Version import Task
 
 
@@ -381,7 +382,43 @@ class DeliveryModel:
         """
         shots_information_list = []
 
+        sg_footage_formats = self.shotgrid_connection.find(
+            self.settings.footage_format_entity,
+            [["project", "is", self.context.project]],
+            [
+                "code",
+                *self.extra_fields.get(
+                    self.settings.footage_format_entity, []
+                ),
+            ],
+        )
+
+        footage_formats = [
+            FootageFormat.from_sg(
+                self.settings.footage_format_fields, sg_format
+            )
+            for sg_format in sg_footage_formats
+        ]
+
         for sg_shot in shots_to_deliver:
+            shot_footage_formats = None
+            if (
+                self.settings.shot_footage_formats_field in sg_shot
+                and sg_shot[self.settings.shot_footage_formats_field]
+                is not None
+            ):
+                format_ids = [
+                    fformat["id"]
+                    for fformat in sg_shot[
+                        self.settings.shot_footage_formats_field
+                    ]
+                ]
+                shot_footage_formats = [
+                    fformat
+                    for fformat in footage_formats
+                    if fformat.id in format_ids
+                ]
+
             shot = Shot(
                 sequence=sg_shot["sg_sequence"]["name"],
                 code=sg_shot["code"],
@@ -389,6 +426,7 @@ class DeliveryModel:
                 description=sg_shot["description"],
                 project_code=self.get_project_code(),
                 episode=self.get_episode_code(sg_shot["sg_sequence"]),
+                footage_formats=shot_footage_formats,
             )
 
             for sg_version in sg_shot["versions"]:
@@ -484,6 +522,9 @@ class DeliveryModel:
             "Sequence": shot.sequence,
             "Shot": shot.code,
             "version": version.version_number,
+            "width": 0,
+            "height": 0,
+            "aspect_ratio": "1",
         }
 
         if delivery_version is not None:
@@ -494,6 +535,50 @@ class DeliveryModel:
 
         if shot.episode is not None:
             template_fields["Episode"] = shot.episode
+
+        if shot.footage_formats is not None:
+            input_format = next(
+                (
+                    fformat
+                    for fformat in shot.footage_formats
+                    if fformat.footage_type is FootageFormatType.INPUT_ONLINE
+                ),
+                None,
+            )
+            output_format = next(
+                (
+                    fformat
+                    for fformat in shot.footage_formats
+                    if fformat.footage_type is FootageFormatType.OUTPUT_PREVIEW
+                ),
+                None,
+            )
+            self.logger.info(input_format)
+            self.logger.info(output_format)
+
+            if input_format is not None and output_format is not None:
+                crop_x, crop_y = output_format.get_crop()
+                width = (input_format.width or 0) - crop_x * 2
+                height = (input_format.height or 0) - crop_y * 2
+
+                template_fields["width"] = width
+                template_fields["height"] = height
+                if height == 0:
+                    template_fields["aspect_ratio"] = "1"
+                else:
+                    template_fields["aspect_ratio"] = f"{width/height:.2f}"
+
+            elif input_format is not None:
+                width = input_format.width or 0
+                height = input_format.height or 0
+
+                template_fields["width"] = width
+                template_fields["height"] = height
+                if height == 0:
+                    template_fields["aspect_ratio"] = "1"
+                else:
+                    template_fields["aspect_ratio"] = f"{width/height:.2f}"
+            self.logger.info(template_fields)
 
         return template_fields
 
