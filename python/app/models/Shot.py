@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from .FootageFormat import FootageFormat
 from ..models import Version
 
 
@@ -10,6 +11,7 @@ class Shot:
     id: int
     description: str
     project_code: str
+    footage_formats: list[FootageFormat]
     validation_message: str | None
     validation_error: str | None
 
@@ -23,6 +25,7 @@ class Shot:
         project_code: str,
         description: str = "",
         episode: str = None,
+        footage_formats: list[FootageFormat] = None,
     ):
         self.episode = episode
         self.sequence = sequence
@@ -30,6 +33,7 @@ class Shot:
         self.id = id
         self.description = description
         self.project_code = project_code
+        self.footage_formats = footage_formats
         self.progress = 0
 
         self._versions = []
@@ -51,4 +55,7 @@ class Shot:
             "project_code": self.project_code,
             "progress": self.progress,
             "versions": [version.as_dict() for version in self._versions],
+            "footage_formats": [
+                fformat.as_dict() for fformat in self.footage_formats
+            ],
         }
