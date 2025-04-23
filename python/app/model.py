@@ -556,28 +556,59 @@ class DeliveryModel:
             self.logger.info(input_format)
             self.logger.info(output_format)
 
-            if input_format is not None and output_format is not None:
-                crop_x, crop_y = output_format.get_crop()
-                width = (input_format.width or 0) - crop_x * 2
-                height = (input_format.height or 0) - crop_y * 2
+            # If there is an output format, set the default values to it
+            if output_format is not None:
+                width = output_format.width or 0
+                height = output_format.height or 0
 
+                template_fields["output_width"] = width
+                template_fields["output_height"] = height
                 template_fields["width"] = width
                 template_fields["height"] = height
-                if height == 0:
-                    template_fields["aspect_ratio"] = "1"
-                else:
-                    template_fields["aspect_ratio"] = f"{width/height:.2f}"
 
-            elif input_format is not None:
+                if height <= 0:
+                    aspect_ratio = "?"
+                else:
+                    aspect_ratio = f"{width/height:.2f}"
+
+                template_fields["output_aspect_ratio"] = aspect_ratio
+                template_fields["aspect_ratio"] = aspect_ratio
+
+            if input_format is not None:
                 width = input_format.width or 0
                 height = input_format.height or 0
 
-                template_fields["width"] = width
-                template_fields["height"] = height
-                if height == 0:
-                    template_fields["aspect_ratio"] = "1"
+                template_fields["input_width"] = width
+                template_fields["input_height"] = height
+
+                if height <= 0:
+                    aspect_ratio = "?"
                 else:
-                    template_fields["aspect_ratio"] = f"{width/height:.2f}"
+                    aspect_ratio = f"{width/height:.2f}"
+                template_fields["input_aspect_ratio"] = aspect_ratio
+
+                # If there is no output format, the output format is the input format
+                if output_format is None:
+                    if height <= 0:
+                        aspect_ratio = "?"
+                    else:
+                        aspect_ratio = f"{width/height:.2f}"
+
+                    template_fields["width"] = width
+                    template_fields["height"] = height
+                # If there is an output format, calculate the input resolution and outputted aspect ratio
+                else:
+                    crop_x, crop_y = output_format.get_crop()
+                    width = width - crop_x * 2
+                    height = height - crop_y * 2
+
+                    if height <= 0:
+                        aspect_ratio = "?"
+                    else:
+                        aspect_ratio = f"{width/height:.2f}"
+
+                template_fields["aspect_ratio"] = aspect_ratio
+
             self.logger.info(template_fields)
 
         return template_fields
@@ -1112,7 +1143,9 @@ class DeliveryModel:
             )
 
             if self.settings.add_slate_to_sequence:
-                slate_data = self._get_slate_data(version, shot)
+                slate_data = self._get_slate_data(version, shot, False)
+
+                self.logger.info(slate_data)
 
                 args.extend(
                     [
@@ -1256,7 +1289,7 @@ class DeliveryModel:
         )
         self.export_shots_thread.start()
 
-    def _get_slate_data(self, version, shot):
+    def _get_slate_data(self, version, shot, preview=True):
         """
         Compile the slate data object
 
@@ -1272,9 +1305,22 @@ class DeliveryModel:
         elif "_" in shot.sequence:
             episode, scene = shot.sequence.split("_")
 
-        optional_fields = self.settings.get_slate_extra_fields(
-            self.get_version_template_fields(shot, version)
-        )
+        template_fields = self.get_version_template_fields(shot, version)
+        if not preview:
+            template_fields = {
+                **template_fields,
+                "width": template_fields.get(
+                    "input_width", template_fields["width"]
+                ),
+                "height": template_fields.get(
+                    "input_height", template_fields["height"]
+                ),
+                "aspect_ratio": template_fields.get(
+                    "input_aspect_ratio", template_fields["aspect_ratio"]
+                ),
+            }
+
+        optional_fields = self.settings.get_slate_extra_fields(template_fields)
 
         return {
             "version_name": f"v{version.version_number:03d}",
