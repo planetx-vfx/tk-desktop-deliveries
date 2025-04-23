@@ -276,7 +276,13 @@ class ExportShotsThread(QtCore.QThread):
                                 delivery_folder.as_posix(),
                             )
                         )
-                        to_deliver.append((sequence_path, ""))
+                        to_deliver.append(
+                            (
+                                sequence_path,
+                                "",
+                                self.model.settings.add_slate_to_sequence,
+                            )
+                        )
                     if deliverables.deliver_preview:
                         for (
                             output
@@ -301,6 +307,7 @@ class ExportShotsThread(QtCore.QThread):
                                 (
                                     preview_path,
                                     output.name,
+                                    True,
                                 )
                             )
 
@@ -326,6 +333,7 @@ class ExportShotsThread(QtCore.QThread):
                             (
                                 delivery_lut,
                                 "",
+                                False,
                             )
                         )
 
@@ -370,7 +378,7 @@ class ExportShotsThread(QtCore.QThread):
                         else:
                             csv_data[entity] = {}
 
-                    for file_path, codec in to_deliver:
+                    for file_path, codec, has_slate in to_deliver:
                         file_name = file_path.name
                         output_file_path = file_path.as_posix()
 
@@ -410,17 +418,20 @@ class ExportShotsThread(QtCore.QThread):
                                     )
                                     if frame_match:
                                         full_frame_spec = frame_match.group(1)
+
+                                        first_frame = version.first_frame
+                                        if has_slate:
+                                            first_frame -= 1
+
                                         new_file_name = new_file_name.replace(
                                             full_frame_spec,
-                                            f"[{version.first_frame}-{version.last_frame}]",
+                                            f"[{first_frame}-{version.last_frame}]",
                                         )
 
                                     csv_fields.append(new_file_name)
                                     continue
 
-                                elif (
-                                    field == "codec" or field == "compression"
-                                ):
+                                if field in ("codec", "compression"):
                                     if codec != "":
                                         csv_fields.append(codec)
                                         continue
@@ -444,10 +455,9 @@ class ExportShotsThread(QtCore.QThread):
                                         except:
                                             csv_fields.append("")
                                         continue
-                                    else:
-                                        csv_fields.append("")
+                                    csv_fields.append("")
                                     continue
-                                elif field == "folder":
+                                if field == "folder":
                                     csv_fields.append(delivery_folder.name)
                                     continue
 
@@ -461,9 +471,8 @@ class ExportShotsThread(QtCore.QThread):
                                         version.attachment["name"]
                                     )
                                     continue
-                                else:
-                                    csv_fields.append("")
-                                    continue
+                                csv_fields.append("")
+                                continue
 
                             if entity == "date":
                                 date = datetime.now()
