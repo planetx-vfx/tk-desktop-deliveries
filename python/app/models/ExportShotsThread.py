@@ -312,7 +312,12 @@ class ExportShotsThread(QtCore.QThread):
                             )
 
                     if (
-                        self.model.app.get_template("input_lut") is not None
+                        (
+                            deliverables.deliver_sequence
+                            or deliverables.deliver_preview
+                        )
+                        and self.model.app.get_template("input_lut")
+                        is not None
                         and self.model.app.get_template("delivery_lut")
                         is not None
                     ):
