@@ -39,6 +39,19 @@ Expression {
  addUserKnob {6 mode +INVISIBLE +STARTLINE}
  mode {{"width/height > ratio.w/ratio.h"}}
 }
+Text {
+ message ""
+ font C:/Windows/Fonts/arial.ttf
+ size {{"input.height * 0.023"}}
+ yjustify bottom
+ Transform 1
+ box {{"input.width * 0.008"} {"input.height * 0.008"} {input.width/3} {input.height/4}}
+ center {960 540}
+ name SubmissionNote
+ selected true
+ xpos -480
+ ypos 213
+}
 Group {
  inputs 2
  name NETFLIX_TEMPLATE_SLATE
@@ -46,7 +59,7 @@ Group {
  tile_color 0xff00ffff
  note_font_color 0xff
  xpos -480
- ypos 213
+ ypos 285
  addUserKnob {20 fields l Fields t "All Of the value inputs to the slate."}
  addUserKnob {1 f_version_name l "Version Name" t "This field is to be filled out with the unique version string for this media and match the name of the file.\n\nFollow the show's naming guidelines when filling this field out.\n\nExtension and frame padding are not required on this field.\n\nex. \"abc_001_001_comp_v003\"\n��"}
  addUserKnob {43 f_submission_note l "Submission Note"}

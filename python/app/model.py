@@ -491,6 +491,9 @@ class DeliveryModel:
                     submission_note=sg_version.get(
                         self.settings.submission_note_field, ""
                     ),
+                    submission_note_short=sg_version.get(
+                        self.settings.short_submission_note_field, ""
+                    ),
                     attachment=sg_version.get(
                         self.settings.attachment_field, ""
                     ),
@@ -1048,7 +1051,12 @@ class DeliveryModel:
             args.extend(["--timecode-ref", str(timecode_ref_path)])
         if user_settings.letterbox is not None and output.use_letterbox:
             args.extend(["--letterbox", str(user_settings.letterbox)])
+        if self.settings.override_preview_submission_note:
+            args.append("--new-submission-note")
 
+        self.logger.debug(
+            "Starting nuke render with args: %s %s", self.nuke_path, args
+        )
         process.run(
             self.nuke_path,
             args,
@@ -1325,6 +1333,7 @@ class DeliveryModel:
         return {
             "version_name": f"v{version.version_number:03d}",
             "submission_note": version.submission_note,
+            "submission_note_short": version.submission_note_short,
             "submitting_for": version.submitting_for,
             "shot_name": shot.code,
             "shot_types": version.task.name,

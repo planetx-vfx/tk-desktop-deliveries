@@ -82,6 +82,7 @@ class ShotGridSlate(object):
         letterbox: str = None,
         write_settings: str = None,
         slate_data: str = None,
+        new_submission_note: bool = False,
         font_path: str = None,
         font_bold_path: str = None,
     ):
@@ -93,6 +94,7 @@ class ShotGridSlate(object):
         self.fps = fps
         self.colorspace_idt = colorspace_idt
         self.colorspace_odt = colorspace_odt
+        self.new_submission_note = new_submission_note
         self.font_path = font_path
         self.font_bold_path = font_bold_path
 
@@ -262,6 +264,7 @@ class ShotGridSlate(object):
         input = nuke.toNode("INPUT")
         add_timecode = nuke.toNode("AddTimeCode")
         letterbox_node = nuke.toNode("Letterbox")
+        submission_note = nuke.toNode("SubmissionNote")
         slate = nuke.toNode("NETFLIX_TEMPLATE_SLATE")
 
         # Set read node as input for slate node
@@ -305,6 +308,13 @@ class ShotGridSlate(object):
             letterbox_node.knob("ratio").setValue(self.letterbox.height, 1)
             letterbox_node.knob("opacity").setValue(self.letterbox.opacity)
             letterbox_node.knob("disable").setValue(False)
+
+        if self.new_submission_note:
+            note = self.slate_data["submission_note_short"]
+            if note is None or note == "":
+                note = (self.slate_data["submission_note"] or "")[0:128]
+
+            submission_note["message"].setValue(note)
 
         slate["f_version_name"].setValue(self.slate_data["version_name"])
         slate["f_submission_note"].setValue(self.slate_data["submission_note"])
@@ -354,6 +364,8 @@ class ShotGridSlate(object):
                 slate[f"f_opt{i+1}_value"].setValue(value)
 
         # Set fonts
+        submission_note.knob("font").setValue(self.font_path)
+
         slate.knob("font").setValue(self.font_path)
         slate.knob("font_bold").setValue(self.font_bold_path)
 

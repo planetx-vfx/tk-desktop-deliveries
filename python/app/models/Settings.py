@@ -22,6 +22,7 @@ class Settings:
     vfx_scope_of_work_field: str
     submitting_for_field: str
     submission_note_field: str
+    short_submission_note_field: str
     attachment_field: str
     delivery_sequence_outputs_field: str
 
@@ -36,6 +37,7 @@ class Settings:
     preview_colorspace_odt: str
 
     add_slate_to_sequence: bool = False
+    override_preview_submission_note: bool = False
     continuous_versioning: bool = False
 
     slate_extra_fields: dict = {}
@@ -95,6 +97,7 @@ class Settings:
             "vfx_scope_of_work_field",
             "submitting_for_field",
             "submission_note_field",
+            "short_submission_note_field",
             "attachment_field",
             "delivery_sequence_outputs_field",
             "shot_delivery_status",
@@ -105,6 +108,7 @@ class Settings:
             "preview_colorspace_idt",
             "preview_colorspace_odt",
             "add_slate_to_sequence",
+            "override_preview_submission_note",
             "continuous_versioning",
             "footage_format_fields",
             "footage_format_entity",
@@ -157,6 +161,7 @@ class Settings:
                 self.version_status_field,
                 self.submitting_for_field,
                 self.submission_note_field,
+                self.short_submission_note_field,
                 self.attachment_field,
                 self.delivery_sequence_outputs_field,
             ],

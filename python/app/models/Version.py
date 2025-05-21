@@ -17,6 +17,7 @@ class Version:
     task: Task | None
     submitting_for: str
     submission_note: str
+    submission_note_short: str
 
     deliver_preview: bool
     deliver_sequence: bool
@@ -43,7 +44,8 @@ class Version:
         task: Task = None,
         submitting_for: str = "",
         submission_note: str = "",
-        attachment: dict = None,
+        submission_note_short: str = "",
+        attachment: dict | None = None,
         deliver_preview: bool = True,
         deliver_sequence: bool = True,
         sequence_output_status: str = "",
@@ -72,6 +74,7 @@ class Version:
         self.task = task
         self.submitting_for = submitting_for
         self.submission_note = submission_note
+        self.submission_note_short = submission_note_short
         self.attachment = attachment
 
         self.deliver_preview = deliver_preview
@@ -102,6 +105,7 @@ class Version:
             ),
             "submitting_for": self.submitting_for,
             "submission_note": self.submission_note,
+            "submission_note_short": self.submission_note_short,
             "deliver_preview": self.deliver_preview,
             "deliver_sequence": self.deliver_sequence,
             "sequence_output_status": self.sequence_output_status,
