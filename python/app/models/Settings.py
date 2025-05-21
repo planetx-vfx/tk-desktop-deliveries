@@ -19,6 +19,7 @@ class Settings:
     # Fields
     shot_status_field: str
     version_status_field: str
+    vfx_scope_of_work_field: str
     submitting_for_field: str
     submission_note_field: str
     attachment_field: str
@@ -91,6 +92,7 @@ class Settings:
         for setting in [
             "shot_status_field",
             "version_status_field",
+            "vfx_scope_of_work_field",
             "submitting_for_field",
             "submission_note_field",
             "attachment_field",
@@ -161,6 +163,7 @@ class Settings:
             "Shot": [
                 self.shot_status_field,
                 self.shot_footage_formats_field,
+                self.vfx_scope_of_work_field,
             ],
         }
 

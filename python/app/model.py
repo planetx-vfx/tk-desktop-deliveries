@@ -424,6 +424,9 @@ class DeliveryModel:
                 code=sg_shot["code"],
                 id=sg_shot["id"],
                 description=sg_shot["description"],
+                vfx_scope_of_work=sg_shot.get(
+                    self.settings.vfx_scope_of_work_field, ""
+                ),
                 project_code=self.get_project_code(),
                 episode=self.get_episode_code(sg_shot["sg_sequence"]),
                 footage_formats=shot_footage_formats,
@@ -1328,7 +1331,7 @@ class DeliveryModel:
             "submitting_for": version.submitting_for,
             "shot_name": shot.code,
             "shot_types": version.task.name,
-            "vfx_scope_of_work": shot.description,
+            "vfx_scope_of_work": shot.vfx_scope_of_work,
             "show": self.get_project()["name"],
             "episode": episode,
             "scene": scene,

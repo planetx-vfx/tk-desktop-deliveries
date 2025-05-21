@@ -107,7 +107,7 @@ configuration:
     default_value:
       Version Name: "{file.name}"
       Link: "{shot.code}"
-      VFX Scope of Work: "{shot.description}"
+      VFX Scope of Work: "{shot.sg_scope_of_work}"
       Vendor: "{project.sg_vendorid}"
       Submitting For: "{version.sg_submitting_for}"
       Submission Note: "{version.sg_submission_note}"
@@ -154,17 +154,29 @@ configuration:
     allows_empty: True
     description: Field to check the version status with.
 
+  vfx_scope_of_work_field:
+    type: str
+    default_value: "sg_scope_of_work"
+    allows_empty: True
+    description: Shot field to use on the slate in "VFX Scope Of Work".
+
   submitting_for_field:
     type: str
     default_value: "sg_submitting_for"
     allows_empty: True
-    description: Field to use on the slate in "Submitting for".
+    description: Version field to use on the slate in "Submitting for".
 
   submission_note_field:
     type: str
     default_value: "sg_submission_note"
     allows_empty: True
-    description: Field to use on the slate in "Submission note".
+    description: Version field to use on the slate in "Submission note".
+
+  short_submission_note_field:
+    type: str
+    default_value: "sg_submission_note_short"
+    allows_empty: True
+    description: Version field to use on the preview overlay as submission note.
 
   attachment_field:
     type: str
