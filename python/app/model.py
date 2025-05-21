@@ -569,10 +569,7 @@ class DeliveryModel:
                 template_fields["width"] = width
                 template_fields["height"] = height
 
-                if height <= 0:
-                    aspect_ratio = "?"
-                else:
-                    aspect_ratio = f"{width/height:.2f}"
+                aspect_ratio = "?" if height <= 0 else f"{width / height:.2f}"
 
                 template_fields["output_aspect_ratio"] = aspect_ratio
                 template_fields["aspect_ratio"] = aspect_ratio
@@ -584,18 +581,14 @@ class DeliveryModel:
                 template_fields["input_width"] = width
                 template_fields["input_height"] = height
 
-                if height <= 0:
-                    aspect_ratio = "?"
-                else:
-                    aspect_ratio = f"{width/height:.2f}"
+                aspect_ratio = "?" if height <= 0 else f"{width / height:.2f}"
                 template_fields["input_aspect_ratio"] = aspect_ratio
 
                 # If there is no output format, the output format is the input format
                 if output_format is None:
-                    if height <= 0:
-                        aspect_ratio = "?"
-                    else:
-                        aspect_ratio = f"{width/height:.2f}"
+                    aspect_ratio = (
+                        "?" if height <= 0 else f"{width / height:.2f}"
+                    )
 
                     template_fields["width"] = width
                     template_fields["height"] = height
@@ -605,10 +598,9 @@ class DeliveryModel:
                     width = width - crop_x * 2
                     height = height - crop_y * 2
 
-                    if height <= 0:
-                        aspect_ratio = "?"
-                    else:
-                        aspect_ratio = f"{width/height:.2f}"
+                    aspect_ratio = (
+                        "?" if height <= 0 else f"{width / height:.2f}"
+                    )
 
                 template_fields["aspect_ratio"] = aspect_ratio
 
