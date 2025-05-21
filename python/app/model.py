@@ -735,18 +735,19 @@ class DeliveryModel:
                 "The path_to_movie field on this version points to a nonexistent file."
             )
 
-        if version.sequence_path is None or version.sequence_path == "":
-            version_errors.append("The published file(path) is empty.")
-        else:
-            if version.sequence_path.endswith(".mov"):
-                version_errors.append(
-                    "Linked version file on this version is a reference MOV, not an EXR sequence."
-                )
+        if version.deliver_sequence:
+            if version.sequence_path is None or version.sequence_path == "":
+                version_errors.append("The published file(path) is empty.")
+            else:
+                if version.sequence_path.endswith(".mov"):
+                    version_errors.append(
+                        "Linked version file on this version is a reference MOV, not an EXR sequence."
+                    )
 
-            if version.version_number == -1:
-                version_errors.append(
-                    "The linked published file doesn't have a version."
-                )
+                if version.version_number == -1:
+                    version_errors.append(
+                        "The linked published file doesn't have a version."
+                    )
 
         return version_errors
 
@@ -845,9 +846,14 @@ class DeliveryModel:
             )
             if input_frame.is_file():
                 timecode_ref_path = input_sequence
-            else:
+            elif version.sequence_path:
                 input_sequence = Path(version.sequence_path)
-                if Path(version.sequence_path % version.first_frame).is_file():
+                if (
+                    "%" in version.sequence_path
+                    and Path(
+                        version.sequence_path % version.first_frame
+                    ).is_file()
+                ):
                     timecode_ref_path = input_sequence
 
             # Get the delivery folder
@@ -1007,7 +1013,6 @@ class DeliveryModel:
         show_validation_message,
         update_progress,
     ):
-
         slate_data = self._get_slate_data(version, shot)
 
         process = NukeProcess(
