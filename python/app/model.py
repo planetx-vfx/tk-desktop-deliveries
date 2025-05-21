@@ -556,8 +556,8 @@ class DeliveryModel:
                 ),
                 None,
             )
-            self.logger.info(input_format)
-            self.logger.info(output_format)
+            self.logger.debug("Input format: %s", input_format)
+            self.logger.debug("Output format: %s", output_format)
 
             # If there is an output format, set the default values to it
             if output_format is not None:
