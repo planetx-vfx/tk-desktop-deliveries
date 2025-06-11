@@ -360,52 +360,55 @@ quickly.
 
 ### Dictionaries
 
-| Name                    | Description                                                                                                      | Default value                                                                                                                                                                                                                            |
-|-------------------------|------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `default_csv`           | Dict of default values for the CSV.                                                                              | {'Version Name': '{file.name}', 'Link': '{shot.code}', 'VFX Scope of Work': '{shot.description}', 'Vendor': '{project.sg_vendorid}', 'Submitting For': '{version.sg_submitting_for}', 'Submission Note': '{version.sg_submission_note}'} |
-| `slate_extra_fields`    | Extra fields to display on the slate. Max 6. You can use Nuke TCL expressions or a ShotGrid Template definition. | {}                                                                                                                                                                                                                                       |
-| `footage_format_fields` |                                                                                                                  |                                                                                                                                                                                                                                          |
+| Name                    | Description                                                                                                      | Default value                                                                                                                                                                                                                                 |
+|-------------------------|------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `default_csv`           | Dict of default values for the CSV.                                                                              | {'Version Name': '{file.name}', 'Link': '{shot.code}', 'VFX Scope of Work': '{shot.sg_scope_of_work}', 'Vendor': '{project.sg_vendorid}', 'Submitting For': '{version.sg_submitting_for}', 'Submission Note': '{version.sg_submission_note}'} |
+| `slate_extra_fields`    | Extra fields to display on the slate. Max 6. You can use Nuke TCL expressions or a ShotGrid Template definition. | {}                                                                                                                                                                                                                                            |
+| `footage_format_fields` |                                                                                                                  |                                                                                                                                                                                                                                               |
 
 
 ### Strings
 
-| Name                               | Description                                                                                | Default value      |
-|------------------------------------|--------------------------------------------------------------------------------------------|--------------------|
-| `shot_status_field`                | Field to check the shot status with.                                                       | sg_status_list     |
-| `version_status_field`             | Field to check the version status with.                                                    | sg_status_list     |
-| `submitting_for_field`             | Field to use on the slate in "Submitting for".                                             | sg_submitting_for  |
-| `submission_note_field`            | Field to use on the slate in "Submission note".                                            | sg_submission_note |
-| `attachment_field`                 | Field to get the attachment from. Field should be of type File/Link (url).                 | sg_attachment      |
-| `delivery_sequence_outputs_field`  | Field to match the delivery sequence output settings with.                                 | sg_submitting_for  |
-| `shot_delivery_status`             | Status of a shot that will be added to the ready for delivery list.                        | rfd                |
-| `version_delivery_status`          | Status of a version that will be added to the ready for delivery list.                     | rfd                |
-| `version_delivered_status`         | Status to set the version to if the EXRs (and preview) of the version have been delivered. | dlvr               |
-| `version_preview_delivered_status` | Status to set the version to if only a preview of the version has been delivered.          | dlvr               |
-| `shot_delivered_status`            | Status to set the shot to if the EXRs of the shot have been delivered.                     | fin                |
-| `preview_colorspace_idt`           | Input colorspace of the preview.                                                           | ACES - ACEScg      |
-| `preview_colorspace_odt`           | Output colorspace of the preview.                                                          | Output - sRGB      |
-| `footage_format_entity`            | Entity that contains the footage formats.                                                  |                    |
-| `shot_footage_formats_field`       | Field that links to the used footage formats.                                              | sg_footage_formats |
-| `logo_path_linux`                  | Linux path to the company logo.                                                            |                    |
-| `logo_path_mac`                    | Mac path to the company logo.                                                              |                    |
-| `logo_path_windows`                | Windows path to the company logo.                                                          |                    |
-| `font_path_linux`                  | Linux path to the regular font to use.                                                     |                    |
-| `font_bold_path_linux`             | Linux path to the bold font to use.                                                        |                    |
-| `font_path_mac`                    | Mac path to the regular font to use.                                                       |                    |
-| `font_bold_path_mac`               | Mac path to the bold font to use.                                                          |                    |
-| `font_path_windows`                | Windows path to the regular font to use.                                                   |                    |
-| `font_bold_path_windows`           | Windows path to the bold font to use.                                                      |                    |
-| `nuke_path_linux`                  | Linux path to your Nuke installation for creating slates.                                  |                    |
-| `nuke_path_mac`                    | Mac path to your Nuke installation for creating slates.                                    |                    |
-| `nuke_path_windows`                | Windows path to your Nuke installation for creating slates.                                |                    |
-| `sentry_dsn`                       | Sentry DSN Url                                                                             |                    |
+| Name                               | Description                                                                                | Default value            |
+|------------------------------------|--------------------------------------------------------------------------------------------|--------------------------|
+| `shot_status_field`                | Field to check the shot status with.                                                       | sg_status_list           |
+| `version_status_field`             | Field to check the version status with.                                                    | sg_status_list           |
+| `vfx_scope_of_work_field`          | Shot field to use on the slate in "VFX Scope Of Work".                                     | sg_scope_of_work         |
+| `submitting_for_field`             | Version field to use on the slate in "Submitting for".                                     | sg_submitting_for        |
+| `submission_note_field`            | Version field to use on the slate in "Submission note".                                    | sg_submission_note       |
+| `short_submission_note_field`      | Version field to use on the preview overlay as submission note.                            | sg_submission_note_short |
+| `attachment_field`                 | Field to get the attachment from. Field should be of type File/Link (url).                 | sg_attachment            |
+| `delivery_sequence_outputs_field`  | Field to match the delivery sequence output settings with.                                 | sg_submitting_for        |
+| `shot_delivery_status`             | Status of a shot that will be added to the ready for delivery list.                        | rfd                      |
+| `version_delivery_status`          | Status of a version that will be added to the ready for delivery list.                     | rfd                      |
+| `version_delivered_status`         | Status to set the version to if the EXRs (and preview) of the version have been delivered. | dlvr                     |
+| `version_preview_delivered_status` | Status to set the version to if only a preview of the version has been delivered.          | dlvr                     |
+| `shot_delivered_status`            | Status to set the shot to if the EXRs of the shot have been delivered.                     | fin                      |
+| `preview_colorspace_idt`           | Input colorspace of the preview.                                                           | ACES - ACEScg            |
+| `preview_colorspace_odt`           | Output colorspace of the preview.                                                          | Output - sRGB            |
+| `footage_format_entity`            | Entity that contains the footage formats.                                                  |                          |
+| `shot_footage_formats_field`       | Field that links to the used footage formats.                                              | sg_footage_formats       |
+| `logo_path_linux`                  | Linux path to the company logo.                                                            |                          |
+| `logo_path_mac`                    | Mac path to the company logo.                                                              |                          |
+| `logo_path_windows`                | Windows path to the company logo.                                                          |                          |
+| `font_path_linux`                  | Linux path to the regular font to use.                                                     |                          |
+| `font_bold_path_linux`             | Linux path to the bold font to use.                                                        |                          |
+| `font_path_mac`                    | Mac path to the regular font to use.                                                       |                          |
+| `font_bold_path_mac`               | Mac path to the bold font to use.                                                          |                          |
+| `font_path_windows`                | Windows path to the regular font to use.                                                   |                          |
+| `font_bold_path_windows`           | Windows path to the bold font to use.                                                      |                          |
+| `nuke_path_linux`                  | Linux path to your Nuke installation for creating slates.                                  |                          |
+| `nuke_path_mac`                    | Mac path to your Nuke installation for creating slates.                                    |                          |
+| `nuke_path_windows`                | Windows path to your Nuke installation for creating slates.                                |                          |
+| `sentry_dsn`                       | Sentry DSN Url                                                                             |                          |
 
 
 ### Booleans
 
-| Name                    | Description                                                                | Default value |
-|-------------------------|----------------------------------------------------------------------------|---------------|
-| `add_slate_to_sequence` | If a slate frame should be added before the delivered sequence             | False         |
-| `continuous_versioning` | If the delivery versions should always increment, independent of the date. | False         |
+| Name                               | Description                                                                | Default value |
+|------------------------------------|----------------------------------------------------------------------------|---------------|
+| `add_slate_to_sequence`            | If a slate frame should be added before the delivered sequence             | False         |
+| `override_preview_submission_note` | If the preview should add a new submission note as an overlay.             | False         |
+| `continuous_versioning`            | If the delivery versions should always increment, independent of the date. | False         |
 
 
