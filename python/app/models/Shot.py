@@ -10,6 +10,7 @@ class Shot:
     code: str
     id: int
     description: str
+    vfx_scope_of_work: str
     project_code: str
     footage_formats: list[FootageFormat]
     validation_message: str | None
@@ -24,14 +25,16 @@ class Shot:
         id: int,
         project_code: str,
         description: str = "",
-        episode: str = None,
-        footage_formats: list[FootageFormat] = None,
+        vfx_scope_of_work: str = "",
+        episode: str | None = None,
+        footage_formats: list[FootageFormat] | None = None,
     ):
         self.episode = episode
         self.sequence = sequence
         self.code = code
         self.id = id
         self.description = description
+        self.vfx_scope_of_work = vfx_scope_of_work
         self.project_code = project_code
         self.footage_formats = footage_formats
         self.progress = 0
@@ -52,6 +55,7 @@ class Shot:
             "code": self.code,
             "id": self.id,
             "description": self.description,
+            "vfx_scope_of_work": self.vfx_scope_of_work,
             "project_code": self.project_code,
             "progress": self.progress,
             "versions": [version.as_dict() for version in self._versions],

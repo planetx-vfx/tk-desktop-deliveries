@@ -424,6 +424,9 @@ class DeliveryModel:
                 code=sg_shot["code"],
                 id=sg_shot["id"],
                 description=sg_shot["description"],
+                vfx_scope_of_work=sg_shot.get(
+                    self.settings.vfx_scope_of_work_field, ""
+                ),
                 project_code=self.get_project_code(),
                 episode=self.get_episode_code(sg_shot["sg_sequence"]),
                 footage_formats=shot_footage_formats,
@@ -487,6 +490,9 @@ class DeliveryModel:
                     ),
                     submission_note=sg_version.get(
                         self.settings.submission_note_field, ""
+                    ),
+                    submission_note_short=sg_version.get(
+                        self.settings.short_submission_note_field, ""
                     ),
                     attachment=sg_version.get(
                         self.settings.attachment_field, ""
@@ -553,8 +559,8 @@ class DeliveryModel:
                 ),
                 None,
             )
-            self.logger.info(input_format)
-            self.logger.info(output_format)
+            self.logger.debug("Input format: %s", input_format)
+            self.logger.debug("Output format: %s", output_format)
 
             # If there is an output format, set the default values to it
             if output_format is not None:
@@ -566,10 +572,7 @@ class DeliveryModel:
                 template_fields["width"] = width
                 template_fields["height"] = height
 
-                if height <= 0:
-                    aspect_ratio = "?"
-                else:
-                    aspect_ratio = f"{width/height:.2f}"
+                aspect_ratio = "?" if height <= 0 else f"{width / height:.2f}"
 
                 template_fields["output_aspect_ratio"] = aspect_ratio
                 template_fields["aspect_ratio"] = aspect_ratio
@@ -581,18 +584,14 @@ class DeliveryModel:
                 template_fields["input_width"] = width
                 template_fields["input_height"] = height
 
-                if height <= 0:
-                    aspect_ratio = "?"
-                else:
-                    aspect_ratio = f"{width/height:.2f}"
+                aspect_ratio = "?" if height <= 0 else f"{width / height:.2f}"
                 template_fields["input_aspect_ratio"] = aspect_ratio
 
                 # If there is no output format, the output format is the input format
                 if output_format is None:
-                    if height <= 0:
-                        aspect_ratio = "?"
-                    else:
-                        aspect_ratio = f"{width/height:.2f}"
+                    aspect_ratio = (
+                        "?" if height <= 0 else f"{width / height:.2f}"
+                    )
 
                     template_fields["width"] = width
                     template_fields["height"] = height
@@ -602,10 +601,9 @@ class DeliveryModel:
                     width = width - crop_x * 2
                     height = height - crop_y * 2
 
-                    if height <= 0:
-                        aspect_ratio = "?"
-                    else:
-                        aspect_ratio = f"{width/height:.2f}"
+                    aspect_ratio = (
+                        "?" if height <= 0 else f"{width / height:.2f}"
+                    )
 
                 template_fields["aspect_ratio"] = aspect_ratio
 
@@ -740,18 +738,19 @@ class DeliveryModel:
                 "The path_to_movie field on this version points to a nonexistent file."
             )
 
-        if version.sequence_path is None or version.sequence_path == "":
-            version_errors.append("The published file(path) is empty.")
-        else:
-            if version.sequence_path.endswith(".mov"):
-                version_errors.append(
-                    "Linked version file on this version is a reference MOV, not an EXR sequence."
-                )
+        if version.deliver_sequence:
+            if version.sequence_path is None or version.sequence_path == "":
+                version_errors.append("The published file(path) is empty.")
+            else:
+                if version.sequence_path.endswith(".mov"):
+                    version_errors.append(
+                        "Linked version file on this version is a reference MOV, not an EXR sequence."
+                    )
 
-            if version.version_number == -1:
-                version_errors.append(
-                    "The linked published file doesn't have a version."
-                )
+                if version.version_number == -1:
+                    version_errors.append(
+                        "The linked published file doesn't have a version."
+                    )
 
         return version_errors
 
@@ -850,9 +849,14 @@ class DeliveryModel:
             )
             if input_frame.is_file():
                 timecode_ref_path = input_sequence
-            else:
+            elif version.sequence_path:
                 input_sequence = Path(version.sequence_path)
-                if Path(version.sequence_path % version.first_frame).is_file():
+                if (
+                    "%" in version.sequence_path
+                    and Path(
+                        version.sequence_path % version.first_frame
+                    ).is_file()
+                ):
                     timecode_ref_path = input_sequence
 
             # Get the delivery folder
@@ -1012,7 +1016,6 @@ class DeliveryModel:
         show_validation_message,
         update_progress,
     ):
-
         slate_data = self._get_slate_data(version, shot)
 
         process = NukeProcess(
@@ -1048,7 +1051,12 @@ class DeliveryModel:
             args.extend(["--timecode-ref", str(timecode_ref_path)])
         if user_settings.letterbox is not None and output.use_letterbox:
             args.extend(["--letterbox", str(user_settings.letterbox)])
+        if self.settings.override_preview_submission_note:
+            args.append("--new-submission-note")
 
+        self.logger.debug(
+            "Starting nuke render with args: %s %s", self.nuke_path, args
+        )
         process.run(
             self.nuke_path,
             args,
@@ -1325,10 +1333,11 @@ class DeliveryModel:
         return {
             "version_name": f"v{version.version_number:03d}",
             "submission_note": version.submission_note,
+            "submission_note_short": version.submission_note_short,
             "submitting_for": version.submitting_for,
             "shot_name": shot.code,
             "shot_types": version.task.name,
-            "vfx_scope_of_work": shot.description,
+            "vfx_scope_of_work": shot.vfx_scope_of_work,
             "show": self.get_project()["name"],
             "episode": episode,
             "scene": scene,

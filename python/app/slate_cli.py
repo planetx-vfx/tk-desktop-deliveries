@@ -50,6 +50,12 @@ parser.add_argument(
     help="JSON data of slate data.",
 )
 
+parser.add_argument(
+    "--new-submission-note",
+    action="store_true",
+    help="If a new submission note should be added from slate data.",
+)
+
 fonts = parser.add_argument_group("Fonts")
 fonts.add_argument(
     "--font-path",
