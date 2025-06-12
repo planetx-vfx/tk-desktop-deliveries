@@ -49,6 +49,8 @@ class Settings:
     def __init__(self, app):
         self._app = app
 
+        self._app.logger.info("========= Loading Settings ========")
+
         delivery_preview_outputs = self._app.get_setting(
             "delivery_preview_outputs"
         )
@@ -85,10 +87,20 @@ class Settings:
 
         slate_extra_fields = self._app.get_setting("slate_extra_fields")
         self.slate_extra_fields = {}
+        self._app.logger.debug("Processing extra slate fields:")
         for key, value in slate_extra_fields.items():
             if "{" in value and "}" in value:
+                self._app.logger.debug(
+                    "  Template String - %s: %s", key, value
+                )
                 self.slate_extra_fields[key] = TemplateString(value, keys, key)
+            elif "<" in value and ">" in value:
+                self._app.logger.debug(
+                    "  Field Template String - %s: %s", key, value
+                )
+                self.slate_extra_fields[key] = FieldTemplateString(value)
             else:
+                self._app.logger.debug("  String - %s: %s", key, value)
                 self.slate_extra_fields[key] = value
 
         for setting in [
@@ -115,6 +127,8 @@ class Settings:
             "shot_footage_formats_field",
         ]:
             setattr(self, setting, self._app.get_setting(setting))
+
+        self._app.logger.info("=" * 35)
 
     def get_version_overrides(self, entity_type: str) -> list[VersionOverride]:
         """

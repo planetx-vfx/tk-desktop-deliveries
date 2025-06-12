@@ -148,7 +148,7 @@ class DeliveryController(QtWidgets.QWidget):
         Args:
             error: Error message from model
         """
-        self.logger.error(f"Error while loading shots:\n{error}")
+        self.logger.error("Error while loading shots:\n%s", error)
         self.view.loading_widget.hide()
         self.view.shots_list_widget_layout.setAlignment(QtCore.Qt.AlignTop)
         self.view.shots_list_widget_layout.addWidget(
@@ -190,7 +190,7 @@ class DeliveryController(QtWidgets.QWidget):
         Args:
             file_path: CSV file path
         """
-        self.logger.debug(f"Loading CSV template: {file_path}")
+        self.logger.debug("Loading CSV template: %s", file_path)
 
         with open(file_path, "r", newline="") as file:
             reader = csv.reader(file)

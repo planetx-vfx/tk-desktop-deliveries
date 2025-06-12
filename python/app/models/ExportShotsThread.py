@@ -132,7 +132,7 @@ class ExportShotsThread(QtCore.QThread):
                 delivery_folder = base_path / delivery_folder.name
 
             self.model.logger.info(
-                f"Creating folder for delivery {delivery_folder}."
+                "Creating folder for delivery %s.", delivery_folder
             )
             delivery_folder.mkdir(parents=True, exist_ok=True)
 
@@ -197,6 +197,7 @@ class ExportShotsThread(QtCore.QThread):
         """
         Create the CSV file.
         """
+        self.model.logger.info("======== Creating CSV File ========")
         csv_submission_form_template = self.model.app.get_template(
             "csv_submission_form"
         )
@@ -512,3 +513,4 @@ class ExportShotsThread(QtCore.QThread):
                         self.model.logger.debug(list(zip(header, csv_fields)))
 
                         writer.writerow(csv_fields)
+        self.model.logger.info("=" * 35)

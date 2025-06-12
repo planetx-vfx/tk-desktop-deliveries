@@ -172,7 +172,7 @@ class DeliveryModel:
         Returns:
             List of shot information dictionaries.
         """
-        self.logger.info("Starting 'ready for delivery' search.")
+        self.logger.info("Collecting versions to deliver.")
         project_id = self.context.project["id"]
 
         filters = [
@@ -607,7 +607,7 @@ class DeliveryModel:
 
                 template_fields["aspect_ratio"] = aspect_ratio
 
-            self.logger.info(template_fields)
+            self.logger.debug("Template fields: %s", template_fields)
 
         return template_fields
 
@@ -667,7 +667,7 @@ class DeliveryModel:
         success = True
         for shot in self.shots_to_deliver:
             self.logger.info(
-                f"Validating sequence {shot.sequence}, shot {shot.code}."
+                "Validating sequence %s, shot %s.", shot.sequence, shot.code
             )
             for version in shot.get_versions():
                 errors = []
@@ -690,10 +690,14 @@ class DeliveryModel:
                 else:
                     success = False
                     self.logger.error(
-                        f'Version "{version.code}" ({version.id}) of shot {shot.sequence} {shot.code} had the following errors:'
+                        'Version "%s" (%s) of shot %s %s had the following errors:',
+                        version.code,
+                        version.id,
+                        shot.sequence,
+                        shot.code,
                     )
                     for error in errors:
-                        self.logger.error("- " + error)
+                        self.logger.error("- %s", error)
 
                     error_message = "\n".join(errors)
                     version.validation_error = str(error_message)
@@ -811,9 +815,16 @@ class DeliveryModel:
             update_progress_bars: Function for updating the progress bars
         """
         if deliverables.deliver_preview or deliverables.deliver_sequence:
-            self.logger.debug(f"Delivering version {version.id}")
+            types = []
+            if deliverables.deliver_preview:
+                types.append("preview")
+            if deliverables.deliver_sequence:
+                types.append("sequence")
+            self.logger.info(
+                "Delivering %s for version %s", " and ".join(types), version.id
+            )
         else:
-            self.logger.debug(f"Skipping delivery for version {version.id}")
+            self.logger.info("Skipping delivery for version %s", version.id)
             return
 
         try:
@@ -912,6 +923,11 @@ class DeliveryModel:
                             )
                         )
 
+                    self.logger.debug(
+                        "Delivering %s preview for version %s",
+                        output.name,
+                        version.id,
+                    )
                     self._deliver_preview(
                         shot,
                         version,
@@ -1016,6 +1032,7 @@ class DeliveryModel:
         show_validation_message,
         update_progress,
     ):
+        self.logger.info("======= Delivering Sequence =======")
         slate_data = self._get_slate_data(version, shot)
 
         def on_error(exc):
@@ -1059,7 +1076,9 @@ class DeliveryModel:
             args.append("--new-submission-note")
 
         self.logger.debug(
-            "Starting nuke render with args: %s %s", self.nuke_path, args
+            "Starting nuke preview render with args: %s %s",
+            self.nuke_path,
+            args,
         )
         process.run(
             self.nuke_path,
@@ -1067,8 +1086,9 @@ class DeliveryModel:
         )
 
         self.logger.info(
-            f"Finished rendering preview to {output_preview_path}."
+            "Finished rendering preview to %s.", output_preview_path
         )
+        self.logger.info("=" * 35)
 
     def _deliver_sequence(
         self,
@@ -1079,6 +1099,7 @@ class DeliveryModel:
         show_validation_message,
         update_progress,
     ):
+        self.logger.info("======= Delivering Sequence =======")
         should_rerender = False
         output = next(
             (
@@ -1110,7 +1131,7 @@ class DeliveryModel:
         # Create sequence delivery folder
         sequence_delivery_folder = delivery_sequence_path.parent
         self.logger.info(
-            f"Creating folder for delivery {sequence_delivery_folder}."
+            "Creating folder for delivery %s.", sequence_delivery_folder
         )
         sequence_delivery_folder.mkdir(parents=True, exist_ok=True)
 
@@ -1157,8 +1178,6 @@ class DeliveryModel:
             if self.settings.add_slate_to_sequence:
                 slate_data = self._get_slate_data(version, shot, False)
 
-                self.logger.info(slate_data)
-
                 args.extend(
                     [
                         "--logo-path",
@@ -1177,6 +1196,11 @@ class DeliveryModel:
                 if not should_rerender:
                     args.append("--slate-only")
 
+            self.logger.debug(
+                "Starting nuke frame render with args: %s %s",
+                self.nuke_path,
+                args,
+            )
             process.run(
                 self.nuke_path,
                 args,
@@ -1212,8 +1236,11 @@ class DeliveryModel:
                 )
 
             self.logger.info(
-                f"Finished linking {version.sequence_path} to {delivery_sequence_path}."
+                "Finished linking %s to %s.",
+                version.sequence_path,
+                delivery_sequence_path,
             )
+        self.logger.info("=" * 35)
 
     def _deliver_attachment(
         self,
