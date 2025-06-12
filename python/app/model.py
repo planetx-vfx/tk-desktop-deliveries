@@ -33,7 +33,7 @@ import os
 import shutil
 import traceback
 from pathlib import Path
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 from urllib.request import urlretrieve
 
 import sgtk
@@ -53,6 +53,9 @@ from .models.Errors import LicenseError
 from .models.FootageFormat import FootageFormat, FootageFormatType
 from .models.Version import Task
 
+if TYPE_CHECKING:
+    from .models.shotgrid_cache import ShotGridCache
+
 
 class ValidationError(Exception):
     """Gets raised when validation fails."""
@@ -66,6 +69,8 @@ class DeliveryModel:
     base_template_fields: dict
     load_shots_thread: None | LoadShotsThread
     export_shots_thread: None | ExportShotsThread
+
+    cache: ShotGridCache
 
     def __init__(self, controller) -> None:
         """Initializes the model.
@@ -83,7 +88,8 @@ class DeliveryModel:
         self.load_shots_thread = None
         self.export_shots_thread = None
 
-        self.settings = Settings(app)
+        self.settings = controller.settings
+        self.cache = controller.cache
 
         self.extra_fields = self.settings.compile_extra_fields()
 
@@ -188,49 +194,16 @@ class DeliveryModel:
             ],
         ]
 
-        columns = list(
-            {
-                "code",
-                "entity",
-                "published_files",
-                "sg_first_frame",
-                "sg_last_frame",
-                "sg_task",
-                "sg_uploaded_movie_frame_rate",
-                "sg_frames_have_slate",
-                "sg_movie_has_slate",
-                "sg_path_to_movie",
-                "image",
-                *self.extra_fields.get("Version", []),
-            }
-        )
-
-        versions_to_deliver = self.shotgrid_connection.find(
-            "Version", filters, columns
-        )
-
-        # Process entity overrides
-        versions_to_deliver = self.process_entity_overrides(
-            "Version", versions_to_deliver
-        )
+        versions_to_deliver = self.cache.find("Version", filters, True)
 
         shot_ids = {version["entity"]["id"] for version in versions_to_deliver}
         shots_to_deliver = []
 
         for shot_id in shot_ids:
-            sg_shot = self.shotgrid_connection.find_one(
+            sg_shot = self.cache.find_one(
                 "Shot",
                 [["id", "is", shot_id]],
-                [
-                    "sg_sequence",
-                    "code",
-                    "description",
-                    *self.extra_fields.get("Shot", []),
-                ],
             )
-
-            # Process entity overrides
-            sg_shot = self.process_entity_overrides("Shot", sg_shot)
 
             sg_shot["versions"] = [
                 version
@@ -244,7 +217,7 @@ class DeliveryModel:
         )
 
         self.shots_to_deliver = sorted(
-            self.shots_to_deliver, key=lambda shot: (shot.sequence, shot.code)
+            self.shots_to_deliver, key=lambda s: (s.sequence, s.code)
         )
 
         self.logger.debug("Found shots to deliver:")
@@ -271,36 +244,16 @@ class DeliveryModel:
             ["id", "is", publishes[0]["id"]],
         ]
 
-        columns = list(
-            {
-                "path",
-                "published_file_type",
-                "version_number",
-                *self.extra_fields.get("PublishedFile", []),
-            }
-        )
-
-        published_file = self.shotgrid_connection.find_one(
+        return self.cache.find_one(
             "PublishedFile",
             filters,
-            columns,
         )
-
-        # Process entity overrides
-        published_file = self.process_entity_overrides(
-            "PublishedFile", published_file
-        )
-
-        return published_file
 
     def get_project(self) -> dict:
         """Gets the ShotGrid project.
 
         Returns:
             Project"""
-        if self.sg_project is not None:
-            return self.sg_project
-
         project_id = self.context.project["id"]
         filters = [
             [
@@ -310,24 +263,7 @@ class DeliveryModel:
             ]
         ]
 
-        columns = list(
-            {
-                "name",
-                "sg_short_name",
-                "sg_vendorid",
-                "sg_output_preview_aspect_ratio",
-                "sg_output_preview_enable_mask",
-                *self.extra_fields.get("Project", []),
-            }
-        )
-
-        sg_project = self.shotgrid_connection.find_one(
-            "Project", filters, columns
-        )
-
-        self.sg_project = self.process_entity_overrides("Project", sg_project)
-
-        return self.sg_project
+        return self.cache.find_one("Project", filters)
 
     def get_project_code(self) -> str:
         """Gets the ShotGrid project code.
@@ -358,15 +294,11 @@ class DeliveryModel:
             ],
         ]
 
-        columns = ["code"]
-        episode = self.shotgrid_connection.find_one(
-            "Episode", filters, columns
-        )
+        episode = self.cache.find_one("Episode", filters)
 
         if episode is not None:
             return episode["code"]
-        else:
-            return None
+        return None
 
     def get_shots_information_list(
         self, shots_to_deliver: list[dict]
@@ -382,15 +314,9 @@ class DeliveryModel:
         """
         shots_information_list = []
 
-        sg_footage_formats = self.shotgrid_connection.find(
+        sg_footage_formats = self.cache.find(
             self.settings.footage_format_entity,
             [["project", "is", self.context.project]],
-            [
-                "code",
-                *self.extra_fields.get(
-                    self.settings.footage_format_entity, []
-                ),
-            ],
         )
 
         footage_formats = [

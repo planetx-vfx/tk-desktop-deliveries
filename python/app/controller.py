@@ -39,6 +39,7 @@ from . import model, view
 from .models import Version, Deliverables, UserSettings, Letterbox, Settings
 from .widgets import OrderedListItem
 
+from .models.shotgrid_cache import ShotGridCache
 
 def open_delivery_app(app_instance):
     """
@@ -61,6 +62,13 @@ class DeliveryController(QtWidgets.QWidget):
         """
         self.app = sgtk.platform.current_bundle()
         self.logger = self.app.logger
+
+        self.settings = Settings(self.app)
+        self.settings.validate_fields()
+
+        self.cache = ShotGridCache(self.settings)
+        self.cache.load()
+        self.cache.process()
 
         default_csv_fields = self.app.get_setting("default_csv", {})
 
@@ -262,11 +270,11 @@ class DeliveryController(QtWidgets.QWidget):
         key = self.sender().objectName()
         index = int(re.match("preview_output_([0-9]+)_enabled", key).group(1))
 
-        toggled_output = self.model.settings.delivery_preview_outputs[index]
+        toggled_output = self.settings.delivery_preview_outputs[index]
 
         other_outputs = [
             po
-            for po in self.model.settings.delivery_preview_outputs
+            for po in self.settings.delivery_preview_outputs
             if po.extension == toggled_output.extension
             and po != toggled_output
         ]
@@ -275,7 +283,7 @@ class DeliveryController(QtWidgets.QWidget):
             return
 
         for output in other_outputs:
-            i = self.model.settings.delivery_preview_outputs.index(output)
+            i = self.settings.delivery_preview_outputs.index(output)
             if i == -1:
                 continue
             self.view.settings[f"preview_output_{i}_enabled"].setChecked(False)
