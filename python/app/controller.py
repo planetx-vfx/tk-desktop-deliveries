@@ -27,19 +27,24 @@ Updated by Max de Groot 2024.
 """
 from __future__ import annotations
 
+import contextlib
 import csv
 import os
 import re
 from pathlib import Path
 
 import sgtk
-from sgtk.platform.qt5 import QtWidgets, QtCore
+from sgtk.platform.qt5 import QtCore, QtWidgets
 
-from . import model, view
-from .models import Version, Deliverables, UserSettings, Letterbox, Settings
-from .widgets import OrderedListItem
-
+from .model import DeliveryModel
+from .models import Deliverables, Settings, UserSettings, Version
 from .models.shotgrid_cache import ShotGridCache
+from .view import DeliveryView
+
+# For development only
+with contextlib.suppress(ImportError):
+    from PySide6 import QtCore, QtWidgets
+
 
 def open_delivery_app(app_instance):
     """
@@ -72,23 +77,19 @@ class DeliveryController(QtWidgets.QWidget):
 
         default_csv_fields = self.app.get_setting("default_csv", {})
 
-        # Validation
-        if any(
-            not isinstance(value, (str, int, float, bool))
-            for key, value in default_csv_fields.items()
-        ):
-            error = 'One or more values of the "default_csv" setting is of an invalid type.'
-            raise TypeError(error)
-
-        Settings(self.app).validate_fields()
-
-        self.view = view.DeliveryView()
+        self.view = DeliveryView()
         self.view.create_user_interface(self, default_csv_fields)
-        self.model = model.DeliveryModel(self)
-        self.connect_buttons()
-        self.load_shots()
-        self.load_csv_templates()
+        self.model = DeliveryModel(self)
+        self.actions = DeliveryActions(
+            self, self.view, self.model, self.settings
+        )
         self.load_preview_outputs()
+        self.connect_buttons()
+        self.actions.load_shots(
+            self.loading_shots_successful,
+            self.loading_shots_failed,
+        )
+        self.load_csv_templates()
 
         self.progress_values = {}
         self.progress_amounts = 0
@@ -227,9 +228,7 @@ class DeliveryController(QtWidgets.QWidget):
         """Load the preview output checkboxes"""
         self.view.settings["preview_outputs"] = []
 
-        for i, output in enumerate(
-            self.model.settings.delivery_preview_outputs
-        ):
+        for i, output in enumerate(self.settings.delivery_preview_outputs):
             widget = QtWidgets.QWidget()
             layout = QtWidgets.QHBoxLayout()
             layout.setSpacing(16)
@@ -367,7 +366,7 @@ class DeliveryController(QtWidgets.QWidget):
             version["shot_deliver_sequence"].setDisabled(True)
             version["shot_deliver_preview"].setDisabled(True)
 
-        user_settings = self.get_user_settings()
+        user_settings = self.settings.user_settings
 
         if user_settings is None:
             self.view.final_error_label.show()
@@ -489,156 +488,4 @@ class DeliveryController(QtWidgets.QWidget):
             self.view.shot_widget_references[version.id_str][
                 "shot_deliver_preview"
             ].isChecked(),
-        )
-
-    def get_user_settings(self) -> UserSettings | None:
-        """
-        Get the user settings from the GUI
-
-        Returns:
-            User settings object or None if validation failed
-        """
-        delivery_version = None
-        if self.view.settings["override_delivery_version"].isChecked():
-            delivery_version = int(
-                self.view.settings["delivery_version"].text()
-            )
-
-        self.view.settings["delivery_location"].setProperty("cssClass", "")
-        self.view.settings["delivery_location"].style().unpolish(
-            self.view.settings["delivery_location"]
-        )
-        self.view.settings["delivery_location"].style().polish(
-            self.view.settings["delivery_location"]
-        )
-
-        delivery_location = None
-        if (
-            self.view.settings["override_delivery_location"].isChecked()
-            and self.view.settings["delivery_location"].text() != ""
-        ):
-            filepath = Path(self.view.settings["delivery_location"].text())
-            if filepath.is_dir():
-                delivery_location = filepath.as_posix()
-            else:
-                self.view.settings["delivery_location"].setProperty(
-                    "cssClass", "validation-failed"
-                )
-                self.view.settings["delivery_location"].style().unpolish(
-                    self.view.settings["delivery_location"]
-                )
-                self.view.settings["delivery_location"].style().polish(
-                    self.view.settings["delivery_location"]
-                )
-                return None
-
-        letterbox = None
-        letterbox_is_valid = (
-            self.view.settings["letterbox_enable"].isChecked()
-            and self.view.settings["letterbox_w"].text() != ""
-            and self.view.settings["letterbox_h"].text() != ""
-            and self.view.settings["letterbox_opacity"].text() != ""
-        )
-        if letterbox_is_valid:
-            letterbox = Letterbox(
-                float(self.view.settings["letterbox_w"].text()),
-                float(self.view.settings["letterbox_h"].text()),
-                float(self.view.settings["letterbox_opacity"].text()),
-            )
-
-        delivery_preview_outputs = []
-        input_preview_outputs = list(
-            enumerate(self.model.settings.delivery_preview_outputs)
-        )
-        input_preview_outputs.reverse()
-        for i, output in input_preview_outputs:
-            if self.view.settings[f"preview_output_{i}_enabled"].isChecked():
-                if not any(
-                    [
-                        output.extension == out.extension
-                        for out in delivery_preview_outputs
-                    ]
-                ):
-                    if letterbox_is_valid:
-                        output.use_letterbox = self.view.settings[
-                            f"preview_output_{i}_letterbox"
-                        ].isChecked()
-                    delivery_preview_outputs.append(output)
-
-        csv_fields = []
-        csv_success = True
-        if self.view.settings["csv_fields"].size() > 0:
-            for item in self.view.settings["csv_fields"].items:
-                key, value = item.get_content()
-                item: OrderedListItem
-                key: str
-                value: str
-
-                success = True
-                if value.startswith("{"):
-                    if value.endswith("}"):
-                        if "." in value:
-                            entry = value[1:-1].split(".")
-
-                            entity = entry[0]
-                            field = None
-                            if len(entry) > 1:
-                                field = ".".join(entry[1:])
-
-                            if entity in [
-                                "file",
-                                "project",
-                                "shot",
-                                "version",
-                                "date",
-                            ]:
-                                if entity == "file" and field not in [
-                                    "name",
-                                    "name_ranged",
-                                    "codec",
-                                    "compression",
-                                    "folder",
-                                ]:
-                                    success = False
-
-                                if (
-                                    entity
-                                    in [
-                                        "project",
-                                        "shot",
-                                        "version",
-                                    ]
-                                    and field is None
-                                ):
-                                    success = False
-
-                                # Add field as expression
-                                csv_fields.append((key, (entity, field)))
-                            else:
-                                success = False
-                        else:
-                            success = False
-                    else:
-                        success = False
-                elif value.endswith("}"):
-                    success = False
-                else:
-                    # Regular text
-                    csv_fields.append((key, value))
-
-                if success:
-                    item.reset_validation()
-                else:
-                    item.fail_validation()
-                    csv_success = False
-
-        if not csv_success:
-            return None
-
-        return UserSettings(
-            delivery_version,
-            delivery_location,
-            letterbox,
-            delivery_preview_outputs,
-            csv_fields,
         )

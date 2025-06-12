@@ -7,6 +7,7 @@ from tank.templatekey import IntegerKey, StringKey
 
 from . import PreviewOutput, SequenceOutput
 from .field_template_string import FieldTemplateString
+from .UserSettings import UserSettings
 from .VersionOverride import VersionOverride
 
 if TYPE_CHECKING:
@@ -17,6 +18,8 @@ class Settings:
     """
     App configuration
     """
+
+    user_settings: UserSettings = UserSettings()
 
     delivery_preview_outputs: list[PreviewOutput]
     delivery_sequence_outputs: list[SequenceOutput]
