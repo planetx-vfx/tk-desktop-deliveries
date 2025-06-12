@@ -19,67 +19,37 @@ class VersionOverride:
         Args:
             entity: Entity dict
         """
-        match = False
+        match = len(self.match.keys()) == 0
 
         for field, value in self.match.items():
-            entity_value = self._get_nested_value(field, entity)
+            entity_value = util.get_nested_value(field, entity)
 
             # Skip field if not found in entity
             if entity_value is None:
                 continue
 
-            if entity_value == value:
-                match = True
-            else:
-                match = False
+            match = entity_value == value
 
         if match:
-            for field, value in self.replace.items():
-                self._set_nested_value(entity, field, value)
+            for field, template in self.replace.items():
+                # TODO add field template support
+                try:
+                    util.set_nested_value(
+                        entity,
+                        field,
+                        template.apply_context(context),
+                    )
+                except Exception:
+                    logger.error(traceback.format_exc())
+                    util.set_nested_value(entity, field, "")
 
         return entity
-
-    @staticmethod
-    def _get_nested_value(field: str, data: dict):
-        """
-        Get the value of a dot separated key list in a dict
-        """
-        keys = field.split(".")
-        value = data
-
-        for key in keys:
-            if isinstance(value, dict) and key in value:
-                value = value[key]
-            else:
-                return None  # Key path does not exist
-
-        return value
-
-    @staticmethod
-    def _set_nested_value(data: dict, field: str, value: any):
-        """
-        Set the value of a dot separated key list in a dict
-        """
-        keys = field.split(".")
-        d = data
-
-        for key in keys[:-1]:  # Traverse down to the second-last key
-            if key not in d or not isinstance(d[key], dict):
-                d[key] = {}  # Create a nested dict if path doesn't exist
-            d = d[key]
-
-        d[keys[-1]] = value  # Set the final value
 
     def get_fields(self):
         """
         Get a list of the fields used for matching.
         """
-        fields = []
-
-        for key in self.match.keys():
-            fields.append(key.split(".")[0])
-
-        return fields
+        return [key.split(".")[0] for key in self.match]
 
     @staticmethod
     def from_dict(data: dict):

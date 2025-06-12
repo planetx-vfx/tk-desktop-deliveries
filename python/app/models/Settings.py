@@ -42,7 +42,7 @@ class Settings:
 
     slate_extra_fields: dict = {}
 
-    footage_format_fields: dict = {}
+    footage_format_fields: dict
     footage_format_entity: str
     shot_footage_formats_field: str
 
@@ -102,6 +102,8 @@ class Settings:
             else:
                 self._app.logger.debug("  String - %s: %s", key, value)
                 self.slate_extra_fields[key] = value
+
+        self.footage_format_fields = {}
 
         for setting in [
             "shot_status_field",

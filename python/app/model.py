@@ -76,8 +76,7 @@ class DeliveryModel:
         """Initializes the model.
 
         Args:
-            app: ShotGrid app
-            logger: ShotGrid logger
+            controller: DeliveryController
         """
         app = controller.app
         self.app = app
@@ -116,13 +115,10 @@ class DeliveryModel:
             )
 
         # Set slate script path
-        __location__ = os.path.realpath(
-            os.path.join(os.getcwd(), os.path.dirname(__file__))
-        )
-        self.slate_path = os.path.join(__location__, "slate_cli.py")
-        self.plate_path = os.path.join(__location__, "plate_cli.py")
+        __location__ = Path.cwd() / Path(__file__).parent
+        self.slate_path = (__location__ / "slate_cli.py").as_posix()
+        self.plate_path = (__location__ / "plate_cli.py").as_posix()
 
-        self.sg_project = None
         self.base_template_fields = {
             "prj": self.get_project_code(),
             "delivery_version": 1,
@@ -150,7 +146,7 @@ class DeliveryModel:
 
         os.startfile(delivery_folder)
 
-    def load_shots(
+    def load_shots_data(
         self,
         loading_shots_successful_function: Callable,
         loading_shots_failed_function: Callable,
@@ -556,8 +552,7 @@ class DeliveryModel:
         if len(overrides) == 0:
             if return_type is dict:
                 return entities[0]
-            else:
-                return entities
+            return entities
 
         for entity in entities:
             self.logger.info(
@@ -568,8 +563,7 @@ class DeliveryModel:
 
         if return_type is dict:
             return entities[0]
-        else:
-            return entities
+        return entities
 
     def validate_all_shots(
         self,
@@ -663,7 +657,7 @@ class DeliveryModel:
             version_errors.append(
                 "The path_to_movie field on this version is empty."
             )
-        elif not os.path.isfile(version.path_to_movie):
+        elif not Path(version.path_to_movie).is_file():
             version_errors.append(
                 "The path_to_movie field on this version points to a nonexistent file."
             )
@@ -900,6 +894,7 @@ class DeliveryModel:
                 delivery_folder, delivery_folder_org, template_fields
             )
 
+            # TODO add dev switch
             # Update version data
             version_data = {}
 
@@ -1289,16 +1284,16 @@ class DeliveryModel:
 
         return {
             "version_name": f"v{version.version_number:03d}",
-            "submission_note": version.submission_note,
-            "submission_note_short": version.submission_note_short,
-            "submitting_for": version.submitting_for,
+            "submission_note": version.submission_note or "",
+            "submission_note_short": version.submission_note_short or "",
+            "submitting_for": version.submitting_for or "",
             "shot_name": shot.code,
             "shot_types": version.task.name,
-            "vfx_scope_of_work": shot.vfx_scope_of_work,
+            "vfx_scope_of_work": shot.vfx_scope_of_work or "",
             "show": self.get_project()["name"],
             "episode": episode,
             "scene": scene,
-            "sequence_name": shot.sequence,
+            "sequence_name": shot.sequence or "",
             "vendor": self.base_template_fields["vnd"],
             "input_has_slate": version.movie_has_slate,
             "optional_fields": optional_fields,

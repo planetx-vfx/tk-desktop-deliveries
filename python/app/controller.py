@@ -131,7 +131,7 @@ class DeliveryController(QtWidgets.QWidget):
 
         self.view.loading_widget.show()
         self.view.shots_list_widget_layout.setAlignment(QtCore.Qt.AlignVCenter)
-        self.model.load_shots(
+        self.model.load_shots_data(
             self.loading_shots_successful,
             self.loading_shots_failed,
         )
@@ -178,7 +178,7 @@ class DeliveryController(QtWidgets.QWidget):
             self.csv_template_folder.mkdir(parents=True, exist_ok=True)
             return
 
-        for dir_path, dir_names, file_names in os.walk(
+        for dir_path, _dir_names, file_names in os.walk(
             self.csv_template_folder
         ):
             for f in file_names:
@@ -363,7 +363,7 @@ class DeliveryController(QtWidgets.QWidget):
         self.view.final_success_label.hide()
 
         # Lock checkboxes
-        for key, version in self.view.shot_widget_references.items():
+        for version in self.view.shot_widget_references.values():
             version["shot_deliver_sequence"].setDisabled(True)
             version["shot_deliver_preview"].setDisabled(True)
 

@@ -234,7 +234,7 @@ class ExportShotsThread(QtCore.QThread):
 
         with open(csv_submission_form_path, "w", newline="") as file:
             writer = csv.writer(file)
-            header = [key for key, value in self.user_settings.csv_fields]
+            header = [key for key, template in self.user_settings.csv_fields]
 
             writer.writerow(header)
 
