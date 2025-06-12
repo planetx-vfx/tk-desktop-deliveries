@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from ..models import Version
 
 if TYPE_CHECKING:
-    from .FootageFormat import FootageFormat
+    from .footage_format import FootageFormat
 
 
 class Shot:

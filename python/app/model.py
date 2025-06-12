@@ -50,9 +50,9 @@ from .models import (
     Version,
 )
 from .models.context import Context
-from .models.Errors import LicenseError
-from .models.FootageFormat import FootageFormat, FootageFormatType
-from .models.Version import Task
+from .models.errors import LicenseError
+from .models.footage_format import FootageFormat, FootageFormatType
+from .models.version import Task
 
 if TYPE_CHECKING:
     from .models.shotgrid_cache import ShotGridCache

@@ -5,9 +5,9 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from .Shot import Shot
+    from .shot import Shot
     from .shotgrid_cache import ShotGridCache
-    from .Version import Version
+    from .version import Version
 
 
 class Context:

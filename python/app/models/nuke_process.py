@@ -7,7 +7,7 @@ import sgtk
 from sgtk.platform.qt5 import QtCore, QtWidgets
 
 from . import Version
-from .Errors import LicenseError
+from .errors import LicenseError
 
 # # For development only
 # try:

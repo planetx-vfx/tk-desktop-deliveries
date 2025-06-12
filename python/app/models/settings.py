@@ -7,8 +7,8 @@ from tank.templatekey import IntegerKey, StringKey
 
 from . import PreviewOutput, SequenceOutput
 from .field_template_string import FieldTemplateString
-from .UserSettings import UserSettings
-from .VersionOverride import VersionOverride
+from .user_settings import UserSettings
+from .version_override import VersionOverride
 
 if TYPE_CHECKING:
     from .context import Context
