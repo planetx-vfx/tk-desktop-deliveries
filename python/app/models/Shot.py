@@ -67,3 +67,9 @@ class Shot:
                 fformat.as_dict() for fformat in self.footage_formats
             ],
         }
+
+    def get(self, key: str):
+        """
+        Return the value for key if key is in the dictionary, else default.
+        """
+        return self.as_dict().get(key)
