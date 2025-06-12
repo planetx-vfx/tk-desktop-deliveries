@@ -283,6 +283,7 @@ class DeliveryView:
         csv_label_tooltip = [
             "<b>Available fields:</b>",
             "- file.name",
+            "- file.name_ranged",
             "- file.codec",
             "- file.folder",
             "- date.&lt;format&gt;",

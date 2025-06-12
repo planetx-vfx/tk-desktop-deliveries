@@ -29,19 +29,22 @@ from pathlib import Path
 
 import PyOpenColorIO as OCIO
 import nuke
-import shotgun_api3
 
 
 class PlateRender(object):
-    """Rerender a plate with
+    """Rerender a plate"""
 
-    Args:
-            first_frame (int): first frame from frame sequence
-            last_frame (int): last frame from frame sequence
-            input_path (str): path to frame sequence
-            output_path (str): path to render sequence
-            write_settings (str): JSON string of the write node's settings
-    """
+    first_frame: int
+    last_frame: int
+    input_path: str
+    output_path: str
+    write_settings: dict = {}
+    logo_path: str | None
+    colorspace_odt: str
+    slate_data: dict | None = None
+    font_path: str = None
+    font_bold_path: str = None
+    slate_only: bool = False
 
     def __init__(
         self,
@@ -50,9 +53,26 @@ class PlateRender(object):
         input_path,
         output_path,
         write_settings: str = None,
+        logo_path: str = None,
+        colorspace_odt: str = "ACES - ACES2065-1",
+        slate_data: str = None,
+        font_path: str = None,
+        font_bold_path: str = None,
+        slate_only: bool = False,
     ):
+        """Rerender a plate with new settings
+
+        Args:
+                first_frame (int): first frame from frame sequence
+                last_frame (int): last frame from frame sequence
+                input_path (str): path to frame sequence
+                output_path (str): path to render sequence
+                write_settings (str): JSON string of the write node's settings
+                slate_data (str): JSON string of the slate settings, if none no slate will be rendered
+        """
         self.first_frame = first_frame
         self.last_frame = last_frame
+        self.first_render_frame = first_frame
         self.input_path = input_path.replace(os.sep, "/")
         self.output_path = output_path.replace(os.sep, "/")
 
@@ -61,7 +81,31 @@ class PlateRender(object):
                 self.write_settings: dict = json.loads(write_settings)
             except:
                 msg = f"Invalid write settings. ({write_settings})"
-                raise Exception(msg)
+                print(msg)
+
+        # Slate
+        self.render_slate = (
+            logo_path is not None
+            and colorspace_odt is not None
+            and colorspace_odt is not None
+            and font_path is not None
+            and font_bold_path is not None
+            and slate_data is not None
+        )
+        if self.render_slate:
+            self.logo_path = logo_path
+            self.colorspace_odt = colorspace_odt
+            self.font_path = font_path
+            self.font_bold_path = font_bold_path
+            self.slate_only = slate_only
+
+            if slate_data is not None:
+                try:
+                    self.slate_data = json.loads(slate_data)
+                    self.first_render_frame -= 1
+                except:
+                    msg = f"Invalid slate data. ({slate_data})"
+                    raise Exception(msg)
 
         # Cancel if input is a video
         if self.input_path.endswith(".mov"):
@@ -75,12 +119,32 @@ class PlateRender(object):
         if sequence:
             read = self.__setup_script()
 
+            write_input = read
+            if self.render_slate:
+                # Get script directory to add gizmo
+                script_directory = os.path.dirname(os.path.realpath(__file__))
+                node_path = os.path.abspath(
+                    os.path.join(
+                        script_directory, "..", "..", "resources", "slate.nk"
+                    )
+                )
+                node_path = node_path.replace(os.sep, "/")
+
+                slate = self.__setup_slate(read, node_path)
+
+                write_input = slate
+
+                if write_settings is None:
+                    compression = read.metadata().get("exr/compressionName")
+                    if compression is not None:
+                        self.write_settings["compression"] = compression
+
             # Create write node
             write = self.__setup_write(
-                read_node=read,
+                input_node=write_input,
             )
 
-            # Render slate
+            # Render plate
             self.__render(
                 write_node=write,
             )
@@ -127,7 +191,7 @@ class PlateRender(object):
             attribute: created read node
         """
         # Setup Nuke script
-        nuke.root().knob("first_frame").setValue(self.first_frame)
+        nuke.root().knob("first_frame").setValue(self.first_render_frame)
         nuke.root().knob("last_frame").setValue(self.last_frame)
 
         print("Setup script completed")
@@ -148,11 +212,124 @@ class PlateRender(object):
         # Return created read node
         return read
 
-    def __setup_write(self, read_node):
+    def __setup_slate(
+        self,
+        read_node,
+        slate_node_path: str,
+    ):
+        """Setup slate with correct parameters
+
+        Args:
+            read_node (attribute): read node to connect slate to
+            slate_node_path (str): path to slate node Nuke file
+
+        Returns:
+            attribute: created slate node
+        """
+
+        # Create slate node
+        nuke.nodePaste(slate_node_path)
+
+        for node in nuke.selectedNodes():
+            node["selected"].setValue(False)
+
+        input = nuke.toNode("INPUT")
+        add_timecode = nuke.toNode("AddTimeCode")
+        slate = nuke.toNode("NETFLIX_TEMPLATE_SLATE")
+
+        # Set read node as input for slate node
+        input.setInput(0, read_node)
+
+        timecode = nuke.nodes.Read(file=self.input_path)
+        timecode["name"].setValue("Timecode")
+        timecode["first"].setValue(self.first_frame)
+        timecode["last"].setValue(self.last_frame)
+        timecode["origfirst"].setValue(self.first_frame)
+        timecode["origlast"].setValue(self.last_frame)
+
+        add_timecode.knob("frame").setValue(self.first_frame)
+
+        if (
+            add_timecode.metadata("input/timecode", self.first_frame)
+            == "00:00:00:00"
+        ):
+            time = slate.node("AddTimeCode1")
+            time.knob("startcode").setValue("0")
+            time.knob("frame").setValue(self.first_frame)
+
+        if self.logo_path.endswith(".nk"):
+            logo = nuke.nodePaste(self.logo_path)
+
+            for node in nuke.selectedNodes():
+                node["selected"].setValue(False)
+
+            slate.setInput(1, logo)
+        else:
+            logo = nuke.nodes.Read(file=self.logo_path)
+            premult = nuke.nodes.Premult()
+            premult.setInput(0, logo)
+
+            slate.setInput(1, premult)
+
+        slate["f_version_name"].setValue(self.slate_data["version_name"])
+        slate["f_submission_note"].setValue(self.slate_data["submission_note"])
+        slate["f_submitting_for"].setValue(self.slate_data["submitting_for"])
+        slate["f_shot_name"].setValue(self.slate_data["shot_name"])
+        slate["f_shot_types"].setValue(self.slate_data["shot_types"])
+        slate["f_vfx_scope_of_work"].setValue(
+            self.slate_data["vfx_scope_of_work"]
+        )
+        slate["f_sequence_name"].setValue(self.slate_data["sequence_name"])
+        slate["f_vendor"].setValue(self.slate_data["vendor"])
+        slate["f_show"].setValue(self.slate_data["show"])
+
+        if self.slate_data["episode"] != "":
+            slate["f_episode"].setValue(self.slate_data["episode"])
+        if self.slate_data["scene"] != "":
+            slate["f_scene"].setValue(self.slate_data["scene"])
+
+        slate["f_frames_first"].setValue(self.first_frame - 1)
+        slate["f_frames_last"].setValue(self.last_frame)
+
+        slate.knob("active_frame").setValue(self.first_frame - 1)
+        slate.knob("thumbnail_frame").setValue(
+            int((self.first_frame + self.last_frame) / 2)
+        )
+
+        # Get correct colorspace
+        colorspace_odt = self.colorspace_odt
+        if "OCIO" in os.environ:
+            config = OCIO.GetCurrentConfig()
+            roles = [
+                role
+                for role in config.getRoles()
+                if role[0] == self.colorspace_odt
+            ]
+            if len(roles) > 0:
+                colorspace_odt = roles[0][1]
+
+        slate.knob("f_media_color").setValue(colorspace_odt)
+
+        # Optional Fields, max 6
+        if "optional_fields" in self.slate_data:
+            for i, (key, value) in enumerate(
+                list(self.slate_data["optional_fields"].items())[0:6]
+            ):
+                slate[f"f_opt{i+1}_key"].setValue(key)
+                slate[f"f_opt{i+1}_value"].setValue(value)
+
+        # Set fonts
+        slate.knob("font").setValue(self.font_path)
+        slate.knob("font_bold").setValue(self.font_bold_path)
+
+        # Return created node
+        return slate
+
+    def __setup_write(self, input_node):
         """Create write node with correct settings
 
         Args:
-            read_node (attribute): node to connect write node to
+            input_node (attribute): node to connect write node to
 
         Returns:
             attribute: created write node
@@ -161,7 +338,7 @@ class PlateRender(object):
         # Create write node
         write = nuke.createNode("Write")
         # Set write node settings
-        write.knob("file").setValue(self.output_path)
+        write.knob("file").fromUserText(self.output_path)
         write.knob("raw").setValue(True)
         write.knob("afterFrameRender").setValue(
             "print(f\"Frame {nuke.frame()} ({int(nuke.frame() - nuke.root().knob('first_frame').value() + 1)} of {int(nuke.root().knob('last_frame').value() - nuke.root().knob('first_frame').value() + 1)})\")"
@@ -179,7 +356,7 @@ class PlateRender(object):
                 )
 
         # Set input
-        write.setInput(0, read_node)
+        write.setInput(0, input_node)
 
         # Create directories
         slate_directory = os.path.dirname(self.output_path)
@@ -200,7 +377,15 @@ class PlateRender(object):
         """
 
         try:
-            nuke.execute(write_node, self.first_frame, self.last_frame)
+            nuke.execute(
+                write_node,
+                self.first_render_frame,
+                (
+                    self.first_render_frame
+                    if self.slate_only
+                    else self.last_frame
+                ),
+            )
             print("Rendering complete")
 
         except Exception as error:

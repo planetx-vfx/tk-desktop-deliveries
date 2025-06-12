@@ -32,6 +32,12 @@ configuration:
     fields: context, version, SEQ, *
     description: "Template to deliver the sequences from."
 
+  input_lut:
+    type: template
+    fields: context, *
+    allows_empty: True
+    description: "Template of the LUT files."
+
   delivery_folder:
     type: template
     fields: prj, delivery_date, delivery_version
@@ -46,6 +52,12 @@ configuration:
     type: template
     fields: context, prj, delivery_date, delivery_version, task_name, version, delivery_preview_extension, *
     description: "Template to deliver the previews to."
+
+  delivery_lut:
+    type: template
+    fields: context, prj, delivery_date, delivery_version, task_name, version, *
+    allows_empty: True
+    description: "Template to deliver the LUT files to."
 
   csv_submission_form:
     type: template
@@ -93,12 +105,41 @@ configuration:
     type: dict
     description: "Dict of default values for the CSV."
     default_value:
-      Version Name: "{file.name}"
-      Link: "{shot.code}"
-      VFX Scope of Work: "{shot.description}"
-      Vendor: "{project.sg_vendorid}"
-      Submitting For: "{version.sg_submitting_for}"
-      Submission Note: "{version.sg_submission_note}"
+      Version Name: "<file.name>"
+      Link: "<shot.code>"
+      VFX Scope of Work: "<shot.sg_scope_of_work>"
+      Vendor: "<project.sg_vendorid>"
+      Submitting For: "<version.sg_submitting_for>"
+      Submission Note: "<version.sg_submission_note>"
+
+  version_overrides:
+    type: list
+    description: "List of overrides to replace ShotGrid data with. The keys are ShotGrid field names."
+    values:
+      type: dict
+      items:
+        entity_type:
+          type: str
+          description: "Allowed values are: Version, PublishedFile"
+        match: { type: dict }
+        replace: { type: dict }
+
+  slate_extra_fields:
+    type: dict
+    description: "Extra fields to display on the slate. Max 6. You can use Nuke TCL expressions or a ShotGrid Template definition."
+    default_value: {}
+
+  footage_format_fields:
+    type: dict
+    items:
+      footage_type: { type: str }
+      resolution: { type: str }
+      crop: { type: str }
+      aspect_ratio: { type: str }
+      pixel_aspect_ratio: { type: str }
+      frame_rate: { type: str }
+      video_bit_depth: { type: str }
+      video_codec: { type: str }
 
   # --- STRINGS ---
   shot_status_field:
@@ -113,17 +154,29 @@ configuration:
     allows_empty: True
     description: Field to check the version status with.
 
+  vfx_scope_of_work_field:
+    type: str
+    default_value: "sg_scope_of_work"
+    allows_empty: True
+    description: Shot field to use on the slate in "VFX Scope Of Work".
+
   submitting_for_field:
     type: str
     default_value: "sg_submitting_for"
     allows_empty: True
-    description: Field to use on the slate in "Submitting for".
+    description: Version field to use on the slate in "Submitting for".
 
   submission_note_field:
     type: str
     default_value: "sg_submission_note"
     allows_empty: True
-    description: Field to use on the slate in "Submission note".
+    description: Version field to use on the slate in "Submission note".
+
+  short_submission_note_field:
+    type: str
+    default_value: "sg_submission_note_short"
+    allows_empty: True
+    description: Version field to use on the preview overlay as submission note.
 
   attachment_field:
     type: str
@@ -177,6 +230,32 @@ configuration:
     default_value: "Output - sRGB"
     allows_empty: True
     description: Output colorspace of the preview.
+
+  footage_format_entity:
+    type: str
+    description: Entity that contains the footage formats.
+
+  shot_footage_formats_field:
+    type: str
+    default_value: "sg_footage_formats"
+    allows_empty: True
+    description: Field that links to the used footage formats.
+
+  # --- BOOLEANS ---
+  add_slate_to_sequence:
+    type: bool
+    default_value: false
+    description: If a slate frame should be added before the delivered sequence
+
+  override_preview_submission_note:
+    type: bool
+    default_value: false
+    description: If the preview should add a new submission note as an overlay.
+
+  continuous_versioning:
+    type: bool
+    default_value: false
+    description: If the delivery versions should always increment, independent of the date.
 
   # --- PATHS ---
   logo_path_linux:

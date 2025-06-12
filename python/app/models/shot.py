@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-from ..models import Version
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..models.version import Version
+    from .footage_format import FootageFormat
 
 
 class Shot:
@@ -9,7 +13,9 @@ class Shot:
     code: str
     id: int
     description: str
+    vfx_scope_of_work: str
     project_code: str
+    footage_formats: list[FootageFormat]
     validation_message: str | None
     validation_error: str | None
 
@@ -22,14 +28,18 @@ class Shot:
         id: int,
         project_code: str,
         description: str = "",
-        episode: str = None,
+        vfx_scope_of_work: str = "",
+        episode: str | None = None,
+        footage_formats: list[FootageFormat] | None = None,
     ):
         self.episode = episode
         self.sequence = sequence
         self.code = code
         self.id = id
         self.description = description
+        self.vfx_scope_of_work = vfx_scope_of_work
         self.project_code = project_code
+        self.footage_formats = footage_formats
         self.progress = 0
 
         self._versions = []
@@ -48,7 +58,17 @@ class Shot:
             "code": self.code,
             "id": self.id,
             "description": self.description,
+            "vfx_scope_of_work": self.vfx_scope_of_work,
             "project_code": self.project_code,
             "progress": self.progress,
             "versions": [version.as_dict() for version in self._versions],
+            "footage_formats": [
+                fformat.as_dict() for fformat in self.footage_formats
+            ],
         }
+
+    def get(self, key: str):
+        """
+        Return the value for key if key is in the dictionary, else default.
+        """
+        return self.as_dict().get(key)

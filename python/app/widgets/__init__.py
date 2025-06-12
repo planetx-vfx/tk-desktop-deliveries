@@ -1,2 +1,2 @@
-from .Collapse import Collapse
-from .OrderedList import OrderedList, OrderedListItem
+from .collapse import Collapse
+from .ordered_list import OrderedList, OrderedListItem

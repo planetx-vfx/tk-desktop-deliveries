@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import re
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 import sgtk
 from sgtk.platform.qt5 import QtCore, QtWidgets
 
-from . import Version
-from .Errors import LicenseError
+from .errors import LicenseError
+
+if TYPE_CHECKING:
+    from .version import Version
 
 # # For development only
 # try:
@@ -31,12 +33,14 @@ class NukeProcess:
         show_validation_message: Callable[[Version], None],
         update_progress_bars: Callable[[float], None],
         name: str = None,
+        on_error: Callable[[Exception], None] | None = None,
     ):
         self.version = version
         self.process = QtCore.QProcess()
         self.show_validation_error = show_validation_error
         self.show_validation_message = show_validation_message
         self.update_progress_bars = update_progress_bars
+        self.on_error = on_error
 
         self.process.readyReadStandardOutput.connect(self._on_output)
         self.process.readyReadStandardError.connect(self._on_script_error)
@@ -62,8 +66,11 @@ class NukeProcess:
             self._has_started = True
 
         if "A license for nuke was not found" in stdout:
-            self._error = LicenseError(stdout)
-            return
+            self.version.validation_error = "A license for nuke was not found"
+            self.show_validation_error(self.version)
+            if self.on_error is not None:
+                self.on_error(LicenseError(stdout))
+            raise LicenseError(stdout)
 
         progress = re.search(
             r".*Frame ([0-9]+) \(([0-9]+) of ([0-9]+)\)",
@@ -113,7 +120,8 @@ class NukeProcess:
                 new_args = args
                 i = new_args.index("--timecode-ref")
                 logger.error(
-                    f"Restarting render without timecode, the timecode ref didn't have a valid timecode. {new_args[i + 1]}"
+                    "Restarting render without timecode, the timecode ref didn't have a valid timecode. %s",
+                    new_args[i + 1],
                 )
                 del new_args[i : i + 2]
                 self.reset()
