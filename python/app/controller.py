@@ -36,6 +36,7 @@ from pathlib import Path
 import sgtk
 from sgtk.platform.qt5 import QtCore, QtWidgets
 
+from .actions import DeliveryActions
 from .model import DeliveryModel
 from .models import Deliverables, Settings, UserSettings, Version
 from .models.shotgrid_cache import ShotGridCache
@@ -84,7 +85,8 @@ class DeliveryController(QtWidgets.QWidget):
             self, self.view, self.model, self.settings
         )
         self.load_preview_outputs()
-        self.connect_buttons()
+        self.actions.load_letterbox_defaults(self.model.get_project())
+        self.connect_ui()
         self.actions.load_shots(
             self.loading_shots_successful,
             self.loading_shots_failed,
@@ -104,17 +106,65 @@ class DeliveryController(QtWidgets.QWidget):
         self.model.quit()
         event.accept()
 
-    def connect_buttons(self):
+    def connect_ui(self):
         """Connects the buttons from our view to our controller function."""
-        self.view.reload_button.clicked.connect(self.load_shots)
+        self.view.reload_button.clicked.connect(
+            lambda: self.actions.load_shots(
+                self.loading_shots_successful,
+                self.loading_shots_failed,
+            )
+        )
         self.view.export_shots_button.clicked.connect(self.export_versions)
         self.view.open_delivery_folder_button.clicked.connect(
-            self.open_delivery_folder
+            self.actions.open_delivery_folder
         )
-        self.view.csv_add_button.clicked.connect(self.add_csv_entry)
-        self.view.csv_save_button.clicked.connect(self.save_csv_template)
+
+        # Delivery Version
+        self.view.settings["override_delivery_version"].stateChanged.connect(
+            self.actions.on_delivery_version_change
+        )
+        self.view.settings["delivery_version"].textChanged.connect(
+            self.actions.on_delivery_version_change
+        )
+
+        # Delivery Location
+        self.view.settings["override_delivery_location"].stateChanged.connect(
+            self.actions.on_delivery_location_change
+        )
+        self.view.settings["delivery_location"].textChanged.connect(
+            self.actions.on_delivery_location_change
+        )
+
+        # Letterbox
+        self.view.settings["letterbox_enable"].stateChanged.connect(
+            self.actions.on_letterbox_enable_change
+        )
+        self.view.settings["letterbox_w"].textChanged.connect(
+            self.actions.on_letterbox_enable_change
+        )
+        self.view.settings["letterbox_h"].textChanged.connect(
+            self.actions.on_letterbox_enable_change
+        )
+        self.view.settings["letterbox_opacity"].textChanged.connect(
+            self.actions.on_letterbox_enable_change
+        )
+
+        # Previews
+        for i in range(len(self.settings.delivery_preview_outputs)):
+            self.view.settings[
+                f"preview_output_{i}_enabled"
+            ].stateChanged.connect(self.actions.on_previews_change)
+
+        # CSV
+        self.view.csv_add_button.clicked.connect(self.actions.add_csv_entry)
+        self.view.csv_save_button.clicked.connect(
+            self.actions.save_csv_template
+        )
         self.view.csv_load_button.clicked.connect(
-            lambda: self.load_csv_template()
+            lambda: self.actions.load_csv_template()
+        )
+        self.view.settings["csv_fields"].stateChanged.connect(
+            self.actions.on_csv_change
         )
 
     def load_shots(self):
@@ -212,18 +262,6 @@ class DeliveryController(QtWidgets.QWidget):
 
             return data
 
-    def load_letterbox_defaults(self, project):
-        """Load the default letterbox settings from the ShotGrid project"""
-        self.view.settings["letterbox_enable"].setChecked(
-            project["sg_output_preview_enable_mask"]
-        )
-
-        if project["sg_output_preview_aspect_ratio"] is not None:
-            self.view.settings["letterbox_w"].setText(
-                project["sg_output_preview_aspect_ratio"]
-            )
-            self.view.settings["letterbox_h"].setText("1")
-
     def load_preview_outputs(self):
         """Load the preview output checkboxes"""
         self.view.settings["preview_outputs"] = []
@@ -261,6 +299,8 @@ class DeliveryController(QtWidgets.QWidget):
             widget.setLayout(layout)
             self.view.preview_outputs.addWidget(widget)
 
+        self.actions.on_previews_change()
+
     def toggle_preview_output(self, state):
         """Disable other conflicting output previews"""
         if state != QtCore.Qt.Checked:
@@ -294,54 +334,6 @@ class DeliveryController(QtWidgets.QWidget):
     def add_csv_entry(self):
         """Add an entry to the CSV list."""
         self.view.settings["csv_fields"].add_item("", "")
-
-    def save_csv_template(self):
-        """Save current CSV template."""
-        text, ok = QtWidgets.QInputDialog.getText(
-            self, "Save CSV Template", "Enter the template name:"
-        )
-        if not ok:
-            return
-
-        if text == "":
-            dialog = QtWidgets.QMessageBox(self)
-            dialog.setWindowTitle("Failed")
-            dialog.setText("Failed saving template. Name is empty.")
-            dialog.exec()
-            return
-
-        if not re.match(r"^[a-zA-Z0-9 _-]+$", text):
-            dialog = QtWidgets.QMessageBox(self)
-            dialog.setWindowTitle("Failed")
-            dialog.setText(
-                "Failed saving template. Please only use [a-zA-Z0-9_- ]"
-            )
-            dialog.exec()
-            return
-
-        csv_template_path = self.csv_template_folder / f"{text}.csv"
-
-        user_settings = self.get_user_settings()
-
-        with open(csv_template_path, "w", newline="") as file:
-            writer = csv.writer(file)
-            header = [key for key, value in user_settings.csv_fields]
-            keys = [
-                value if isinstance(value, str) else f"{{{'.'.join(value)}}}"
-                for key, value in user_settings.csv_fields
-            ]
-
-            writer.writerow(header)
-            writer.writerow(keys)
-
-            dialog = QtWidgets.QMessageBox(self)
-            dialog.setWindowTitle("Success")
-            dialog.setText("Saved template")
-            dialog.exec()
-
-            file.close()
-
-            self.load_csv_templates()
 
     def load_csv_template(self, csv_data: dict = None):
         """Load the selected CSV template."""

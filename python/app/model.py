@@ -126,8 +126,6 @@ class DeliveryModel:
             "vnd": self.get_vendor_id(),
         }
 
-        controller.load_letterbox_defaults(self.get_project())
-
     def quit(self):
         """
         Cancel running threads before app quit
