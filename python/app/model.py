@@ -1018,12 +1018,16 @@ class DeliveryModel:
     ):
         slate_data = self._get_slate_data(version, shot)
 
+        def on_error(exc):
+            raise exc
+
         process = NukeProcess(
             version,
             show_validation_error,
             show_validation_message,
             update_progress,
             f"{output.extension.upper()} - {output.name}",
+            # on_error,
         )
         args = [
             "-t",
