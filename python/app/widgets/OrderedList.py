@@ -1,17 +1,17 @@
-from sgtk.platform.qt5 import QtWidgets
+import contextlib
 
-# # For development only
-# try:
-#     from PySide6 import QtWidgets
-# except ImportError:
-#     pass
+from sgtk.platform.qt5 import QtCore, QtWidgets
+
+# For development only
+with contextlib.suppress(ImportError):
+    from PySide6 import QtCore, QtWidgets
 
 
 class OrderedListItem(QtWidgets.QWidget):
     """A custom widget representing a key-value pair with controls for ordering and deletion."""
 
     def __init__(self, parent=None):
-        super(OrderedListItem, self).__init__(parent)
+        super().__init__(parent)
 
         # Create widgets for key, value, and control buttons
         self.move_up_button = QtWidgets.QPushButton("▲", self)
@@ -38,7 +38,7 @@ class OrderedListItem(QtWidgets.QWidget):
 
         self.setLayout(layout)
 
-    def get_content(self):
+    def get_content(self) -> tuple[str, str]:
         """Get the key value pair"""
         return self.key_edit.text(), self.value_edit.text()
 
@@ -56,8 +56,10 @@ class OrderedListItem(QtWidgets.QWidget):
 class OrderedList(QtWidgets.QWidget):
     """A widget for managing an ordered list of key-value pairs."""
 
+    stateChanged = QtCore.Signal()
+
     def __init__(self, parent=None):
-        super(OrderedList, self).__init__(parent)
+        super().__init__(parent)
 
         # Vertical layout to hold list items
         self.layout = QtWidgets.QVBoxLayout(self)
@@ -73,6 +75,9 @@ class OrderedList(QtWidgets.QWidget):
         item.key_edit.setText(key)
         item.value_edit.setText(value)
 
+        item.key_edit.textChanged.connect(lambda: self.stateChanged.emit())
+        item.value_edit.textChanged.connect(lambda: self.stateChanged.emit())
+
         # Connect buttons to appropriate functions
         item.move_up_button.clicked.connect(lambda: self.move_item_up(item))
         item.move_down_button.clicked.connect(
@@ -83,7 +88,7 @@ class OrderedList(QtWidgets.QWidget):
         # Add item to the list and update the layout
         self.items.append(item)
         self.layout.insertWidget(self.layout.count(), item)
-        self.update_buttons()
+        self.update()
 
     def move_item_up(self, item):
         """Move the given item up in the list."""
@@ -95,7 +100,7 @@ class OrderedList(QtWidgets.QWidget):
             )
             self.layout.removeWidget(item)
             self.layout.insertWidget(index - 1, item)
-            self.update_buttons()
+            self.update()
 
     def move_item_down(self, item):
         """Move the given item down in the list."""
@@ -107,9 +112,9 @@ class OrderedList(QtWidgets.QWidget):
             )
             self.layout.removeWidget(item)
             self.layout.insertWidget(index + 1, item)
-            self.update_buttons()
+            self.update()
 
-    def update_buttons(self):
+    def update(self):
         """Update the first and last items' buttons."""
         for item in self.items:
             item.move_up_button.setDisabled(False)
@@ -117,6 +122,8 @@ class OrderedList(QtWidgets.QWidget):
 
         self.items[0].move_up_button.setDisabled(True)
         self.items[len(self.items) - 1].move_down_button.setDisabled(True)
+
+        self.stateChanged.emit()
 
     def delete_item(self, item):
         """Remove the given item from the list."""
