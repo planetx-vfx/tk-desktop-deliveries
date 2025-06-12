@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import re
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 import sgtk
 from sgtk.platform.qt5 import QtCore, QtWidgets
 
-from . import Version
 from .errors import LicenseError
+
+if TYPE_CHECKING:
+    from .version import Version
 
 # # For development only
 # try:

@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ..models import Version
-
 if TYPE_CHECKING:
+    from ..models.version import Version
     from .footage_format import FootageFormat
 
 
