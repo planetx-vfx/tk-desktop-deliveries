@@ -166,6 +166,10 @@ delivery_preview_outputs:
         - _The read node for the preview/exr is called `Read1`._
     - The slate extra fields also support inline **ShotGrid templates**.
         - _Note: the fields used in this template must be used by an actual template in `templates.yml`_
+    - The slate extra fields also support custom **ShotGrid entity templates**.
+        - Uses <...> to wrap a reference to a field on an entity.
+        - Supported entities are: `project`, `shot` and `version`.
+        - If a field is an array, the first item is used.
 - Optional color management settings `preview_colorspace_idt` and `preview_colorspace_odt` can be configured to control
   the preview's input/output colorspace during slate rendering.
 
@@ -181,6 +185,7 @@ slate_extra_fields:
   Director: Steven Spielberg
   Format: '[value width]x[value height], [format "%.2f" [expr (double([value input.width]) / double([value input.height]))]]:1'
   Filename: '{prj}[_{Episode}]_{Sequence}_{Shot}_{task_name}[_{vnd}]_v{version}'
+  Lens: '<shot.sg_footage_formats.sg_lens_name>'
 ```
 
 ##### Slate Font Configuration
