@@ -114,6 +114,12 @@ class Version:
             "progress": self.progress,
         }
 
+    def get(self, key: str):
+        """
+        Return the value for key if key is in the dictionary, else default.
+        """
+        return self.as_dict().get(key)
+
 
 class Task:
     id: int
@@ -128,3 +134,9 @@ class Task:
             "id": self.id,
             "name": self.name,
         }
+
+    def get(self, key: str):
+        """
+        Return the value for key if key is in the dictionary, else default.
+        """
+        return self.as_dict().get(key)

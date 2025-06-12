@@ -1,7 +1,11 @@
 from __future__ import annotations
 
-from .FootageFormat import FootageFormat
+from typing import TYPE_CHECKING
+
 from ..models import Version
+
+if TYPE_CHECKING:
+    from .FootageFormat import FootageFormat
 
 
 class Shot:
@@ -63,3 +67,9 @@ class Shot:
                 fformat.as_dict() for fformat in self.footage_formats
             ],
         }
+
+    def get(self, key: str):
+        """
+        Return the value for key if key is in the dictionary, else default.
+        """
+        return self.as_dict().get(key)

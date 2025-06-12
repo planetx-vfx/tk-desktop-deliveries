@@ -33,25 +33,29 @@ import os
 import shutil
 import traceback
 from pathlib import Path
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 from urllib.request import urlretrieve
 
 import sgtk
 
 from .external import parse_exr_metadata
 from .models import (
-    Shot,
-    Version,
-    NukeProcess,
     Deliverables,
-    Settings,
-    UserSettings,
     ExportShotsThread,
     LoadShotsThread,
+    NukeProcess,
+    Settings,
+    Shot,
+    UserSettings,
+    Version,
 )
+from .models.context import Context
 from .models.Errors import LicenseError
 from .models.FootageFormat import FootageFormat, FootageFormatType
 from .models.Version import Task
+
+if TYPE_CHECKING:
+    from .models.shotgrid_cache import ShotGridCache
 
 
 class ValidationError(Exception):
@@ -67,12 +71,13 @@ class DeliveryModel:
     load_shots_thread: None | LoadShotsThread
     export_shots_thread: None | ExportShotsThread
 
+    cache: ShotGridCache
+
     def __init__(self, controller) -> None:
         """Initializes the model.
 
         Args:
-            app: ShotGrid app
-            logger: ShotGrid logger
+            controller: DeliveryController
         """
         app = controller.app
         self.app = app
@@ -83,7 +88,8 @@ class DeliveryModel:
         self.load_shots_thread = None
         self.export_shots_thread = None
 
-        self.settings = Settings(app)
+        self.settings = controller.settings
+        self.cache = controller.cache
 
         self.extra_fields = self.settings.compile_extra_fields()
 
@@ -110,20 +116,15 @@ class DeliveryModel:
             )
 
         # Set slate script path
-        __location__ = os.path.realpath(
-            os.path.join(os.getcwd(), os.path.dirname(__file__))
-        )
-        self.slate_path = os.path.join(__location__, "slate_cli.py")
-        self.plate_path = os.path.join(__location__, "plate_cli.py")
+        __location__ = Path.cwd() / Path(__file__).parent
+        self.slate_path = (__location__ / "slate_cli.py").as_posix()
+        self.plate_path = (__location__ / "plate_cli.py").as_posix()
 
-        self.sg_project = None
         self.base_template_fields = {
             "prj": self.get_project_code(),
             "delivery_version": 1,
             "vnd": self.get_vendor_id(),
         }
-
-        controller.load_letterbox_defaults(self.get_project())
 
     def quit(self):
         """
@@ -144,7 +145,7 @@ class DeliveryModel:
 
         os.startfile(delivery_folder)
 
-    def load_shots(
+    def load_shots_data(
         self,
         loading_shots_successful_function: Callable,
         loading_shots_failed_function: Callable,
@@ -172,7 +173,7 @@ class DeliveryModel:
         Returns:
             List of shot information dictionaries.
         """
-        self.logger.info("Starting 'ready for delivery' search.")
+        self.logger.info("Collecting versions to deliver.")
         project_id = self.context.project["id"]
 
         filters = [
@@ -188,49 +189,16 @@ class DeliveryModel:
             ],
         ]
 
-        columns = list(
-            {
-                "code",
-                "entity",
-                "published_files",
-                "sg_first_frame",
-                "sg_last_frame",
-                "sg_task",
-                "sg_uploaded_movie_frame_rate",
-                "sg_frames_have_slate",
-                "sg_movie_has_slate",
-                "sg_path_to_movie",
-                "image",
-                *self.extra_fields.get("Version", []),
-            }
-        )
-
-        versions_to_deliver = self.shotgrid_connection.find(
-            "Version", filters, columns
-        )
-
-        # Process entity overrides
-        versions_to_deliver = self.process_entity_overrides(
-            "Version", versions_to_deliver
-        )
+        versions_to_deliver = self.cache.find("Version", filters, True)
 
         shot_ids = {version["entity"]["id"] for version in versions_to_deliver}
         shots_to_deliver = []
 
         for shot_id in shot_ids:
-            sg_shot = self.shotgrid_connection.find_one(
+            sg_shot = self.cache.find_one(
                 "Shot",
                 [["id", "is", shot_id]],
-                [
-                    "sg_sequence",
-                    "code",
-                    "description",
-                    *self.extra_fields.get("Shot", []),
-                ],
             )
-
-            # Process entity overrides
-            sg_shot = self.process_entity_overrides("Shot", sg_shot)
 
             sg_shot["versions"] = [
                 version
@@ -244,7 +212,7 @@ class DeliveryModel:
         )
 
         self.shots_to_deliver = sorted(
-            self.shots_to_deliver, key=lambda shot: (shot.sequence, shot.code)
+            self.shots_to_deliver, key=lambda s: (s.sequence, s.code)
         )
 
         self.logger.debug("Found shots to deliver:")
@@ -271,36 +239,16 @@ class DeliveryModel:
             ["id", "is", publishes[0]["id"]],
         ]
 
-        columns = list(
-            {
-                "path",
-                "published_file_type",
-                "version_number",
-                *self.extra_fields.get("PublishedFile", []),
-            }
-        )
-
-        published_file = self.shotgrid_connection.find_one(
+        return self.cache.find_one(
             "PublishedFile",
             filters,
-            columns,
         )
-
-        # Process entity overrides
-        published_file = self.process_entity_overrides(
-            "PublishedFile", published_file
-        )
-
-        return published_file
 
     def get_project(self) -> dict:
         """Gets the ShotGrid project.
 
         Returns:
             Project"""
-        if self.sg_project is not None:
-            return self.sg_project
-
         project_id = self.context.project["id"]
         filters = [
             [
@@ -310,24 +258,7 @@ class DeliveryModel:
             ]
         ]
 
-        columns = list(
-            {
-                "name",
-                "sg_short_name",
-                "sg_vendorid",
-                "sg_output_preview_aspect_ratio",
-                "sg_output_preview_enable_mask",
-                *self.extra_fields.get("Project", []),
-            }
-        )
-
-        sg_project = self.shotgrid_connection.find_one(
-            "Project", filters, columns
-        )
-
-        self.sg_project = self.process_entity_overrides("Project", sg_project)
-
-        return self.sg_project
+        return self.cache.find_one("Project", filters)
 
     def get_project_code(self) -> str:
         """Gets the ShotGrid project code.
@@ -358,15 +289,11 @@ class DeliveryModel:
             ],
         ]
 
-        columns = ["code"]
-        episode = self.shotgrid_connection.find_one(
-            "Episode", filters, columns
-        )
+        episode = self.cache.find_one("Episode", filters)
 
         if episode is not None:
             return episode["code"]
-        else:
-            return None
+        return None
 
     def get_shots_information_list(
         self, shots_to_deliver: list[dict]
@@ -382,15 +309,9 @@ class DeliveryModel:
         """
         shots_information_list = []
 
-        sg_footage_formats = self.shotgrid_connection.find(
+        sg_footage_formats = self.cache.find(
             self.settings.footage_format_entity,
             [["project", "is", self.context.project]],
-            [
-                "code",
-                *self.extra_fields.get(
-                    self.settings.footage_format_entity, []
-                ),
-            ],
         )
 
         footage_formats = [
@@ -511,7 +432,7 @@ class DeliveryModel:
         return shots_information_list
 
     def get_version_template_fields(
-        self, shot: Shot, version: Version, delivery_version: int = None
+        self, shot: Shot, version: Version, delivery_version: int | None = None
     ) -> dict:
         """
         Get the template fields for a specific version
@@ -607,7 +528,7 @@ class DeliveryModel:
 
                 template_fields["aspect_ratio"] = aspect_ratio
 
-            self.logger.info(template_fields)
+            self.logger.debug("Template fields: %s", template_fields)
 
         return template_fields
 
@@ -630,20 +551,19 @@ class DeliveryModel:
         if len(overrides) == 0:
             if return_type is dict:
                 return entities[0]
-            else:
-                return entities
+            return entities
 
-        for entity in entities:
+        for i, entity in enumerate(entities):
             self.logger.info(
                 "Applying %s overrides to a %s.", len(overrides), entity_type
             )
             for override in overrides:
-                entity = override.process(entity)
+                context = Context(cache=self.cache, entity=entity)
+                entities[i] = override.process(entity, context)
 
         if return_type is dict:
             return entities[0]
-        else:
-            return entities
+        return entities
 
     def validate_all_shots(
         self,
@@ -667,7 +587,7 @@ class DeliveryModel:
         success = True
         for shot in self.shots_to_deliver:
             self.logger.info(
-                f"Validating sequence {shot.sequence}, shot {shot.code}."
+                "Validating sequence %s, shot %s.", shot.sequence, shot.code
             )
             for version in shot.get_versions():
                 errors = []
@@ -690,10 +610,14 @@ class DeliveryModel:
                 else:
                     success = False
                     self.logger.error(
-                        f'Version "{version.code}" ({version.id}) of shot {shot.sequence} {shot.code} had the following errors:'
+                        'Version "%s" (%s) of shot %s %s had the following errors:',
+                        version.code,
+                        version.id,
+                        shot.sequence,
+                        shot.code,
                     )
                     for error in errors:
-                        self.logger.error("- " + error)
+                        self.logger.error("- %s", error)
 
                     error_message = "\n".join(errors)
                     version.validation_error = str(error_message)
@@ -733,7 +657,7 @@ class DeliveryModel:
             version_errors.append(
                 "The path_to_movie field on this version is empty."
             )
-        elif not os.path.isfile(version.path_to_movie):
+        elif not Path(version.path_to_movie).is_file():
             version_errors.append(
                 "The path_to_movie field on this version points to a nonexistent file."
             )
@@ -811,9 +735,16 @@ class DeliveryModel:
             update_progress_bars: Function for updating the progress bars
         """
         if deliverables.deliver_preview or deliverables.deliver_sequence:
-            self.logger.debug(f"Delivering version {version.id}")
+            types = []
+            if deliverables.deliver_preview:
+                types.append("preview")
+            if deliverables.deliver_sequence:
+                types.append("sequence")
+            self.logger.info(
+                "Delivering %s for version %s", " and ".join(types), version.id
+            )
         else:
-            self.logger.debug(f"Skipping delivery for version {version.id}")
+            self.logger.info("Skipping delivery for version %s", version.id)
             return
 
         try:
@@ -912,6 +843,11 @@ class DeliveryModel:
                             )
                         )
 
+                    self.logger.debug(
+                        "Delivering %s preview for version %s",
+                        output.name,
+                        version.id,
+                    )
                     self._deliver_preview(
                         shot,
                         version,
@@ -958,6 +894,7 @@ class DeliveryModel:
                 delivery_folder, delivery_folder_org, template_fields
             )
 
+            # TODO add dev switch
             # Update version data
             version_data = {}
 
@@ -1016,7 +953,11 @@ class DeliveryModel:
         show_validation_message,
         update_progress,
     ):
+        self.logger.info("======= Delivering Sequence =======")
         slate_data = self._get_slate_data(version, shot)
+
+        def on_error(exc):
+            raise exc
 
         process = NukeProcess(
             version,
@@ -1024,6 +965,7 @@ class DeliveryModel:
             show_validation_message,
             update_progress,
             f"{output.extension.upper()} - {output.name}",
+            # on_error,
         )
         args = [
             "-t",
@@ -1055,7 +997,9 @@ class DeliveryModel:
             args.append("--new-submission-note")
 
         self.logger.debug(
-            "Starting nuke render with args: %s %s", self.nuke_path, args
+            "Starting nuke preview render with args: %s %s",
+            self.nuke_path,
+            args,
         )
         process.run(
             self.nuke_path,
@@ -1063,8 +1007,9 @@ class DeliveryModel:
         )
 
         self.logger.info(
-            f"Finished rendering preview to {output_preview_path}."
+            "Finished rendering preview to %s.", output_preview_path
         )
+        self.logger.info("=" * 35)
 
     def _deliver_sequence(
         self,
@@ -1075,6 +1020,7 @@ class DeliveryModel:
         show_validation_message,
         update_progress,
     ):
+        self.logger.info("======= Delivering Sequence =======")
         should_rerender = False
         output = next(
             (
@@ -1106,7 +1052,7 @@ class DeliveryModel:
         # Create sequence delivery folder
         sequence_delivery_folder = delivery_sequence_path.parent
         self.logger.info(
-            f"Creating folder for delivery {sequence_delivery_folder}."
+            "Creating folder for delivery %s.", sequence_delivery_folder
         )
         sequence_delivery_folder.mkdir(parents=True, exist_ok=True)
 
@@ -1153,8 +1099,6 @@ class DeliveryModel:
             if self.settings.add_slate_to_sequence:
                 slate_data = self._get_slate_data(version, shot, False)
 
-                self.logger.info(slate_data)
-
                 args.extend(
                     [
                         "--logo-path",
@@ -1173,6 +1117,11 @@ class DeliveryModel:
                 if not should_rerender:
                     args.append("--slate-only")
 
+            self.logger.debug(
+                "Starting nuke frame render with args: %s %s",
+                self.nuke_path,
+                args,
+            )
             process.run(
                 self.nuke_path,
                 args,
@@ -1208,8 +1157,11 @@ class DeliveryModel:
                 )
 
             self.logger.info(
-                f"Finished linking {version.sequence_path} to {delivery_sequence_path}."
+                "Finished linking %s to %s.",
+                version.sequence_path,
+                delivery_sequence_path,
             )
+        self.logger.info("=" * 35)
 
     def _deliver_attachment(
         self,
@@ -1219,8 +1171,8 @@ class DeliveryModel:
     ):
         if version.attachment is not None and (
             any(
-                value == ("version", "attachment")
-                for key, value in user_settings.csv_fields
+                f"version.{self.settings.attachment_field}" in template.fields
+                for key, template in user_settings.csv_fields
             )
         ):
             name = version.attachment["name"]
@@ -1328,20 +1280,23 @@ class DeliveryModel:
                 ),
             }
 
-        optional_fields = self.settings.get_slate_extra_fields(template_fields)
+        context = Context(self.cache, shot, version)
+        optional_fields = self.settings.get_slate_extra_fields(
+            template_fields, context
+        )
 
         return {
             "version_name": f"v{version.version_number:03d}",
-            "submission_note": version.submission_note,
-            "submission_note_short": version.submission_note_short,
-            "submitting_for": version.submitting_for,
+            "submission_note": version.submission_note or "",
+            "submission_note_short": version.submission_note_short or "",
+            "submitting_for": version.submitting_for or "",
             "shot_name": shot.code,
             "shot_types": version.task.name,
-            "vfx_scope_of_work": shot.vfx_scope_of_work,
+            "vfx_scope_of_work": shot.vfx_scope_of_work or "",
             "show": self.get_project()["name"],
             "episode": episode,
             "scene": scene,
-            "sequence_name": shot.sequence,
+            "sequence_name": shot.sequence or "",
             "vendor": self.base_template_fields["vnd"],
             "input_has_slate": version.movie_has_slate,
             "optional_fields": optional_fields,
