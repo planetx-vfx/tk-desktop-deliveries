@@ -105,12 +105,12 @@ configuration:
     type: dict
     description: "Dict of default values for the CSV."
     default_value:
-      Version Name: "{file.name}"
-      Link: "{shot.code}"
-      VFX Scope of Work: "{shot.sg_scope_of_work}"
-      Vendor: "{project.sg_vendorid}"
-      Submitting For: "{version.sg_submitting_for}"
-      Submission Note: "{version.sg_submission_note}"
+      Version Name: "<file.name>"
+      Link: "<shot.code>"
+      VFX Scope of Work: "<shot.sg_scope_of_work>"
+      Vendor: "<project.sg_vendorid>"
+      Submitting For: "<version.sg_submitting_for>"
+      Submission Note: "<version.sg_submission_note>"
 
   version_overrides:
     type: list

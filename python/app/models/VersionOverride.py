@@ -1,3 +1,14 @@
+import traceback
+
+import sgtk
+
+from . import util
+from .context import Context
+from .field_template_string import FieldTemplateString
+
+logger = sgtk.platform.get_logger(__name__)
+
+
 class VersionOverride:
     """
     A list of overrides to apply to an entity of a version, matched against ShotGrid fields.
@@ -5,19 +16,20 @@ class VersionOverride:
 
     entity_type: str
     match: dict
-    replace: dict
+    replace: dict[str, FieldTemplateString]
 
     def __init__(self, entity_type: str, match: dict, replace: dict):
         self.entity_type = entity_type
         self.match = match or {}
         self.replace = replace or {}
 
-    def process(self, entity: dict):
+    def process(self, entity: dict, context: Context):
         """
         Apply the override to an entity.
 
         Args:
             entity: Entity dict
+            context: Context to resolve templates with
         """
         match = len(self.match.keys()) == 0
 
@@ -54,10 +66,17 @@ class VersionOverride:
     @staticmethod
     def from_dict(data: dict):
         """Get a VersionOverride from a dict"""
+        # TODO add SG template string
+        replace = data.get("replace", {})
+
+        replace = {
+            key: FieldTemplateString(value) for key, value in replace.items()
+        }
+
         return VersionOverride(
-            data["entity_type"],
-            data["match"],
-            data["replace"],
+            data.get("entity_type"),
+            data.get("match", {}),
+            replace,
         )
 
     def __eq__(self, other):

@@ -1,10 +1,16 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from tank.template import TemplateString
 from tank.templatekey import IntegerKey, StringKey
 
 from . import PreviewOutput, SequenceOutput
+from .field_template_string import FieldTemplateString
 from .VersionOverride import VersionOverride
+
+if TYPE_CHECKING:
+    from .context import Context
 
 
 class Settings:
@@ -15,6 +21,7 @@ class Settings:
     delivery_preview_outputs: list[PreviewOutput]
     delivery_sequence_outputs: list[SequenceOutput]
     version_overrides: list[VersionOverride]
+    default_csv: dict[str, FieldTemplateString]
 
     # Fields
     shot_status_field: str
@@ -40,7 +47,7 @@ class Settings:
     override_preview_submission_note: bool = False
     continuous_versioning: bool = False
 
-    slate_extra_fields: dict = {}
+    slate_extra_fields: dict[str, TemplateString | FieldTemplateString | str]
 
     footage_format_fields: dict
     footage_format_entity: str
@@ -73,6 +80,15 @@ class Settings:
         self.version_overrides = []
         for output in version_overrides:
             self.version_overrides.append(VersionOverride.from_dict(output))
+
+        default_csv = self._app.get_setting("default_csv", {})
+        self.default_csv = {}
+        for key, value in default_csv.items():
+            if not isinstance(value, (str, int, float, bool)):
+                error = 'One or more values of the "default_csv" setting is of an invalid type.'
+                raise TypeError(error)
+
+            self.default_csv[key] = FieldTemplateString(default_csv[key])
 
         keys = {
             "width": IntegerKey("width", default=0),
@@ -145,12 +161,13 @@ class Settings:
             if override.entity_type == entity_type
         ]
 
-    def get_slate_extra_fields(self, fields: dict):
+    def get_slate_extra_fields(self, fields: dict, context: Context):
         """
         Parse the extra slate field templates and return a dict of the values
 
         Args:
-            fields (dict): Fields to apply to the templates
+            fields (dict): Fields to apply to the ShotGrid templates
+            context (dict): Context  to apply to the field template strings
         """
         extra_fields = {}
 
@@ -161,7 +178,17 @@ class Settings:
                 except Exception as err:
                     extra_fields[key] = "-"
                     self._app.logger.error(
-                        f"An error occurred while loading the slate extra fields: {err}"
+                        "An error occurred while loading the slate extra fields: %s",
+                        err,
+                    )
+            elif isinstance(template, FieldTemplateString):
+                try:
+                    extra_fields[key] = template.apply_context(context)
+                except Exception as err:
+                    extra_fields[key] = "-"
+                    self._app.logger.error(
+                        "An error occurred while loading the slate extra fields: %s",
+                        err,
                     )
             else:
                 extra_fields[key] = template
@@ -205,6 +232,19 @@ class Settings:
                 extra_fields[override.entity_type].extend(fields)
             else:
                 extra_fields[override.entity_type] = fields
+
+        for template in self.default_csv.values():
+            for entity, fields in template.ordered_fields.items():
+                if entity in ["file", "date"]:
+                    continue
+
+                entity_type = entity[0].upper() + entity[1:]
+                field_names = [field.split(".")[0] for field in fields]
+
+                if entity_type in extra_fields:
+                    extra_fields[entity_type].extend(field_names)
+                else:
+                    extra_fields[entity_type] = field_names
 
         # Remove None values
         for entity, fields in extra_fields.items():

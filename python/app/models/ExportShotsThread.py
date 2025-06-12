@@ -11,6 +11,8 @@ from sgtk.platform.qt5 import QtCore
 if TYPE_CHECKING:
     from . import Deliverables, UserSettings, Version
 
+from .context import Context, FileContext
+
 # # For development only
 # try:
 #     from PySide6 import QtCore
@@ -342,50 +344,8 @@ class ExportShotsThread(QtCore.QThread):
                             )
                         )
 
-                    csv_data = {}
-                    for (
-                        entity,
-                        fields,
-                    ) in self.user_settings.get_csv_entities():
-                        if entity in ["file", "date"]:
-                            continue
-
-                        entity_id = None
-                        if entity == "project":
-                            entity_id = self.model.context.project["id"]
-                        elif entity == "shot":
-                            entity_id = shot.id
-                        elif entity == "version":
-                            entity_id = version.id
-
-                        entity_type = entity[0].upper() + entity[1:]
-
-                        fields = list(
-                            {
-                                *fields,
-                                *self.model.settings.compile_extra_fields().get(
-                                    entity_type, []
-                                ),
-                            }
-                        )
-
-                        sg_entity = self.model.shotgrid_connection.find_one(
-                            entity_type,
-                            [["id", "is", entity_id]],
-                            fields,
-                        )
-                        if sg_entity is not None:
-                            csv_data[entity] = (
-                                self.model.process_entity_overrides(
-                                    entity_type, sg_entity
-                                )
-                            )
-                        else:
-                            csv_data[entity] = {}
-
                     for file_path, codec, has_slate in to_deliver:
                         file_name = file_path.name
-                        output_file_path = file_path.as_posix()
 
                         csv_fields = []
 
@@ -402,106 +362,31 @@ class ExportShotsThread(QtCore.QThread):
                                 self.model.logger.error(error_msg)
                                 continue
 
-                        for key, value in self.user_settings.csv_fields:
-                            if isinstance(value, str):
-                                csv_fields.append(value)
-                                continue
-
-                            entity, field = value
-
-                            if entity == "file":
-                                if field == "name":
-                                    csv_fields.append(file_name)
-                                    continue
-                                if field == "name_ranged":
-                                    new_file_name = file_name
-
-                                    # Extract frame pattern and replace with frame range
-                                    frame_pattern = re.compile("(%0(\d)d)")
-                                    frame_match = re.search(
-                                        frame_pattern, new_file_name
-                                    )
-                                    if frame_match:
-                                        full_frame_spec = frame_match.group(1)
-
-                                        first_frame = version.first_frame
-                                        if has_slate:
-                                            first_frame -= 1
-
-                                        new_file_name = new_file_name.replace(
-                                            full_frame_spec,
-                                            f"[{first_frame}-{version.last_frame}]",
-                                        )
-
-                                    csv_fields.append(new_file_name)
-                                    continue
-
-                                if field in ("codec", "compression"):
-                                    if codec != "":
-                                        csv_fields.append(codec)
-                                        continue
-
-                                    if file_name.endswith(".exr"):
-                                        try:
-                                            metadata = parse_exr_metadata.read_exr_header(
-                                                output_file_path
-                                                % version.last_frame
-                                            )
-                                            if "compression" in metadata:
-                                                csv_fields.append(
-                                                    metadata.get(
-                                                        "compression", ""
-                                                    ).replace(
-                                                        "_COMPRESSION", ""
-                                                    )
-                                                )
-                                            else:
-                                                csv_fields.append("")
-                                        except:
-                                            csv_fields.append("")
-                                        continue
-                                    csv_fields.append("")
-                                    continue
-                                if field == "folder":
-                                    csv_fields.append(delivery_folder.name)
-                                    continue
-
-                            if entity == "version" and field == "attachment":
-                                if (
-                                    version.attachment is not None
-                                    and version.attachment["link_type"]
-                                    in ["upload", "local"]
-                                ):
-                                    csv_fields.append(
-                                        version.attachment["name"]
-                                    )
-                                    continue
+                        for _key, template in self.user_settings.csv_fields:
+                            context = Context(
+                                shot=shot,
+                                version=version,
+                                file=FileContext(
+                                    file_path=file_path,
+                                    directory_path=delivery_folder,
+                                    codec=codec,
+                                    has_slate=has_slate,
+                                ),
+                                cache=self.model.cache,
+                            )
+                            try:
+                                self.model.logger.debug(
+                                    "Shot %s, Version %s, File %s",
+                                    shot.id,
+                                    version.id,
+                                    file_path.name,
+                                )
+                                csv_fields.append(
+                                    template.apply_context(context)
+                                )
+                            except Exception as err:
+                                self.model.logger.error(err)
                                 csv_fields.append("")
-                                continue
-
-                            if entity == "date":
-                                date = datetime.now()
-
-                                # Try to format the date
-                                try:
-                                    date_string = date.strftime(field)
-                                except:
-                                    date_string = str(date)
-                                    msg = f'Failed to convert date to format "{field}".'
-                                    self.model.logger.error(msg)
-
-                                csv_fields.append(date_string)
-                                continue
-
-                            if entity in csv_data and (
-                                field in csv_data[entity]
-                                and csv_data[entity][field] is not None
-                            ):
-                                csv_fields.append(csv_data[entity][field])
-                                continue
-
-                            # Add empty string if no value found
-                            csv_fields.append("")
 
                         # Sanitize text
                         csv_fields = [

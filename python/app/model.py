@@ -40,15 +40,16 @@ import sgtk
 
 from .external import parse_exr_metadata
 from .models import (
-    Shot,
-    Version,
-    NukeProcess,
     Deliverables,
-    Settings,
-    UserSettings,
     ExportShotsThread,
     LoadShotsThread,
+    NukeProcess,
+    Settings,
+    Shot,
+    UserSettings,
+    Version,
 )
+from .models.context import Context
 from .models.Errors import LicenseError
 from .models.FootageFormat import FootageFormat, FootageFormatType
 from .models.Version import Task
@@ -554,12 +555,13 @@ class DeliveryModel:
                 return entities[0]
             return entities
 
-        for entity in entities:
+        for i, entity in enumerate(entities):
             self.logger.info(
                 "Applying %s overrides to a %s.", len(overrides), entity_type
             )
             for override in overrides:
-                entity = override.process(entity)
+                context = Context(cache=self.cache, entity=entity)
+                entities[i] = override.process(entity, context)
 
         if return_type is dict:
             return entities[0]
@@ -1171,8 +1173,8 @@ class DeliveryModel:
     ):
         if version.attachment is not None and (
             any(
-                value == ("version", "attachment")
-                for key, value in user_settings.csv_fields
+                f"version.{self.settings.attachment_field}" in template.fields
+                for key, template in user_settings.csv_fields
             )
         ):
             name = version.attachment["name"]
@@ -1280,7 +1282,10 @@ class DeliveryModel:
                 ),
             }
 
-        optional_fields = self.settings.get_slate_extra_fields(template_fields)
+        context = Context(self.cache, shot, version)
+        optional_fields = self.settings.get_slate_extra_fields(
+            template_fields, context
+        )
 
         return {
             "version_name": f"v{version.version_number:03d}",
