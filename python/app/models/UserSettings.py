@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from . import Letterbox, PreviewOutput
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from . import Letterbox, PreviewOutput
 
 
 class UserSettings:

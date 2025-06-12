@@ -4,13 +4,12 @@ import csv
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 from sgtk.platform.qt5 import QtCore
 
-from . import Version, Deliverables, UserSettings
-from ..external import parse_exr_metadata
-
+if TYPE_CHECKING:
+    from . import Deliverables, UserSettings, Version
 
 # # For development only
 # try:

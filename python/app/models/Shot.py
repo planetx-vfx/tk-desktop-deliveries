@@ -1,7 +1,11 @@
 from __future__ import annotations
 
-from .FootageFormat import FootageFormat
+from typing import TYPE_CHECKING
+
 from ..models import Version
+
+if TYPE_CHECKING:
+    from .FootageFormat import FootageFormat
 
 
 class Shot:

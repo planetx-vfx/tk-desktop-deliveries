@@ -511,7 +511,7 @@ class DeliveryModel:
         return shots_information_list
 
     def get_version_template_fields(
-        self, shot: Shot, version: Version, delivery_version: int = None
+        self, shot: Shot, version: Version, delivery_version: int | None = None
     ) -> dict:
         """
         Get the template fields for a specific version
