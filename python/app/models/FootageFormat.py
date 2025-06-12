@@ -1,3 +1,4 @@
+import json
 from enum import Enum
 
 import sgtk
@@ -93,3 +94,6 @@ class FootageFormat:
             "video_bit_depth": self.video_bit_depth,
             "video_codec": self.video_codec,
         }
+
+    def __str__(self):
+        return json.dumps(self.as_dict())
