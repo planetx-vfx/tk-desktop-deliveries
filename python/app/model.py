@@ -1104,7 +1104,7 @@ class DeliveryModel:
                         "--logo-path",
                         self.logo_path,
                         "-odt",
-                        self.settings.preview_colorspace_odt,
+                        self.settings.sequence_colorspace,
                         "--slate-data",
                         json.dumps(slate_data),
                         "--font-path",
