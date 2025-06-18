@@ -1286,7 +1286,7 @@ class DeliveryModel:
         )
 
         return {
-            "version_name": f"v{version.version_number:03d}",
+            "version_name": version.code,
             "submission_note": version.submission_note or "",
             "submission_note_short": version.submission_note_short or "",
             "submitting_for": version.submitting_for or "",
