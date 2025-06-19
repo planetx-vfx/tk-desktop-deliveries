@@ -56,7 +56,7 @@ class Version:
         self.first_frame = first_frame
         self.last_frame = last_frame
         self.fps = fps
-        self.version_number = version_number
+        self.version_number = max(0, int(version_number))
         self.thumbnail = thumbnail
         self.frames_have_slate = frames_have_slate
         self.movie_has_slate = movie_has_slate

@@ -45,6 +45,7 @@ class Settings:
 
     preview_colorspace_idt: str
     preview_colorspace_odt: str
+    sequence_colorspace: str
 
     add_slate_to_sequence: bool = False
     override_preview_submission_note: bool = False
@@ -140,6 +141,7 @@ class Settings:
             "shot_delivered_status",
             "preview_colorspace_idt",
             "preview_colorspace_odt",
+            "sequence_colorspace",
             "add_slate_to_sequence",
             "override_preview_submission_note",
             "continuous_versioning",

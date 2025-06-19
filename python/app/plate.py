@@ -87,7 +87,6 @@ class PlateRender(object):
         self.render_slate = (
             logo_path is not None
             and colorspace_odt is not None
-            and colorspace_odt is not None
             and font_path is not None
             and font_bold_path is not None
             and slate_data is not None
