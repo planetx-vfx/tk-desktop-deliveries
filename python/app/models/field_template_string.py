@@ -339,7 +339,7 @@ class FieldTemplateString:
 
                 if field_value is not None:
                     template = template.replace(
-                        f"<{entity}.{field}>", field_value
+                        f"<{entity}.{field}>", str(field_value)
                     )
                 else:
                     msg = (
