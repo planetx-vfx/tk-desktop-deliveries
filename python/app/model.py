@@ -52,6 +52,7 @@ from .models import (
 from .models.context import Context
 from .models.errors import LicenseError
 from .models.footage_format import FootageFormat, FootageFormatType
+from .models.util import compile_extra_template_fields
 from .models.version import Task
 
 if TYPE_CHECKING:
@@ -827,6 +828,12 @@ class DeliveryModel:
                     preview_template_fields = {
                         **template_fields,
                         "delivery_preview_extension": output.extension,
+                        **compile_extra_template_fields(
+                            delivery_preview_template,
+                            self.cache,
+                            shot,
+                            version,
+                        ),
                     }
 
                     # Get the output preview path
@@ -864,9 +871,21 @@ class DeliveryModel:
                     current_job += 1
 
             if deliverables.deliver_sequence:
+                sequence_template_fields = {
+                    **template_fields,
+                    **compile_extra_template_fields(
+                        delivery_preview_template,
+                        self.cache,
+                        shot,
+                        version,
+                    ),
+                }
+
                 # Get the output frame delivery path
                 delivery_sequence_path = Path(
-                    delivery_sequence_template.apply_fields(template_fields)
+                    delivery_sequence_template.apply_fields(
+                        sequence_template_fields
+                    )
                 )
 
                 if user_settings.delivery_location is not None:
