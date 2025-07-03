@@ -41,3 +41,33 @@ def set_nested_value(data: dict, field: str, value: str):
         d = d[key]
 
     d[keys[-1]] = value  # Set the final value
+
+
+def compile_extra_template_fields(template, cache, shot, version):
+    fields = {}
+
+    sg_project = cache.get("Project")[0]
+    sg_shot = next(s for s in cache.get("Shot") if s.get("id") == shot.id)
+    sg_version = next(
+        v for v in cache.get("Version") if v.get("id") == version.id
+    )
+
+    for key in template.keys.values():
+        if (
+            key.shotgun_entity_type is not None
+            and key.shotgun_field_name is not None
+        ):
+            if key.shotgun_entity_type == "Project":
+                fields[key.name] = sg_project.get(key.shotgun_field_name)
+            elif key.shotgun_entity_type == "Shot":
+                fields[key.name] = sg_shot.get(key.shotgun_field_name)
+            elif key.shotgun_entity_type == "Version":
+                fields[key.name] = sg_version.get(key.shotgun_field_name)
+            else:
+                logger.error(
+                    'Can\'t compile find extra template fields for template "%s": unsupported entity %s',
+                    template.name,
+                    key.shotgun_entity_type,
+                )
+
+    return fields

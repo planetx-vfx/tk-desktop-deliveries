@@ -8,6 +8,8 @@ from typing import TYPE_CHECKING, Callable
 
 from sgtk.platform.qt5 import QtCore
 
+from .util import compile_extra_template_fields
+
 if TYPE_CHECKING:
     from . import Deliverables, UserSettings, Version
 
@@ -269,7 +271,15 @@ class ExportShotsThread(QtCore.QThread):
                         sequence_path = Path(
                             Path(
                                 delivery_sequence_template.apply_fields(
-                                    version_template_fields
+                                    {
+                                        **version_template_fields,
+                                        **compile_extra_template_fields(
+                                            delivery_sequence_template,
+                                            self.model.cache,
+                                            shot,
+                                            version,
+                                        ),
+                                    }
                                 )
                             )
                             .as_posix()
@@ -292,6 +302,12 @@ class ExportShotsThread(QtCore.QThread):
                             output_template_fields = {
                                 **version_template_fields,
                                 "delivery_preview_extension": output.extension,
+                                **compile_extra_template_fields(
+                                    delivery_preview_template,
+                                    self.model.cache,
+                                    shot,
+                                    version,
+                                ),
                             }
                             preview_path = Path(
                                 Path(
@@ -327,7 +343,17 @@ class ExportShotsThread(QtCore.QThread):
                             Path(
                                 self.model.app.get_template(
                                     "delivery_lut"
-                                ).apply_fields(version_template_fields)
+                                ).apply_fields(
+                                    {
+                                        **version_template_fields,
+                                        **compile_extra_template_fields(
+                                            delivery_sequence_template,
+                                            self.model.cache,
+                                            shot,
+                                            version,
+                                        ),
+                                    }
+                                )
                             )
                             .as_posix()
                             .replace(
