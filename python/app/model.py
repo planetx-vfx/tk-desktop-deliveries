@@ -49,7 +49,9 @@ from .models import (
     UserSettings,
     Version,
 )
+from .models.asset import Asset
 from .models.context import Context
+from .models.entity import EntityType
 from .models.errors import LicenseError
 from .models.footage_format import FootageFormat, FootageFormatType
 from .models.util import compile_extra_template_fields
@@ -68,6 +70,7 @@ class DeliveryModel:
 
     settings: Settings
     shots_to_deliver: None | list[Shot]
+    assets_to_deliver: None | list[Asset]
     base_template_fields: dict
     load_shots_thread: None | LoadShotsThread
     export_shots_thread: None | ExportShotsThread
@@ -168,7 +171,7 @@ class DeliveryModel:
 
         self.load_shots_thread.start()
 
-    def get_versions_to_deliver(self) -> list[Shot]:
+    def get_versions_to_deliver(self) -> list[Shot | Asset]:
         """Gets a list of shots with versions that are ready for delivery.
 
         Returns:
@@ -192,7 +195,11 @@ class DeliveryModel:
 
         versions_to_deliver = self.cache.find("Version", filters, True)
 
-        shot_ids = {version["entity"]["id"] for version in versions_to_deliver}
+        shot_ids = {
+            version["entity"]["id"]
+            for version in versions_to_deliver
+            if version["entity"]["type"] == "Shot"
+        }
         shots_to_deliver = []
 
         for shot_id in shot_ids:
@@ -211,7 +218,6 @@ class DeliveryModel:
         self.shots_to_deliver = self.get_shots_information_list(
             shots_to_deliver
         )
-
         self.shots_to_deliver = sorted(
             self.shots_to_deliver, key=lambda s: (s.sequence, s.code)
         )
@@ -220,7 +226,38 @@ class DeliveryModel:
         for shot in self.shots_to_deliver:
             self.logger.debug(json.dumps(shot.as_dict(), indent=4))
 
-        return self.shots_to_deliver
+        asset_ids = {
+            version["entity"]["id"]
+            for version in versions_to_deliver
+            if version["entity"]["type"] == "Asset"
+        }
+        assets_to_deliver = []
+
+        for asset_id in asset_ids:
+            sg_asset = self.cache.find_one(
+                "Asset",
+                [["id", "is", asset_id]],
+            )
+
+            sg_asset["versions"] = [
+                version
+                for version in versions_to_deliver
+                if version["entity"]["id"] == asset_id
+            ]
+            assets_to_deliver.append(sg_asset)
+
+        self.assets_to_deliver = self.get_assets_information_list(
+            assets_to_deliver
+        )
+        self.assets_to_deliver = sorted(
+            self.assets_to_deliver, key=lambda a: a.code
+        )
+
+        self.logger.debug("Found assets to deliver:")
+        for asset in self.assets_to_deliver:
+            self.logger.debug(json.dumps(asset.as_dict(), indent=4))
+
+        return self.shots_to_deliver + self.assets_to_deliver
 
     def get_version_published_file(self, version: dict) -> dict | None:
         """Gets the correct published files associates with this version.
@@ -360,7 +397,10 @@ class DeliveryModel:
 
                 published_file = self.get_version_published_file(sg_version)
                 sequence_path = ""
-                if published_file is not None:
+                if (
+                    published_file is not None
+                    and published_file["path"] is not None
+                ):
                     if sgtk.util.is_linux():
                         sequence_path = published_file["path"][
                             "local_path_linux"
@@ -432,13 +472,149 @@ class DeliveryModel:
 
         return shots_information_list
 
+    def get_assets_information_list(
+        self, assets_to_deliver: list[dict]
+    ) -> list[Asset]:
+        """This function takes a list of assets and adds all the extra
+        information we need for the rest of the program to function.
+
+        Args:
+            assets_to_deliver: List of assets to deliver
+
+        Returns:
+            List of asset information dicts
+        """
+        assets_information_list = []
+
+        sg_footage_formats = self.cache.find(
+            self.settings.footage_format_entity,
+            [["project", "is", self.context.project]],
+        )
+
+        footage_formats = [
+            FootageFormat.from_sg(
+                self.settings.footage_format_fields, sg_format
+            )
+            for sg_format in sg_footage_formats
+        ]
+
+        for sg_asset in assets_to_deliver:
+            asset_footage_formats = None
+            if (
+                self.settings.asset_footage_formats_field in sg_asset
+                and sg_asset[self.settings.asset_footage_formats_field]
+                is not None
+            ):
+                format_ids = [
+                    fformat["id"]
+                    for fformat in sg_asset[
+                        self.settings.asset_footage_formats_field
+                    ]
+                ]
+                asset_footage_formats = [
+                    fformat
+                    for fformat in footage_formats
+                    if fformat.id in format_ids
+                ]
+
+            asset = Asset(
+                code=sg_asset["code"],
+                id=sg_asset["id"],
+                description=sg_asset["description"],
+                vfx_scope_of_work=sg_asset.get(
+                    self.settings.vfx_scope_of_work_field, ""
+                ),
+                footage_formats=asset_footage_formats,
+            )
+
+            for sg_version in sg_asset["versions"]:
+                first_frame = sg_version["sg_first_frame"]
+                last_frame = sg_version["sg_last_frame"]
+
+                published_file = self.get_version_published_file(sg_version)
+                sequence_path = ""
+                if published_file is not None:
+                    if sgtk.util.is_linux():
+                        sequence_path = published_file["path"][
+                            "local_path_linux"
+                        ]
+                    elif sgtk.util.is_macos():
+                        sequence_path = published_file["path"][
+                            "local_path_mac"
+                        ]
+                    elif sgtk.util.is_windows():
+                        sequence_path = published_file["path"][
+                            "local_path_windows"
+                        ]
+
+                task = None
+                if sg_version["sg_task"] is not None:
+                    task = Task(
+                        sg_version["sg_task"]["id"],
+                        sg_version["sg_task"]["name"],
+                    )
+
+                # if (
+                #     sg_asset[self.settings.asset_status_field]
+                #     == self.settings.asset_delivery_status
+                # ):
+                #     deliver_preview = False
+                #     deliver_sequence = True
+                # else:
+                deliver_preview = True
+                deliver_sequence = False
+
+                version = Version(
+                    id=sg_version["id"],
+                    code=sg_version["code"],
+                    first_frame=first_frame,
+                    last_frame=last_frame,
+                    fps=sg_version["sg_uploaded_movie_frame_rate"],
+                    thumbnail=sg_version["image"],
+                    sequence_path=sequence_path,
+                    version_number=(
+                        published_file["version_number"]
+                        if published_file is not None
+                        else -1
+                    ),
+                    path_to_movie=sg_version["sg_path_to_movie"],
+                    frames_have_slate=sg_version["sg_frames_have_slate"],
+                    movie_has_slate=sg_version["sg_movie_has_slate"],
+                    submitting_for=sg_version.get(
+                        self.settings.submitting_for_field, ""
+                    ),
+                    submission_note=sg_version.get(
+                        self.settings.submission_note_field, ""
+                    ),
+                    submission_note_short=sg_version.get(
+                        self.settings.short_submission_note_field, ""
+                    ),
+                    attachment=sg_version.get(
+                        self.settings.attachment_field, ""
+                    ),
+                    task=task,
+                    deliver_preview=deliver_preview,
+                    deliver_sequence=deliver_sequence,
+                    sequence_output_status=sg_version.get(
+                        self.settings.delivery_sequence_outputs_field, ""
+                    ),
+                )
+                asset.add_version(version)
+
+            assets_information_list.append(asset)
+
+        return assets_information_list
+
     def get_version_template_fields(
-        self, shot: Shot, version: Version, delivery_version: int | None = None
+        self,
+        entity: Shot | Asset,
+        version: Version,
+        delivery_version: int | None = None,
     ) -> dict:
         """
         Get the template fields for a specific version
         Args:
-            shot (Shot): Shot
+            entity (Shot | Asset): Shot or Asset
             version (Version): Version
             delivery_version (int | None): Delivery version
 
@@ -447,13 +623,20 @@ class DeliveryModel:
         """
         template_fields = {
             **self.base_template_fields,
-            "Sequence": shot.sequence,
-            "Shot": shot.code,
             "version": version.version_number,
             "width": 0,
             "height": 0,
             "aspect_ratio": "1",
         }
+        if entity.type == EntityType.SHOT:
+            template_fields["Sequence"] = entity.sequence
+            template_fields["Shot"] = entity.code
+
+            if entity.episode is not None:
+                template_fields["Episode"] = entity.episode
+
+        elif entity.type == EntityType.ASSET:
+            template_fields["Asset"] = entity.code
 
         if delivery_version is not None:
             template_fields["delivery_version"] = delivery_version
@@ -461,14 +644,11 @@ class DeliveryModel:
         if version.task is not None:
             template_fields["task_name"] = version.task.name
 
-        if shot.episode is not None:
-            template_fields["Episode"] = shot.episode
-
-        if shot.footage_formats is not None:
+        if entity.footage_formats is not None:
             input_format = next(
                 (
                     fformat
-                    for fformat in shot.footage_formats
+                    for fformat in entity.footage_formats
                     if fformat.footage_type is FootageFormatType.INPUT_ONLINE
                 ),
                 None,
@@ -476,7 +656,7 @@ class DeliveryModel:
             output_format = next(
                 (
                     fformat
-                    for fformat in shot.footage_formats
+                    for fformat in entity.footage_formats
                     if fformat.footage_type is FootageFormatType.OUTPUT_PREVIEW
                 ),
                 None,
@@ -566,7 +746,7 @@ class DeliveryModel:
             return entities[0]
         return entities
 
-    def validate_all_shots(
+    def validate_all_versions(
         self,
         show_validation_error: Callable[[Version], None],
         show_validation_message: Callable[[Version], None],
@@ -583,14 +763,20 @@ class DeliveryModel:
         Raises:
             ValidationError: Error when validation fails.
         """
-        self.logger.info("Starting validation of shots.")
+        self.logger.info("Starting validation of versions.")
 
         success = True
-        for shot in self.shots_to_deliver:
-            self.logger.info(
-                "Validating sequence %s, shot %s.", shot.sequence, shot.code
-            )
-            for version in shot.get_versions():
+        for entity in self.shots_to_deliver + self.assets_to_deliver:
+            if entity.type == EntityType.SHOT:
+                self.logger.info(
+                    "Validating sequence %s, shot %s.",
+                    entity.sequence,
+                    entity.code,
+                )
+            else:
+                self.logger.info("Validating asset %s.", entity.code)
+
+            for version in entity.get_versions():
                 errors = []
                 errors.extend(self.validate_fields(version))
 
@@ -610,13 +796,21 @@ class DeliveryModel:
                     show_validation_message(version)
                 else:
                     success = False
-                    self.logger.error(
-                        'Version "%s" (%s) of shot %s %s had the following errors:',
-                        version.code,
-                        version.id,
-                        shot.sequence,
-                        shot.code,
-                    )
+                    if entity.type == EntityType.SHOT:
+                        self.logger.error(
+                            'Version "%s" (%s) of shot %s %s had the following errors:',
+                            version.code,
+                            version.id,
+                            entity.sequence,
+                            entity.code,
+                        )
+                    else:
+                        self.logger.error(
+                            'Version "%s" (%s) of asset %s had the following errors:',
+                            version.code,
+                            version.id,
+                            entity.code,
+                        )
                     for error in errors:
                         self.logger.error("- %s", error)
 
@@ -714,7 +908,7 @@ class DeliveryModel:
 
     def deliver_version(
         self,
-        shot: Shot,
+        entity: Shot | Asset,
         version: Version,
         delivery_version: int,
         deliverables: Deliverables,
@@ -726,7 +920,7 @@ class DeliveryModel:
         """Copies the shot to the right folder with the right naming conventions.
 
         Args:
-            shot: Shot information
+            entity: Shot information
             version: Version information
             delivery_version: Version of the whole delivery
             deliverables: Deliverables object
@@ -749,18 +943,36 @@ class DeliveryModel:
             return
 
         try:
-            input_sequence_template = self.app.get_template("input_sequence")
             delivery_folder_template = self.app.get_template("delivery_folder")
-            preview_movie_template = self.app.get_template("preview_movie")
-            delivery_sequence_template = self.app.get_template(
-                "delivery_sequence"
-            )
-            delivery_preview_template = self.app.get_template(
-                "delivery_preview"
-            )
+            if entity.type == EntityType.SHOT:
+                input_sequence_template = self.app.get_template(
+                    "input_shot_sequence"
+                )
+                preview_movie_template = self.app.get_template(
+                    "input_shot_preview"
+                )
+                delivery_sequence_template = self.app.get_template(
+                    "delivery_shot_sequence"
+                )
+                delivery_preview_template = self.app.get_template(
+                    "delivery_shot_preview"
+                )
+            else:
+                input_sequence_template = self.app.get_template(
+                    "input_asset_sequence"
+                )
+                preview_movie_template = self.app.get_template(
+                    "input_asset_preview"
+                )
+                delivery_sequence_template = self.app.get_template(
+                    "delivery_asset_sequence"
+                )
+                delivery_preview_template = self.app.get_template(
+                    "delivery_asset_preview"
+                )
 
             template_fields = self.get_version_template_fields(
-                shot, version, delivery_version
+                entity, version, delivery_version
             )
 
             # Extract fields from preview path
@@ -828,13 +1040,14 @@ class DeliveryModel:
                     preview_template_fields = {
                         **template_fields,
                         "delivery_preview_extension": output.extension,
-                        **compile_extra_template_fields(
-                            delivery_preview_template,
-                            self.cache,
-                            shot,
-                            version,
-                        ),
                     }
+                    preview_template_fields = compile_extra_template_fields(
+                        delivery_preview_template,
+                        self.cache,
+                        entity,
+                        version,
+                        preview_template_fields,
+                    )
 
                     # Get the output preview path
                     output_preview_path = Path(
@@ -856,7 +1069,7 @@ class DeliveryModel:
                         version.id,
                     )
                     self._deliver_preview(
-                        shot,
+                        entity,
                         version,
                         output,
                         user_settings,
@@ -871,15 +1084,13 @@ class DeliveryModel:
                     current_job += 1
 
             if deliverables.deliver_sequence:
-                sequence_template_fields = {
-                    **template_fields,
-                    **compile_extra_template_fields(
-                        delivery_preview_template,
-                        self.cache,
-                        shot,
-                        version,
-                    ),
-                }
+                sequence_template_fields = compile_extra_template_fields(
+                    delivery_preview_template,
+                    self.cache,
+                    entity,
+                    version,
+                    template_fields,
+                )
 
                 # Get the output frame delivery path
                 delivery_sequence_path = Path(
@@ -897,7 +1108,7 @@ class DeliveryModel:
                     )
 
                 self._deliver_sequence(
-                    shot,
+                    entity,
                     version,
                     delivery_sequence_path,
                     show_validation_error,
@@ -909,9 +1120,10 @@ class DeliveryModel:
             self._deliver_attachment(version, user_settings, delivery_folder)
 
             # Deliver lut
-            self._deliver_lut(
-                delivery_folder, delivery_folder_org, template_fields
-            )
+            if entity.type == EntityType.SHOT:
+                self._deliver_lut(
+                    delivery_folder, delivery_folder_org, template_fields
+                )
 
             # TODO add dev switch
             # Update version data
@@ -931,13 +1143,16 @@ class DeliveryModel:
             )
 
             # Update shot data
-            if deliverables.deliver_sequence:
+            if (
+                deliverables.deliver_sequence
+                and entity.type == EntityType.SHOT
+            ):
                 shot_data = {
                     self.settings.shot_status_field: (
                         self.settings.shot_delivered_status
                     )
                 }
-                self.shotgrid_connection.update("Shot", shot.id, shot_data)
+                self.shotgrid_connection.update("Shot", entity.id, shot_data)
 
             version.validation_message = "Export finished!"
             show_validation_message(version)
@@ -1217,16 +1432,16 @@ class DeliveryModel:
         template_fields: dict,
     ):
         if (
-            self.app.get_template("input_lut") is not None
-            and self.app.get_template("delivery_lut") is not None
+            self.app.get_template("input_shot_lut") is not None
+            and self.app.get_template("delivery_shot_lut") is not None
         ):
             input_lut = Path(
-                self.app.get_template("input_lut").apply_fields(
+                self.app.get_template("input_shot_lut").apply_fields(
                     template_fields
                 )
             )
             delivery_lut: str = self.app.get_template(
-                "delivery_lut"
+                "delivery_shot_lut"
             ).apply_fields(template_fields)
 
             if input_lut.is_file():
@@ -1268,23 +1483,26 @@ class DeliveryModel:
         )
         self.export_shots_thread.start()
 
-    def _get_slate_data(self, version, shot, preview=True):
+    def _get_slate_data(self, version, entity, preview=True):
         """
         Compile the slate data object
 
         Args:
             version (Version): Version to use
-            shot (Shot): Shot to use
+            entity (Shot | Asset): Shot or Asset to use
         """
         episode = ""
         scene = ""
-        if shot.episode is not None:
-            episode = shot.episode
-            scene = ""
-        elif "_" in shot.sequence:
-            episode, scene = shot.sequence.split("_")
+        sequence = ""
+        if entity.type == EntityType.SHOT:
+            sequence = entity.sequence or ""
+            if entity.episode is not None:
+                episode = entity.episode
+                scene = ""
+            elif "_" in entity.sequence:
+                episode, scene = entity.sequence.split("_")
 
-        template_fields = self.get_version_template_fields(shot, version)
+        template_fields = self.get_version_template_fields(entity, version)
         if not preview:
             template_fields = {
                 **template_fields,
@@ -1299,7 +1517,7 @@ class DeliveryModel:
                 ),
             }
 
-        context = Context(self.cache, shot, version)
+        context = Context(self.cache, entity, version)
         optional_fields = self.settings.get_slate_extra_fields(
             template_fields, context
         )
@@ -1309,13 +1527,13 @@ class DeliveryModel:
             "submission_note": version.submission_note or "",
             "submission_note_short": version.submission_note_short or "",
             "submitting_for": version.submitting_for or "",
-            "shot_name": shot.code,
+            "shot_name": entity.code,
             "shot_types": version.task.name,
-            "vfx_scope_of_work": shot.vfx_scope_of_work or "",
+            "vfx_scope_of_work": entity.vfx_scope_of_work or "",
             "show": self.get_project()["name"],
             "episode": episode,
             "scene": scene,
-            "sequence_name": shot.sequence or "",
+            "sequence_name": sequence,
             "vendor": self.base_template_fields["vnd"],
             "input_has_slate": version.movie_has_slate,
             "optional_fields": optional_fields,
