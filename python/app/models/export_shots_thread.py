@@ -289,6 +289,14 @@ class ExportShotsThread(QtCore.QThread):
                         )
                     )
 
+                    version_template_fields = compile_extra_template_fields(
+                        delivery_sequence_template,
+                        self.model.cache,
+                        entity,
+                        version,
+                        version_template_fields,
+                    )
+
                     deliverables = self.get_deliverables(version)
 
                     to_deliver = []
@@ -296,15 +304,7 @@ class ExportShotsThread(QtCore.QThread):
                         sequence_path = Path(
                             Path(
                                 delivery_sequence_template.apply_fields(
-                                    {
-                                        **version_template_fields,
-                                        **compile_extra_template_fields(
-                                            delivery_sequence_template,
-                                            self.model.cache,
-                                            shot,
-                                            version,
-                                        ),
-                                    }
+                                    version_template_fields
                                 )
                             )
                             .as_posix()
@@ -327,12 +327,6 @@ class ExportShotsThread(QtCore.QThread):
                             output_template_fields = {
                                 **version_template_fields,
                                 "delivery_preview_extension": output.extension,
-                                **compile_extra_template_fields(
-                                    delivery_preview_template,
-                                    self.model.cache,
-                                    shot,
-                                    version,
-                                ),
                             }
                             preview_path = Path(
                                 Path(
@@ -368,18 +362,8 @@ class ExportShotsThread(QtCore.QThread):
                         delivery_lut = Path(
                             Path(
                                 self.model.app.get_template(
-                                ).apply_fields(
-                                    {
-                                        **version_template_fields,
-                                        **compile_extra_template_fields(
-                                            delivery_sequence_template,
-                                            self.model.cache,
-                                            shot,
-                                            version,
-                                        ),
-                                    }
-                                )
                                     "delivery_shot_lut"
+                                ).apply_fields(version_template_fields)
                             )
                             .as_posix()
                             .replace(

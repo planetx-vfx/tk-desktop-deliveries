@@ -1040,13 +1040,14 @@ class DeliveryModel:
                     preview_template_fields = {
                         **template_fields,
                         "delivery_preview_extension": output.extension,
-                        **compile_extra_template_fields(
-                            delivery_preview_template,
-                            self.cache,
-                            shot,
-                            version,
-                        ),
                     }
+                    preview_template_fields = compile_extra_template_fields(
+                        delivery_preview_template,
+                        self.cache,
+                        entity,
+                        version,
+                        preview_template_fields,
+                    )
 
                     # Get the output preview path
                     output_preview_path = Path(
@@ -1083,15 +1084,13 @@ class DeliveryModel:
                     current_job += 1
 
             if deliverables.deliver_sequence:
-                sequence_template_fields = {
-                    **template_fields,
-                    **compile_extra_template_fields(
-                        delivery_preview_template,
-                        self.cache,
-                        shot,
-                        version,
-                    ),
-                }
+                sequence_template_fields = compile_extra_template_fields(
+                    delivery_preview_template,
+                    self.cache,
+                    entity,
+                    version,
+                    template_fields,
+                )
 
                 # Get the output frame delivery path
                 delivery_sequence_path = Path(
