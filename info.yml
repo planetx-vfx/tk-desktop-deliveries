@@ -22,42 +22,56 @@
 
 configuration:
   # --- TEMPLATES ---
-  preview_movie:
+  input_shot_preview:
     type: template
     fields: context, *
-    description: "Template of the preview files."
-
-  input_sequence:
+    description: "Template of the shot preview files."
+  input_shot_sequence:
     type: template
     fields: context, version, SEQ, *
-    description: "Template to deliver the sequences from."
-
-  input_lut:
+    description: "Template to deliver the shot sequences from."
+  input_shot_lut:
     type: template
     fields: context, *
     allows_empty: True
-    description: "Template of the LUT files."
+    description: "Template of the shot LUT files."
+    
+  input_asset_preview:
+    type: template
+    fields: context, *
+    description: "Template of the asset preview files."
+  input_asset_sequence:
+    type: template
+    fields: context, version, SEQ, *
+    description: "Template to deliver the asset sequences from."
 
   delivery_folder:
     type: template
     fields: prj, delivery_date, delivery_version
     description: "Folder to deliver to."
 
-  delivery_sequence:
+  delivery_shot_sequence:
     type: template
     fields: context, prj, delivery_date, delivery_version, task_name, version, SEQ, *
-    description: "Template to deliver the sequences to."
-
-  delivery_preview:
+    description: "Template to deliver the shot sequences to."
+  delivery_shot_preview:
     type: template
     fields: context, prj, delivery_date, delivery_version, task_name, version, delivery_preview_extension, *
-    description: "Template to deliver the previews to."
-
-  delivery_lut:
+    description: "Template to deliver the shot previews to."
+  delivery_shot_lut:
     type: template
     fields: context, prj, delivery_date, delivery_version, task_name, version, *
     allows_empty: True
-    description: "Template to deliver the LUT files to."
+    description: "Template to deliver the shot LUT files to."
+
+  delivery_asset_sequence:
+    type: template
+    fields: context, prj, delivery_date, delivery_version, task_name, version, SEQ, *
+    description: "Template to deliver the asset sequences to."
+  delivery_asset_preview:
+    type: template
+    fields: context, prj, delivery_date, delivery_version, task_name, version, delivery_preview_extension, *
+    description: "Template to deliver the asset previews to."
 
   csv_submission_form:
     type: template

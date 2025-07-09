@@ -8,10 +8,13 @@ from typing import TYPE_CHECKING, Callable
 
 from sgtk.platform.qt5 import QtCore
 
+from .entity import EntityType
 from .util import compile_extra_template_fields
 
 if TYPE_CHECKING:
     from . import Deliverables, UserSettings, Version
+    from .asset import Asset
+    from .shot import Shot
 
 from .context import Context, FileContext
 
@@ -69,12 +72,6 @@ class ExportShotsThread(QtCore.QThread):
 
         delivery_folder_template = self.model.app.get_template(
             "delivery_folder"
-        )
-        delivery_sequence_template = self.model.app.get_template(
-            "delivery_sequence"
-        )
-        delivery_preview_template = self.model.app.get_template(
-            "delivery_preview"
         )
 
         csv_episode_data = {}
@@ -183,8 +180,6 @@ class ExportShotsThread(QtCore.QThread):
                 episode,
                 csv_episode_data[episode]["delivery_folder"],
                 csv_episode_data[episode]["template_fields"],
-                delivery_sequence_template,
-                delivery_preview_template,
             )
 
         self.finish_export_versions()
@@ -207,8 +202,6 @@ class ExportShotsThread(QtCore.QThread):
         episode: str | None,
         delivery_folder: Path,
         template_fields: dict,
-        delivery_sequence_template,
-        delivery_preview_template,
     ):
         """
         Create the CSV file.
@@ -272,7 +265,22 @@ class ExportShotsThread(QtCore.QThread):
                 ):
                     continue
 
-                for version in shot.get_versions():
+                if entity.type == EntityType.SHOT:
+                    delivery_sequence_template = self.model.app.get_template(
+                        "delivery_shot_sequence"
+                    )
+                    delivery_preview_template = self.model.app.get_template(
+                        "delivery_shot_preview"
+                    )
+                else:
+                    delivery_sequence_template = self.model.app.get_template(
+                        "delivery_asset_sequence"
+                    )
+                    delivery_preview_template = self.model.app.get_template(
+                        "delivery_asset_preview"
+                    )
+
+                for version in entity.get_versions():
                     version_template_fields = (
                         self.model.get_version_template_fields(
                             entity,
@@ -352,15 +360,14 @@ class ExportShotsThread(QtCore.QThread):
                             deliverables.deliver_sequence
                             or deliverables.deliver_preview
                         )
-                        and self.model.app.get_template("input_lut")
+                        and self.model.app.get_template("input_shot_lut")
                         is not None
-                        and self.model.app.get_template("delivery_lut")
+                        and self.model.app.get_template("delivery_shot_lut")
                         is not None
                     ):
                         delivery_lut = Path(
                             Path(
                                 self.model.app.get_template(
-                                    "delivery_lut"
                                 ).apply_fields(
                                     {
                                         **version_template_fields,
@@ -372,6 +379,7 @@ class ExportShotsThread(QtCore.QThread):
                                         ),
                                     }
                                 )
+                                    "delivery_shot_lut"
                             )
                             .as_posix()
                             .replace(

@@ -218,7 +218,6 @@ class DeliveryModel:
         self.shots_to_deliver = self.get_shots_information_list(
             shots_to_deliver
         )
-
         self.shots_to_deliver = sorted(
             self.shots_to_deliver, key=lambda s: (s.sequence, s.code)
         )
@@ -944,15 +943,33 @@ class DeliveryModel:
             return
 
         try:
-            input_sequence_template = self.app.get_template("input_sequence")
             delivery_folder_template = self.app.get_template("delivery_folder")
-            preview_movie_template = self.app.get_template("preview_movie")
-            delivery_sequence_template = self.app.get_template(
-                "delivery_sequence"
-            )
-            delivery_preview_template = self.app.get_template(
-                "delivery_preview"
-            )
+            if entity.type == EntityType.SHOT:
+                input_sequence_template = self.app.get_template(
+                    "input_shot_sequence"
+                )
+                preview_movie_template = self.app.get_template(
+                    "input_shot_preview"
+                )
+                delivery_sequence_template = self.app.get_template(
+                    "delivery_shot_sequence"
+                )
+                delivery_preview_template = self.app.get_template(
+                    "delivery_shot_preview"
+                )
+            else:
+                input_sequence_template = self.app.get_template(
+                    "input_asset_sequence"
+                )
+                preview_movie_template = self.app.get_template(
+                    "input_asset_preview"
+                )
+                delivery_sequence_template = self.app.get_template(
+                    "delivery_asset_sequence"
+                )
+                delivery_preview_template = self.app.get_template(
+                    "delivery_asset_preview"
+                )
 
             template_fields = self.get_version_template_fields(
                 entity, version, delivery_version
@@ -1416,16 +1433,16 @@ class DeliveryModel:
         template_fields: dict,
     ):
         if (
-            self.app.get_template("input_lut") is not None
-            and self.app.get_template("delivery_lut") is not None
+            self.app.get_template("input_shot_lut") is not None
+            and self.app.get_template("delivery_shot_lut") is not None
         ):
             input_lut = Path(
-                self.app.get_template("input_lut").apply_fields(
+                self.app.get_template("input_shot_lut").apply_fields(
                     template_fields
                 )
             )
             delivery_lut: str = self.app.get_template(
-                "delivery_lut"
+                "delivery_shot_lut"
             ).apply_fields(template_fields)
 
             if input_lut.is_file():
