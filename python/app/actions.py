@@ -174,7 +174,6 @@ class DeliveryActions:
     # --- CSV ---
     def on_csv_change(self):
         csv_fields = []
-        csv_success = True
         if self.view.settings["csv_fields"].size() > 0:
             for item in self.view.settings["csv_fields"].items:
                 key, value = item.get_content()
@@ -186,17 +185,15 @@ class DeliveryActions:
                     csv_fields.append((key, template))
                 except:
                     item.fail_validation()
-                    csv_success = False
                     self.parent.logger.error(
                         "CSV field for %s is not a valid template: %s",
                         key,
                         value,
                     )
+                    template = FieldTemplateString("-", self.parent.cache)
+                    csv_fields.append((key, template))
 
-        if csv_success:
-            self.settings.user_settings.csv_fields = csv_fields
-        else:
-            self.settings.user_settings.csv_fields = []
+        self.settings.user_settings.csv_fields = csv_fields
 
     def add_csv_entry(self):
         """Add an entry to the CSV list."""

@@ -90,9 +90,11 @@ class FieldTemplateString:
                         if self.cache is not None:
                             entity_name = entity[0].upper() + entity[1:]
                             field_base = field_name.split(".")[0]
-                            if field_base not in self.cache.fields.get(
-                                entity_name, []
-                            ):
+                            if field_base not in [
+                                *self.cache.fields.get(entity_name, []),
+                                "code",
+                                "description",
+                            ]:
                                 logger.debug(
                                     '  Field "%s" could not be found in "%s".',
                                     field_name,
@@ -325,7 +327,7 @@ class FieldTemplateString:
                                 entity,
                                 sg_data[entity]["id"],
                             )
-                            field_value = "undefined"
+                            field_value = ""
                         else:
                             field_value = value
                     except:

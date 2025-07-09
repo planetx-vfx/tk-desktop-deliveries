@@ -341,17 +341,21 @@ quickly.
 
 ### Templates
 
-| Name                  | Description                                 | Default value | Fields                                                                                           |
-|-----------------------|---------------------------------------------|---------------|--------------------------------------------------------------------------------------------------|
-| `preview_movie`       | Template of the preview files.              |               | context, *                                                                                       |
-| `input_sequence`      | Template to deliver the sequences from.     |               | context, version, SEQ, *                                                                         |
-| `input_lut`           | Template of the LUT files.                  |               | context, *                                                                                       |
-| `delivery_folder`     | Folder to deliver to.                       |               | prj, delivery_date, delivery_version                                                             |
-| `delivery_sequence`   | Template to deliver the sequences to.       |               | context, prj, delivery_date, delivery_version, task_name, version, SEQ, *                        |
-| `delivery_preview`    | Template to deliver the previews to.        |               | context, prj, delivery_date, delivery_version, task_name, version, delivery_preview_extension, * |
-| `delivery_lut`        | Template to deliver the LUT files to.       |               | context, prj, delivery_date, delivery_version, task_name, version, *                             |
-| `csv_submission_form` | Template to deliver the submission form to. |               | prj, delivery_date, delivery_version                                                             |
-| `csv_template_folder` | Folder to saves CSV templates.              |               | context, *                                                                                       |
+| Name                      | Description                                   | Default value | Fields                                                                                           |
+|---------------------------|-----------------------------------------------|---------------|--------------------------------------------------------------------------------------------------|
+| `input_shot_preview`      | Template of the shot preview files.           |               | context, *                                                                                       |
+| `input_shot_sequence`     | Template to deliver the shot sequences from.  |               | context, version, SEQ, *                                                                         |
+| `input_shot_lut`          | Template of the shot LUT files.               |               | context, *                                                                                       |
+| `input_asset_preview`     | Template of the asset preview files.          |               | context, *                                                                                       |
+| `input_asset_sequence`    | Template to deliver the asset sequences from. |               | context, version, SEQ, *                                                                         |
+| `delivery_folder`         | Folder to deliver to.                         |               | prj, delivery_date, delivery_version                                                             |
+| `delivery_shot_sequence`  | Template to deliver the shot sequences to.    |               | context, prj, delivery_date, delivery_version, task_name, version, SEQ, *                        |
+| `delivery_shot_preview`   | Template to deliver the shot previews to.     |               | context, prj, delivery_date, delivery_version, task_name, version, delivery_preview_extension, * |
+| `delivery_shot_lut`       | Template to deliver the shot LUT files to.    |               | context, prj, delivery_date, delivery_version, task_name, version, *                             |
+| `delivery_asset_sequence` | Template to deliver the asset sequences to.   |               | context, prj, delivery_date, delivery_version, task_name, version, SEQ, *                        |
+| `delivery_asset_preview`  | Template to deliver the asset previews to.    |               | context, prj, delivery_date, delivery_version, task_name, version, delivery_preview_extension, * |
+| `csv_submission_form`     | Template to deliver the submission form to.   |               | prj, delivery_date, delivery_version                                                             |
+| `csv_template_folder`     | Folder to saves CSV templates.                |               | context, *                                                                                       |
 
 
 ### Lists
@@ -393,7 +397,8 @@ quickly.
 | `preview_colorspace_odt`           | Output colorspace of the preview.                                                          | Output - sRGB            |
 | `sequence_colorspace`              | Colorspace of the sequence.                                                                | ACES - ACES2065-1        |
 | `footage_format_entity`            | Entity that contains the footage formats.                                                  |                          |
-| `shot_footage_formats_field`       | Field that links to the used footage formats.                                              | sg_footage_formats       |
+| `shot_footage_formats_field`       | Field that links to the used footage formats on an Shot.                                   | sg_footage_formats       |
+| `asset_footage_formats_field`      | Field that links to the used footage formats on an Asset.                                  | sg_footage_formats       |
 | `logo_path_linux`                  | Linux path to the company logo.                                                            |                          |
 | `logo_path_mac`                    | Mac path to the company logo.                                                              |                          |
 | `logo_path_windows`                | Windows path to the company logo.                                                          |                          |
