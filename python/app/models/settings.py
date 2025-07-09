@@ -56,6 +56,7 @@ class Settings:
     footage_format_fields: dict
     footage_format_entity: str
     shot_footage_formats_field: str
+    asset_footage_formats_field: str
 
     def __init__(self, app):
         self._app = app
@@ -148,6 +149,7 @@ class Settings:
             "footage_format_fields",
             "footage_format_entity",
             "shot_footage_formats_field",
+            "asset_footage_formats_field",
         ]:
             setattr(self, setting, self._app.get_setting(setting))
 

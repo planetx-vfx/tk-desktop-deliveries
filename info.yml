@@ -244,7 +244,13 @@ configuration:
     type: str
     default_value: "sg_footage_formats"
     allows_empty: True
-    description: Field that links to the used footage formats.
+    description: Field that links to the used footage formats on an Shot.
+
+  asset_footage_formats_field:
+    type: str
+    default_value: "sg_footage_formats"
+    allows_empty: True
+    description: Field that links to the used footage formats on an Asset.
 
   # --- BOOLEANS ---
   add_slate_to_sequence:
