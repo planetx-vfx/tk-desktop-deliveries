@@ -367,7 +367,7 @@ class DeliveryController(QtWidgets.QWidget):
         # Close settings
         self.view.settings_widget.setCollapsed(True)
 
-        if not self.model.validate_all_shots(
+        if not self.model.validate_all_versions(
             self.show_validation_error, self.show_validation_message
         ):
             return
@@ -392,7 +392,7 @@ class DeliveryController(QtWidgets.QWidget):
         self.view.progress_bar.show()
         self.view.progress_bar.setValue(0)
 
-        for shot in self.model.shots_to_deliver:
+        for shot in self.model.shots_to_deliver + self.model.assets_to_deliver:
             for version in shot.get_versions():
                 deliverables = self.get_deliverables(version)
 

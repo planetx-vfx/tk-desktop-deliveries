@@ -47,9 +47,11 @@ class ExportShotsThread(QtCore.QThread):
 
     def run(self):
         version_deliverables = {}
-        episodes = []
-        for shot in self.model.shots_to_deliver:
-            for version in shot.get_versions():
+        episodes = [None]
+        for entity in (
+            self.model.shots_to_deliver + self.model.assets_to_deliver
+        ):
+            for version in entity.get_versions():
                 deliverables = self.get_deliverables(version)
 
                 if (
@@ -57,8 +59,11 @@ class ExportShotsThread(QtCore.QThread):
                     or deliverables.deliver_sequence
                 ):
                     version_deliverables[version.id] = deliverables
-                    if shot.episode not in episodes:
-                        episodes.append(shot.episode)
+                    if (
+                        entity.type == EntityType.SHOT
+                        and entity.episode not in episodes
+                    ):
+                        episodes.append(entity.episode)
 
         episode_delivery_versions = {}
 
@@ -149,13 +154,21 @@ class ExportShotsThread(QtCore.QThread):
                 "template_fields": template_fields,
             }
 
-        for shot in self.model.shots_to_deliver:
-            for version in shot.get_versions():
+        for entity in (
+            self.model.shots_to_deliver + self.model.assets_to_deliver
+        ):
+            for version in entity.get_versions():
                 if version.id in version_deliverables:
+                    delivery_version = episode_delivery_versions.get(None)
+                    if entity.type == EntityType.SHOT:
+                        delivery_version = episode_delivery_versions[
+                            entity.episode
+                        ]
+
                     self.model.deliver_version(
-                        shot,
+                        entity,
                         version,
-                        episode_delivery_versions[shot.episode],
+                        delivery_version,
                         version_deliverables[version.id],
                         self.user_settings,
                         self.show_validation_error,
@@ -166,7 +179,7 @@ class ExportShotsThread(QtCore.QThread):
         for episode in episodes:
             # Create csv
             self.create_csv(
-                self.model.shots_to_deliver,
+                (self.model.shots_to_deliver + self.model.assets_to_deliver),
                 episode,
                 csv_episode_data[episode]["delivery_folder"],
                 csv_episode_data[episode]["template_fields"],
@@ -190,7 +203,7 @@ class ExportShotsThread(QtCore.QThread):
 
     def create_csv(
         self,
-        validated_shots: list,
+        validated_entities: list[Shot | Asset],
         episode: str | None,
         delivery_folder: Path,
         template_fields: dict,
@@ -240,6 +253,7 @@ class ExportShotsThread(QtCore.QThread):
             writer = csv.writer(file)
             header = [key for key, template in self.user_settings.csv_fields]
 
+            self.model.logger.debug("Header: %s", header)
             writer.writerow(header)
 
             for existing_row in existing_rows:
@@ -251,14 +265,17 @@ class ExportShotsThread(QtCore.QThread):
                         row.append("")
                 writer.writerow(row)
 
-            for shot in validated_shots:
-                if shot.episode != episode:
+            for entity in validated_entities:
+                if (
+                    entity.type == EntityType.SHOT
+                    and entity.episode != episode
+                ):
                     continue
 
                 for version in shot.get_versions():
                     version_template_fields = (
                         self.model.get_version_template_fields(
-                            shot,
+                            entity,
                             version,
                             template_fields["delivery_version"],
                         )
@@ -330,7 +347,8 @@ class ExportShotsThread(QtCore.QThread):
                             )
 
                     if (
-                        (
+                        entity.type == EntityType.SHOT
+                        and (
                             deliverables.deliver_sequence
                             or deliverables.deliver_preview
                         )
@@ -390,7 +408,7 @@ class ExportShotsThread(QtCore.QThread):
 
                         for _key, template in self.user_settings.csv_fields:
                             context = Context(
-                                shot=shot,
+                                shot=entity,
                                 version=version,
                                 file=FileContext(
                                     file_path=file_path,
@@ -403,7 +421,7 @@ class ExportShotsThread(QtCore.QThread):
                             try:
                                 self.model.logger.debug(
                                     "Shot %s, Version %s, File %s",
-                                    shot.id,
+                                    entity.id,
                                     version.id,
                                     file_path.name,
                                 )

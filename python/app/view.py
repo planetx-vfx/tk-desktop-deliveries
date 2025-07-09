@@ -25,14 +25,21 @@
 View for delivery tool, written by Mervin van Brakel 2024.
 Updated by Max de Groot 2024.
 """
+from __future__ import annotations
 
 import urllib.request
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from sgtk.platform.qt5 import QtCore, QtSvg, QtWidgets, QtGui
+from sgtk.platform.qt5 import QtCore, QtGui, QtSvg, QtWidgets
 
-from .models import Shot, Version
+from .models.entity import EntityType
 from .widgets import Collapse, OrderedList
+
+if TYPE_CHECKING:
+    from .models.asset import Asset
+    from .models.shot import Shot
+    from .models.version import Version
 
 # # For development only
 # try:
@@ -414,13 +421,13 @@ class DeliveryView:
         return self.loading_widget
 
     def get_version_widget(
-        self, shot: Shot, version: Version
+        self, entity: Shot | Asset, version: Version
     ) -> QtWidgets.QWidget:
         """Gets the shot widget for the layout. It also stores this
         widget in the reference list so we can update its UI later.
 
         Args:
-            shot: Shot information dictionary
+            entity: Shot or Asset information dictionary
 
         Returns:
             Widget for shot information.
@@ -455,8 +462,17 @@ class DeliveryView:
             shot_widget_main_layout.addSpacing(128)
 
         shot_name_label = QtWidgets.QLabel(
-            f"Sequence {shot.sequence} - Shot {shot.code} - Version {version.version_number}"
+            f"{entity.code} - Version {version.version_number}"
         )
+        if entity.type == EntityType.SHOT:
+            shot_name_label.setText(
+                f"Sequence {entity.sequence} - Shot {entity.code} - Version {version.version_number}"
+            )
+        elif entity.type == EntityType.ASSET:
+            shot_name_label.setText(
+                f"Asset {entity.code} - Version {version.version_number}"
+            )
+
         shot_name_label.setStyleSheet("font: bold; font-size: 14px")
         shot_widget_vertical_layout.addWidget(shot_name_label)
 
