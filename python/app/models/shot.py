@@ -34,7 +34,7 @@ class Shot(Entity):
         episode: str | None = None,
         footage_formats: list[FootageFormat] | None = None,
     ):
-        super().__init__(EntityType.ASSET)
+        super().__init__(EntityType.SHOT)
         self.episode = episode
         self.sequence = sequence
         self.code = code
