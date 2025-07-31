@@ -126,6 +126,23 @@ class ExportShotsThread(QtCore.QThread):
                     self.user_settings.delivery_version
                 )
 
+            # Store delivery version
+            episode_delivery_versions[episode] = template_fields[
+                "delivery_version"
+            ]
+
+            csv_episode_data[episode] = {
+                "template_fields": template_fields,
+            }
+
+        episode_folders = "Episode" in delivery_folder_template.keys
+
+        for episode in episodes if episode_folders else [None]:
+            template_fields = {
+                **self.model.base_template_fields,
+                "Episode": episode,
+            }
+
             # Create delivery folder
             delivery_folder = Path(
                 delivery_folder_template.apply_fields(template_fields)
@@ -141,15 +158,13 @@ class ExportShotsThread(QtCore.QThread):
             )
             delivery_folder.mkdir(parents=True, exist_ok=True)
 
-            # Store delivery version
-            episode_delivery_versions[episode] = template_fields[
-                "delivery_version"
-            ]
-
-            csv_episode_data[episode] = {
-                "delivery_folder": delivery_folder,
-                "template_fields": template_fields,
-            }
+            # If delivering for episodes, use the created folder
+            if episode_folders:
+                csv_episode_data[episode]["delivery_folder"] = delivery_folder
+            else:
+                # Make sure every episode has a delivery folder
+                for ep in episodes:
+                    csv_episode_data[ep]["delivery_folder"] = delivery_folder
 
         for entity in (
             self.model.shots_to_deliver + self.model.assets_to_deliver
