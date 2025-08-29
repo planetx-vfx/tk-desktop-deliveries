@@ -188,13 +188,14 @@ class ExportShotsThread(QtCore.QThread):
                         self.update_progress_bars,
                     )
 
-        for episode in episodes:
+        for episode in episodes if episode_folders else [None]:
             # Create csv
             self.create_csv(
                 (self.model.shots_to_deliver + self.model.assets_to_deliver),
                 episode,
                 csv_episode_data[episode]["delivery_folder"],
                 csv_episode_data[episode]["template_fields"],
+                episode_delivery_versions,
             )
 
         self.finish_export_versions()
@@ -217,6 +218,7 @@ class ExportShotsThread(QtCore.QThread):
         episode: str | None,
         delivery_folder: Path,
         template_fields: dict,
+        episode_delivery_versions: dict[str, int],
     ):
         """
         Create the CSV file.
@@ -277,8 +279,12 @@ class ExportShotsThread(QtCore.QThread):
                 if (
                     entity.type == EntityType.SHOT
                     and entity.episode != episode
+                    and "Episode"
+                    in self.model.app.get_template("delivery_folder").keys
                 ):
                     continue
+
+                delivery_version = episode_delivery_versions.get(None)
 
                 if entity.type == EntityType.SHOT:
                     delivery_sequence_template = self.model.app.get_template(
@@ -287,6 +293,9 @@ class ExportShotsThread(QtCore.QThread):
                     delivery_preview_template = self.model.app.get_template(
                         "delivery_shot_preview"
                     )
+                    delivery_version = episode_delivery_versions[
+                        entity.episode
+                    ]
                 else:
                     delivery_sequence_template = self.model.app.get_template(
                         "delivery_asset_sequence"
@@ -300,7 +309,7 @@ class ExportShotsThread(QtCore.QThread):
                         self.model.get_version_template_fields(
                             entity,
                             version,
-                            template_fields["delivery_version"],
+                            delivery_version,
                         )
                     )
 
