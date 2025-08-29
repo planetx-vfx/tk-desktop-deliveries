@@ -1187,7 +1187,7 @@ class DeliveryModel:
         show_validation_message,
         update_progress,
     ):
-        self.logger.info("======= Delivering Sequence =======")
+        self.logger.info("======= Delivering Preview =======")
         slate_data = self._get_slate_data(version, shot)
 
         def on_error(exc):
