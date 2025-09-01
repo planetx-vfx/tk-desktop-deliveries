@@ -1530,7 +1530,7 @@ class DeliveryModel:
             "shot_name": entity.code,
             "shot_types": version.task.name,
             "vfx_scope_of_work": entity.vfx_scope_of_work or "",
-            "show": self.get_project()["name"],
+            "show": self.get_project()[self.settings.show_name_field],
             "episode": episode,
             "scene": scene,
             "sequence_name": sequence,
