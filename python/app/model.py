@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import traceback
 from pathlib import Path
@@ -50,11 +51,11 @@ from .models import (
     Version,
 )
 from .models.asset import Asset
-from .models.context import Context
+from .models.context import Context, FileContext
 from .models.entity import EntityType
 from .models.errors import LicenseError
 from .models.footage_format import FootageFormat, FootageFormatType
-from .models.util import compile_extra_template_fields
+from .models.util import compile_extra_template_fields, EXR_COMPRESSION
 from .models.version import Task
 
 if TYPE_CHECKING:
@@ -1188,7 +1189,27 @@ class DeliveryModel:
         update_progress,
     ):
         self.logger.info("======= Delivering Preview =======")
-        slate_data = self._get_slate_data(version, shot)
+        bit_depth = "8-bit"
+        for value in output.settings.values():
+            if isinstance(value, str):
+                match = re.search(r"(\d+)[ ]*-?bit", value, re.IGNORECASE)
+                if match:
+                    bit_depth = match.group(1) + "-bit"
+                    break
+
+        file_context = FileContext(
+            file_path=output_preview_path,
+            directory_path=output_preview_path.parent,
+            codec=output.name,
+            bit_depth=bit_depth,
+            has_slate=True,
+        )
+
+        slate_data = self._get_slate_data(
+            version,
+            shot,
+            file_context=file_context,
+        )
 
         def on_error(exc):
             raise exc
@@ -1276,6 +1297,10 @@ class DeliveryModel:
                         in metadata.get("compression")
                         .replace("_COMPRESSION", "")
                         .lower()
+                        or output.settings["compression"].lower()
+                        in EXR_COMPRESSION.get(
+                            metadata.get("compression", ""), "unknown"
+                        ).lower()
                     ):
                         self.logger.info("Match compression")
                     else:
@@ -1331,7 +1356,58 @@ class DeliveryModel:
             )
 
             if self.settings.add_slate_to_sequence:
-                slate_data = self._get_slate_data(version, shot, False)
+                seq_codec = (
+                    output.settings.get("compression", "")
+                    if output is not None
+                    else ""
+                )
+                seq_bit_depth = (
+                    (
+                        output.settings.get("bit_depth")
+                        or output.settings.get("data_type")
+                        or output.settings.get("datatype")
+                        or ""
+                    )
+                    if output is not None
+                    else ""
+                )
+                if (
+                    seq_codec == "" or seq_bit_depth == ""
+                ) and version.sequence_path is not None:
+                    try:
+                        metadata = parse_exr_metadata.read_exr_header(
+                            version.sequence_path % version.first_frame
+                        )
+                        if seq_codec == "" and "compression" in metadata:
+                            seq_codec = EXR_COMPRESSION.get(
+                                metadata.get("compression"), "unknown"
+                            )
+                        if seq_bit_depth == "":
+                            channels = metadata.get("channels", {})
+                            if len(channels) > 0:
+                                pixel_type = next(iter(channels.values()))[
+                                    "pixel_type"
+                                ]
+                                bit_depths = {
+                                    0: "32-bit uint",
+                                    1: "16-bit half",
+                                    2: "32-bit float",
+                                }
+                                seq_bit_depth = bit_depths.get(pixel_type, "")
+                    except:
+                        pass
+
+                file_context = FileContext(
+                    file_path=delivery_sequence_path,
+                    directory_path=delivery_sequence_path.parent,
+                    codec=seq_codec,
+                    bit_depth=seq_bit_depth,
+                    has_slate=True,
+                )
+
+                slate_data = self._get_slate_data(
+                    version, shot, False, file_context
+                )
 
                 args.extend(
                     [
@@ -1483,7 +1559,13 @@ class DeliveryModel:
         )
         self.export_shots_thread.start()
 
-    def _get_slate_data(self, version, entity, preview=True):
+    def _get_slate_data(
+        self,
+        version,
+        entity,
+        preview=True,
+        file_context: FileContext | None = None,
+    ):
         """
         Compile the slate data object
 
@@ -1517,7 +1599,9 @@ class DeliveryModel:
                 ),
             }
 
-        context = Context(self.cache, entity, version)
+        context = Context(
+            cache=self.cache, shot=entity, version=version, file=file_context
+        )
         optional_fields = self.settings.get_slate_extra_fields(
             template_fields, context
         )

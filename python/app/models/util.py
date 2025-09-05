@@ -86,3 +86,18 @@ def compile_extra_template_fields(
                 )
 
     return fields
+
+
+EXR_COMPRESSION = {
+    "NO_COMPRESSION": "none",
+    "RLE_COMPRESSION": "RLE",
+    "ZIPS_COMPRESSION": "ZIP1",
+    "ZIP_COMPRESSION ": "ZIP16",
+    "PXR24_COMPRESSION": "PXR24",
+    "B44_COMPRESSION": "B44",
+    "B44A_COMPRESSION": "B44A",
+    "DWAA_COMPRESSION": "DWAA",
+    "DWAB_COMPRESSION": "DWAB",
+    "HTJ2K256_COMPRESSION": "JPEG 2000 256",
+    "HTJ2K32_COMPRESSION": "JPEG 2000 32",
+}

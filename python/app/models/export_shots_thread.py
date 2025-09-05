@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Callable
 from sgtk.platform.qt5 import QtCore
 
 from .entity import EntityType
-from .util import compile_extra_template_fields
+from .util import compile_extra_template_fields, EXR_COMPRESSION
 
 if TYPE_CHECKING:
     from . import Deliverables, UserSettings, Version
@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from .shot import Shot
 
 from .context import Context, FileContext
+from ..external import parse_exr_metadata
 
 # # For development only
 # try:
@@ -334,10 +335,60 @@ class ExportShotsThread(QtCore.QThread):
                                 delivery_folder.as_posix(),
                             )
                         )
+
+                        seq_codec = ""
+                        seq_bit_depth = ""
+                        output = next(
+                            (
+                                o
+                                for o in self.model.settings.delivery_sequence_outputs
+                                if o.status == version.sequence_output_status
+                            ),
+                            None,
+                        )
+                        if output is not None:
+                            seq_codec = output.settings.get("compression", "")
+                            seq_bit_depth = (
+                                output.settings.get("datatype") or ""
+                            )
+
+                        if (
+                            seq_codec == "" or seq_bit_depth == ""
+                        ) and version.sequence_path is not None:
+                            try:
+                                metadata = parse_exr_metadata.read_exr_header(
+                                    version.sequence_path % version.last_frame
+                                )
+                                if (
+                                    seq_codec == ""
+                                    and "compression" in metadata
+                                ):
+                                    seq_codec = EXR_COMPRESSION.get(
+                                        metadata.get("compression", ""),
+                                        "unknown",
+                                    )
+                                if seq_bit_depth == "":
+                                    channels = metadata.get("channels", {})
+                                    if len(channels) > 0:
+                                        pixel_type = next(
+                                            iter(channels.values())
+                                        )["pixel_type"]
+                                        bit_depths = {
+                                            0: "32-bit uint",
+                                            1: "16-bit half",
+                                            2: "32-bit float",
+                                        }
+                                        seq_bit_depth = bit_depths.get(
+                                            pixel_type, ""
+                                        )
+                            except Exception:
+                                pass
+
                         to_deliver.append(
                             (
                                 sequence_path,
-                                "",
+                                seq_codec,
+                                seq_bit_depth,
                                 self.model.settings.add_slate_to_sequence,
                             )
                         )
@@ -361,10 +412,24 @@ class ExportShotsThread(QtCore.QThread):
                                     delivery_folder.as_posix(),
                                 )
                             )
+
+                            bit_depth = ""
+                            for value in output.settings.values():
+                                if isinstance(value, str):
+                                    match = re.search(
+                                        r"(\d+)[ ]*-?bit",
+                                        value,
+                                        re.IGNORECASE,
+                                    )
+                                    if match:
+                                        bit_depth = match.group(1) + "-bit"
+                                        break
+
                             to_deliver.append(
                                 (
                                     preview_path,
                                     output.name,
+                                    bit_depth,
                                     True,
                                 )
                             )
@@ -397,11 +462,12 @@ class ExportShotsThread(QtCore.QThread):
                             (
                                 delivery_lut,
                                 "",
+                                "",
                                 False,
                             )
                         )
 
-                    for file_path, codec, has_slate in to_deliver:
+                    for file_path, codec, bit_depth, has_slate in to_deliver:
                         file_name = file_path.name
 
                         csv_fields = []
@@ -427,6 +493,7 @@ class ExportShotsThread(QtCore.QThread):
                                     file_path=file_path,
                                     directory_path=delivery_folder,
                                     codec=codec,
+                                    bit_depth=bit_depth,
                                     has_slate=has_slate,
                                 ),
                                 cache=self.model.cache,

@@ -8,6 +8,7 @@ import sgtk
 
 from ..external import parse_exr_metadata
 from . import util
+from .util import EXR_COMPRESSION
 
 if TYPE_CHECKING:
     from .context import Context
@@ -73,6 +74,7 @@ class FieldTemplateString:
                             "name_ranged",
                             "codec",
                             "compression",
+                            "bit_depth",
                             "folder",
                         ]:
                             logger.debug(
@@ -122,7 +124,7 @@ class FieldTemplateString:
 
     def apply_context(self, context: Context):
         if context.file is None and "file" in self.ordered_fields:
-            logger.debug("Context: %s", context)
+            logger.debug("Context: %s", context.as_dict())
             msg = f'No file context supplied for resolving field template string "{self.template}".'
             raise Exception(msg)
 
@@ -174,7 +176,7 @@ class FieldTemplateString:
                 logger.debug("Got version from provided context.")
 
         if "version" in self.ordered_fields and version is None:
-            logger.debug("Context: %s", context)
+            logger.debug("Context: %s", context.as_dict())
             msg = f'No version context supplied for resolving field template string "{self.template}".'
             raise Exception(msg)
 
@@ -212,7 +214,7 @@ class FieldTemplateString:
                 logger.debug("Got shot from provided context.")
 
         if "shot" in self.ordered_fields and shot is None:
-            logger.debug("Context: %s", context)
+            logger.debug("Context: %s", context.as_dict())
             msg = f'No shot context supplied for resolving field template string "{self._repr_template}".'
             raise Exception(msg)
 
@@ -282,9 +284,39 @@ class FieldTemplateString:
                                     % context.version.last_frame
                                 )
                                 if "compression" in metadata:
-                                    field_value = metadata.get(
-                                        "compression", ""
-                                    ).replace("_COMPRESSION", "")
+                                    field_value = EXR_COMPRESSION.get(
+                                        metadata["compression"],
+                                        "unknown",
+                                    )
+                                else:
+                                    field_value = ""
+                            except:
+                                field_value = ""
+                    elif field == "bit_depth":
+                        if (
+                            context.file.bit_depth is not None
+                            and context.file.bit_depth != ""
+                        ):
+                            field_value = context.file.bit_depth
+                        elif file_name.endswith(".exr"):
+                            try:
+                                metadata = parse_exr_metadata.read_exr_header(
+                                    output_file_path
+                                    % context.version.last_frame
+                                )
+                                channels = metadata.get("channels", {})
+                                if len(channels) > 0:
+                                    pixel_type = next(iter(channels.values()))[
+                                        "pixel_type"
+                                    ]
+                                    bit_depths = {
+                                        0: "32-bit uint",
+                                        1: "16-bit half",
+                                        2: "32-bit float",
+                                    }
+                                    field_value = bit_depths.get(
+                                        pixel_type, ""
+                                    )
                                 else:
                                     field_value = ""
                             except:
