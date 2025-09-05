@@ -138,10 +138,7 @@ class ExportShotsThread(QtCore.QThread):
         episode_folders = "Episode" in delivery_folder_template.keys
 
         for episode in episodes if episode_folders else [None]:
-            template_fields = {
-                **self.model.base_template_fields,
-                "Episode": episode,
-            }
+            template_fields = csv_episode_data[episode]["template_fields"]
 
             # Create delivery folder
             delivery_folder = Path(
