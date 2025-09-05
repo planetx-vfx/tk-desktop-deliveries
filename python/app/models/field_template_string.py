@@ -282,9 +282,10 @@ class FieldTemplateString:
                                     % context.version.last_frame
                                 )
                                 if "compression" in metadata:
-                                    field_value = metadata.get(
-                                        "compression", ""
-                                    ).replace("_COMPRESSION", "")
+                                    field_value = EXR_COMPRESSION.get(
+                                        metadata["compression"],
+                                        "unknown",
+                                    )
                                 else:
                                     field_value = ""
                             except:
