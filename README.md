@@ -382,6 +382,7 @@ quickly.
 |------------------------------------|--------------------------------------------------------------------------------------------|--------------------------|
 | `shot_status_field`                | Field to check the shot status with.                                                       | sg_status_list           |
 | `version_status_field`             | Field to check the version status with.                                                    | sg_status_list           |
+| `show_name_field`                  | Project field to use on the slate in "Show".                                               | name                     |
 | `vfx_scope_of_work_field`          | Shot field to use on the slate in "VFX Scope Of Work".                                     | sg_scope_of_work         |
 | `submitting_for_field`             | Version field to use on the slate in "Submitting for".                                     | sg_submitting_for        |
 | `submission_note_field`            | Version field to use on the slate in "Submission note".                                    | sg_submission_note       |

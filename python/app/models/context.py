@@ -49,11 +49,22 @@ class Context:
         msg = f"Key '{key}' not found."
         raise KeyError(msg)
 
+    def as_dict(self) -> dict:
+        return {
+            "shot": None if self.shot is None else self.shot.as_dict(),
+            "version": (
+                None if self.version is None else self.version.as_dict()
+            ),
+            "file": None if self.file is None else self.file.as_dict(),
+            "entity": None if self.entity is None else self.entity,
+        }
+
 
 class FileContext:
     file_path: Path | None
     directory_path: Path | None
     codec: str | None
+    bit_depth: str | None
     has_slate: bool | None
 
     def __init__(
@@ -61,11 +72,13 @@ class FileContext:
         file_path: Path | None = None,
         directory_path: Path | None = None,
         codec: str | None = None,
+        bit_depth: str | None = None,
         has_slate: bool | None = None,
     ):
         self.file_path = file_path
         self.directory_path = directory_path
         self.codec = codec
+        self.bit_depth = bit_depth
         self.has_slate = has_slate
 
     def as_dict(self) -> dict:
@@ -79,6 +92,7 @@ class FileContext:
                 else self.directory_path.as_posix()
             ),
             "codec": self.codec,
+            "bit_depth": self.bit_depth,
             "has_slate": self.has_slate,
         }
 

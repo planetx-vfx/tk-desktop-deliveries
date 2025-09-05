@@ -242,6 +242,9 @@ class DeliveryController(QtWidgets.QWidget):
                         self.load_csv_template(data)
             break
 
+        # Populate csv_fields with the default UI values
+        self.actions.on_csv_change()
+
     def load_csv_template_file(self, file_path: str) -> list:
         """
         Load the data from a csv template file.

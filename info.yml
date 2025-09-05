@@ -168,6 +168,12 @@ configuration:
     allows_empty: True
     description: Field to check the version status with.
 
+  show_name_field:
+    type: str
+    default_value: "name"
+    allows_empty: True
+    description: Project field to use on the slate in "Show".
+
   vfx_scope_of_work_field:
     type: str
     default_value: "sg_scope_of_work"

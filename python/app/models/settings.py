@@ -29,6 +29,7 @@ class Settings:
     # Fields
     shot_status_field: str
     version_status_field: str
+    show_name_field: str
     vfx_scope_of_work_field: str
     submitting_for_field: str
     submission_note_field: str
@@ -129,6 +130,7 @@ class Settings:
         for setting in [
             "shot_status_field",
             "version_status_field",
+            "show_name_field",
             "vfx_scope_of_work_field",
             "submitting_for_field",
             "submission_note_field",
@@ -207,6 +209,9 @@ class Settings:
         Get a dict of all extra fields to request from ShotGrid for specific entities.
         """
         extra_fields: dict[str, list[str]] = {
+            "Project": [
+                self.show_name_field,
+            ],
             "Version": [
                 self.version_status_field,
                 self.submitting_for_field,
