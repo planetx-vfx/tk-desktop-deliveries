@@ -12546,3 +12546,16 @@ push $N23768000
   normalize_scale_w 1
  }
 end_group
+Remove {
+ channels alpha
+ name Remove1
+ selected true
+ xpos -480
+ ypos 351
+}
+Dot {
+ name OUTPUT
+ selected true
+ xpos -446
+ ypos 432
+}

@@ -129,9 +129,9 @@ class PlateRender(object):
                 )
                 node_path = node_path.replace(os.sep, "/")
 
-                slate = self.__setup_slate(read, node_path)
+                self.__setup_slate(read, node_path)
 
-                write_input = slate
+                write_input = nuke.toNode("OUTPUT")
 
                 if write_settings is None:
                     compression = read.metadata().get("exr/compressionName")

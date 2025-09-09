@@ -51,6 +51,7 @@ class Settings:
     add_slate_to_sequence: bool = False
     override_preview_submission_note: bool = False
     continuous_versioning: bool = False
+    remove_alpha_from_sequence: bool = True
 
     slate_extra_fields: dict[str, TemplateString | FieldTemplateString | str]
 
@@ -148,6 +149,7 @@ class Settings:
             "add_slate_to_sequence",
             "override_preview_submission_note",
             "continuous_versioning",
+            "remove_alpha_from_sequence",
             "footage_format_fields",
             "footage_format_entity",
             "shot_footage_formats_field",

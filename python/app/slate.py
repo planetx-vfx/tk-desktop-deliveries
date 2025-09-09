@@ -151,14 +151,16 @@ class ShotGridSlate(object):
             read = self.__setup_script()
 
             # Create slate
-            slate = self.__setup_slate(
+            self.__setup_slate(
                 read_node=read,
                 slate_node_path=node_path,
             )
 
+            write_input = nuke.toNode("OUTPUT")
+
             # Create write node
             write = self.__setup_write(
-                slate_node=slate,
+                slate_node=write_input,
             )
 
             # Render slate

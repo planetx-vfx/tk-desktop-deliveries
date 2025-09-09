@@ -1286,11 +1286,12 @@ class DeliveryModel:
             None,
         )
 
+        metadata = parse_exr_metadata.read_exr_header(
+            version.sequence_path % version.first_frame
+        )
+
         if output is not None:
             if output.settings.keys() == ["compression"]:
-                metadata = parse_exr_metadata.read_exr_header(
-                    version.sequence_path % version.first_frame
-                )
                 if "compression" in metadata:
                     if (
                         output.settings["compression"].lower()
@@ -1307,6 +1308,13 @@ class DeliveryModel:
                         should_rerender = True
             else:
                 should_rerender = True
+
+        if (
+            self.settings.remove_alpha_from_sequence
+            and "channels" in metadata
+            and "A" in metadata["channels"]
+        ):
+            should_rerender = True
 
         # Create sequence delivery folder
         sequence_delivery_folder = delivery_sequence_path.parent

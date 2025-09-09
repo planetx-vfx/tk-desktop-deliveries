@@ -288,6 +288,11 @@ configuration:
     default_value: false
     description: If the delivery versions should always increment, independent of the date.
 
+  remove_alpha_from_sequence:
+    type: bool
+    default_value: true
+    description: If the sequence should be delivered without Alpha channel.
+
   # --- PATHS ---
   logo_path_linux:
     type: str
