@@ -300,6 +300,12 @@ def read_exr_header(exrpath, maxreadsize=2000):
                 )
                 metadata[attribute_name] = attribute_values
 
+            elif attribute_type == b"m44d":
+                attribute_values = struct.unpack(
+                    "d" * 16, exr_file.read(8 * 16)
+                )
+                metadata[attribute_name] = attribute_values
+
             elif attribute_type == b"preview":
 
                 width = struct.unpack("I", exr_file.read(4 * 1))[0]
