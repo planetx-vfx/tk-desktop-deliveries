@@ -422,5 +422,6 @@ quickly.
 | `add_slate_to_sequence`            | If a slate frame should be added before the delivered sequence             | False         |
 | `override_preview_submission_note` | If the preview should add a new submission note as an overlay.             | False         |
 | `continuous_versioning`            | If the delivery versions should always increment, independent of the date. | False         |
+| `remove_alpha_from_sequence`       | If the sequence should be delivered without Alpha channel.                 | True          |
 
 
