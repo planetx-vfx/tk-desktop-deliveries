@@ -196,7 +196,7 @@ submission_note_field: sg_submission_note
 slate_extra_fields:
   Director: Steven Spielberg
   Format: '[value width]x[value height], [format "%.2f" [expr (double([value input.width]) / double([value input.height]))]]:1'
-  Filename: '{prj}[_{Episode}]_{Sequence}_{Shot}_{task_name}[_{vnd}]_v{version}'
+  Filename: '{prj}[_{Episode}]_{Sequence}_{Shot}_{Task}[_{vnd}]_v{version}'
   Lens: '<shot.sg_footage_formats.sg_lens_name>'
 ```
 
@@ -341,21 +341,21 @@ quickly.
 
 ### Templates
 
-| Name                      | Description                                   | Default value | Fields                                                                                           |
-|---------------------------|-----------------------------------------------|---------------|--------------------------------------------------------------------------------------------------|
-| `input_shot_preview`      | Template of the shot preview files.           |               | context, *                                                                                       |
-| `input_shot_sequence`     | Template to deliver the shot sequences from.  |               | context, version, SEQ, *                                                                         |
-| `input_shot_lut`          | Template of the shot LUT files.               |               | context, *                                                                                       |
-| `input_asset_preview`     | Template of the asset preview files.          |               | context, *                                                                                       |
-| `input_asset_sequence`    | Template to deliver the asset sequences from. |               | context, version, SEQ, *                                                                         |
-| `delivery_folder`         | Folder to deliver to.                         |               | prj, delivery_date, delivery_version                                                             |
-| `delivery_shot_sequence`  | Template to deliver the shot sequences to.    |               | context, prj, delivery_date, delivery_version, task_name, version, SEQ, *                        |
-| `delivery_shot_preview`   | Template to deliver the shot previews to.     |               | context, prj, delivery_date, delivery_version, task_name, version, delivery_preview_extension, * |
-| `delivery_shot_lut`       | Template to deliver the shot LUT files to.    |               | context, prj, delivery_date, delivery_version, task_name, version, *                             |
-| `delivery_asset_sequence` | Template to deliver the asset sequences to.   |               | context, prj, delivery_date, delivery_version, task_name, version, SEQ, *                        |
-| `delivery_asset_preview`  | Template to deliver the asset previews to.    |               | context, prj, delivery_date, delivery_version, task_name, version, delivery_preview_extension, * |
-| `csv_submission_form`     | Template to deliver the submission form to.   |               | prj, delivery_date, delivery_version                                                             |
-| `csv_template_folder`     | Folder to saves CSV templates.                |               | context, *                                                                                       |
+| Name                      | Description                                   | Default value | Fields                                                                                |
+|---------------------------|-----------------------------------------------|---------------|---------------------------------------------------------------------------------------|
+| `input_shot_preview`      | Template of the shot preview files.           |               | context, *                                                                            |
+| `input_shot_sequence`     | Template to deliver the shot sequences from.  |               | context, version, SEQ, *                                                              |
+| `input_shot_lut`          | Template of the shot LUT files.               |               | context, *                                                                            |
+| `input_asset_preview`     | Template of the asset preview files.          |               | context, *                                                                            |
+| `input_asset_sequence`    | Template to deliver the asset sequences from. |               | context, version, SEQ, *                                                              |
+| `delivery_folder`         | Folder to deliver to.                         |               | prj, delivery_date, delivery_version                                                  |
+| `delivery_shot_sequence`  | Template to deliver the shot sequences to.    |               | context, prj, delivery_date, delivery_version, version, SEQ, *                        |
+| `delivery_shot_preview`   | Template to deliver the shot previews to.     |               | context, prj, delivery_date, delivery_version, version, delivery_preview_extension, * |
+| `delivery_shot_lut`       | Template to deliver the shot LUT files to.    |               | context, prj, delivery_date, delivery_version, version, *                             |
+| `delivery_asset_sequence` | Template to deliver the asset sequences to.   |               | context, prj, delivery_date, delivery_version, version, SEQ, *                        |
+| `delivery_asset_preview`  | Template to deliver the asset previews to.    |               | context, prj, delivery_date, delivery_version, version, delivery_preview_extension, * |
+| `csv_submission_form`     | Template to deliver the submission form to.   |               | prj, delivery_date, delivery_version                                                  |
+| `csv_template_folder`     | Folder to saves CSV templates.                |               | context, *                                                                            |
 
 
 ### Lists
