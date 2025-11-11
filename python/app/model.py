@@ -1587,11 +1587,10 @@ class DeliveryModel:
         sequence = ""
         if entity.type == EntityType.SHOT:
             sequence = entity.sequence or ""
+            if "_" in entity.sequence:
+                episode, scene = entity.sequence.split("_")
             if entity.episode is not None:
                 episode = entity.episode
-                scene = ""
-            elif "_" in entity.sequence:
-                episode, scene = entity.sequence.split("_")
 
         template_fields = self.get_version_template_fields(entity, version)
         if not preview:
