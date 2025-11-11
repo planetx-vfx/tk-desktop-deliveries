@@ -117,16 +117,16 @@ class ShotGridSlate(object):
         if write_settings is not None:
             try:
                 self.write_settings = json.loads(write_settings)
-            except:
+            except Exception as err:
                 msg = f"Invalid write settings. ({write_settings})"
-                raise Exception(msg)
+                raise Exception(msg) from err
 
         if slate_data is not None:
             try:
                 self.slate_data = json.loads(slate_data)
-            except:
+            except Exception as err:
                 msg = f"Invalid slate data. ({slate_data})"
-                raise Exception(msg)
+                raise Exception(msg) from err
 
         self.first_render_frame = self.first_frame
         if self.slate_data["input_has_slate"]:
