@@ -216,7 +216,7 @@ class ExportShotsThread(QtCore.QThread):
         episode: str | None,
         delivery_folder: Path,
         template_fields: dict,
-        episode_delivery_versions: dict[str, int],
+        episode_delivery_versions: dict[str | None, int],
     ):
         """
         Create the CSV file.
@@ -282,8 +282,6 @@ class ExportShotsThread(QtCore.QThread):
                 ):
                     continue
 
-                delivery_version = episode_delivery_versions.get(None)
-
                 if entity.type == EntityType.SHOT:
                     delivery_sequence_template = self.model.app.get_template(
                         "delivery_shot_sequence"
@@ -291,9 +289,6 @@ class ExportShotsThread(QtCore.QThread):
                     delivery_preview_template = self.model.app.get_template(
                         "delivery_shot_preview"
                     )
-                    delivery_version = episode_delivery_versions[
-                        entity.episode
-                    ]
                 else:
                     delivery_sequence_template = self.model.app.get_template(
                         "delivery_asset_sequence"
@@ -303,6 +298,31 @@ class ExportShotsThread(QtCore.QThread):
                     )
 
                 for version in entity.get_versions():
+                    deliverables = self.get_deliverables(version)
+
+                    if not (
+                        deliverables.deliver_sequence
+                        or deliverables.deliver_preview
+                    ):
+                        continue
+
+                    delivery_version = episode_delivery_versions.get(None)
+
+                    if entity.type == EntityType.SHOT:
+                        delivery_version = episode_delivery_versions.get(
+                            entity.episode,
+                            delivery_version,
+                        )
+
+                        if delivery_version is None:
+                            self.model.logger.warning(
+                                "No delivery version found for episode %s. "
+                                "Skipping CSV row for version %s.",
+                                entity.episode,
+                                version.id,
+                            )
+                            continue
+
                     version_template_fields = (
                         self.model.get_version_template_fields(
                             entity,
@@ -318,8 +338,6 @@ class ExportShotsThread(QtCore.QThread):
                         version,
                         version_template_fields,
                     )
-
-                    deliverables = self.get_deliverables(version)
 
                     to_deliver = []
                     if deliverables.deliver_sequence:
