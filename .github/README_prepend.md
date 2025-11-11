@@ -184,7 +184,7 @@ submission_note_field: sg_submission_note
 slate_extra_fields:
   Director: Steven Spielberg
   Format: '[value width]x[value height], [format "%.2f" [expr (double([value input.width]) / double([value input.height]))]]:1'
-  Filename: '{prj}[_{Episode}]_{Sequence}_{Shot}_{task_name}[_{vnd}]_v{version}'
+  Filename: '{prj}[_{Episode}]_{Sequence}_{Shot}_{Task}[_{vnd}]_v{version}'
   Lens: '<shot.sg_footage_formats.sg_lens_name>'
 ```
 

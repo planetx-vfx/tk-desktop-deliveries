@@ -52,25 +52,25 @@ configuration:
 
   delivery_shot_sequence:
     type: template
-    fields: context, prj, delivery_date, delivery_version, task_name, version, SEQ, *
+    fields: context, prj, delivery_date, delivery_version, version, SEQ, *
     description: "Template to deliver the shot sequences to."
   delivery_shot_preview:
     type: template
-    fields: context, prj, delivery_date, delivery_version, task_name, version, delivery_preview_extension, *
+    fields: context, prj, delivery_date, delivery_version, version, delivery_preview_extension, *
     description: "Template to deliver the shot previews to."
   delivery_shot_lut:
     type: template
-    fields: context, prj, delivery_date, delivery_version, task_name, version, *
+    fields: context, prj, delivery_date, delivery_version, version, *
     allows_empty: True
     description: "Template to deliver the shot LUT files to."
 
   delivery_asset_sequence:
     type: template
-    fields: context, prj, delivery_date, delivery_version, task_name, version, SEQ, *
+    fields: context, prj, delivery_date, delivery_version, version, SEQ, *
     description: "Template to deliver the asset sequences to."
   delivery_asset_preview:
     type: template
-    fields: context, prj, delivery_date, delivery_version, task_name, version, delivery_preview_extension, *
+    fields: context, prj, delivery_date, delivery_version, version, delivery_preview_extension, *
     description: "Template to deliver the asset previews to."
 
   csv_submission_form:
