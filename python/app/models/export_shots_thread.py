@@ -57,7 +57,7 @@ class ExportShotsThread(QtCore.QThread):
             "delivery_folder"
         )
         episode_folders = "Episode" in delivery_folder_template.keys
-        if not episode_folders:
+        if not episode_folders or len(self.model.assets_to_deliver):
             episodes.append(None)
 
         for entity in (
