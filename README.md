@@ -341,21 +341,21 @@ quickly.
 
 ### Templates
 
-| Name                      | Description                                   | Default value | Fields                                                                                |
-|---------------------------|-----------------------------------------------|---------------|---------------------------------------------------------------------------------------|
-| `input_shot_preview`      | Template of the shot preview files.           |               | context, *                                                                            |
-| `input_shot_sequence`     | Template to deliver the shot sequences from.  |               | context, version, SEQ, *                                                              |
-| `input_shot_lut`          | Template of the shot LUT files.               |               | context, *                                                                            |
-| `input_asset_preview`     | Template of the asset preview files.          |               | context, *                                                                            |
-| `input_asset_sequence`    | Template to deliver the asset sequences from. |               | context, version, SEQ, *                                                              |
-| `delivery_folder`         | Folder to deliver to.                         |               | prj, delivery_date, delivery_version                                                  |
-| `delivery_shot_sequence`  | Template to deliver the shot sequences to.    |               | context, prj, delivery_date, delivery_version, version, SEQ, *                        |
-| `delivery_shot_preview`   | Template to deliver the shot previews to.     |               | context, prj, delivery_date, delivery_version, version, delivery_preview_extension, * |
-| `delivery_shot_lut`       | Template to deliver the shot LUT files to.    |               | context, prj, delivery_date, delivery_version, version, *                             |
-| `delivery_asset_sequence` | Template to deliver the asset sequences to.   |               | context, prj, delivery_date, delivery_version, version, SEQ, *                        |
-| `delivery_asset_preview`  | Template to deliver the asset previews to.    |               | context, prj, delivery_date, delivery_version, version, delivery_preview_extension, * |
-| `csv_submission_form`     | Template to deliver the submission form to.   |               | prj, delivery_date, delivery_version                                                  |
-| `csv_template_folder`     | Folder to saves CSV templates.                |               | context, *                                                                            |
+| Name                      | Description                                   | Default value | Fields                                                                           |
+|---------------------------|-----------------------------------------------|---------------|----------------------------------------------------------------------------------|
+| `input_shot_preview`      | Template of the shot preview files.           |               | context, *                                                                       |
+| `input_shot_sequence`     | Template to deliver the shot sequences from.  |               | context, version, SEQ, *                                                         |
+| `input_shot_lut`          | Template of the shot LUT files.               |               | context, *                                                                       |
+| `input_asset_preview`     | Template of the asset preview files.          |               | context, *                                                                       |
+| `input_asset_sequence`    | Template to deliver the asset sequences from. |               | context, version, SEQ, *                                                         |
+| `delivery_folder`         | Folder to deliver to.                         |               | delivery_date, delivery_version, [Episode], *                                    |
+| `delivery_shot_sequence`  | Template to deliver the shot sequences to.    |               | context, delivery_date, delivery_version, version, SEQ, *                        |
+| `delivery_shot_preview`   | Template to deliver the shot previews to.     |               | context, delivery_date, delivery_version, version, delivery_preview_extension, * |
+| `delivery_shot_lut`       | Template to deliver the shot LUT files to.    |               | context, delivery_date, delivery_version, version, *                             |
+| `delivery_asset_sequence` | Template to deliver the asset sequences to.   |               | context, delivery_date, delivery_version, version, SEQ, *                        |
+| `delivery_asset_preview`  | Template to deliver the asset previews to.    |               | context, delivery_date, delivery_version, version, delivery_preview_extension, * |
+| `csv_submission_form`     | Template to deliver the submission form to.   |               | delivery_date, delivery_version, [Episode], *                                    |
+| `csv_template_folder`     | Folder to saves CSV templates.                |               | context, *                                                                       |
 
 
 ### Lists
