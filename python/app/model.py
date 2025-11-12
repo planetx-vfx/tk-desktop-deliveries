@@ -1587,7 +1587,7 @@ class DeliveryModel:
         sequence = ""
         if entity.type == EntityType.SHOT:
             sequence = entity.sequence or ""
-            if "_" in entity.sequence:
+            if entity.sequence and "_" in entity.sequence:
                 episode, scene = entity.sequence.split("_")
             if entity.episode is not None:
                 episode = entity.episode
