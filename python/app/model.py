@@ -643,6 +643,7 @@ class DeliveryModel:
             template_fields["delivery_version"] = delivery_version
 
         if version.task is not None:
+            template_fields["Task"] = version.task.name
             template_fields["task_name"] = version.task.name
 
         if entity.footage_formats is not None:
@@ -1586,11 +1587,10 @@ class DeliveryModel:
         sequence = ""
         if entity.type == EntityType.SHOT:
             sequence = entity.sequence or ""
+            if entity.sequence and "_" in entity.sequence:
+                episode, scene = entity.sequence.split("_")
             if entity.episode is not None:
                 episode = entity.episode
-                scene = ""
-            elif "_" in entity.sequence:
-                episode, scene = entity.sequence.split("_")
 
         template_fields = self.get_version_template_fields(entity, version)
         if not preview:
