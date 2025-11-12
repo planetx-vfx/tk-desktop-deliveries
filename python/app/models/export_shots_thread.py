@@ -51,7 +51,15 @@ class ExportShotsThread(QtCore.QThread):
 
     def run(self):
         version_deliverables = {}
-        episodes = [None]
+        episodes = []
+
+        delivery_folder_template = self.model.app.get_template(
+            "delivery_folder"
+        )
+        episode_folders = "Episode" in delivery_folder_template.keys
+        if not episode_folders or len(self.model.assets_to_deliver):
+            episodes.append(None)
+
         for entity in (
             self.model.shots_to_deliver + self.model.assets_to_deliver
         ):
@@ -70,10 +78,6 @@ class ExportShotsThread(QtCore.QThread):
                         episodes.append(entity.episode)
 
         episode_delivery_versions = {}
-
-        delivery_folder_template = self.model.app.get_template(
-            "delivery_folder"
-        )
 
         csv_episode_data = {}
 
@@ -135,8 +139,6 @@ class ExportShotsThread(QtCore.QThread):
             csv_episode_data[episode] = {
                 "template_fields": template_fields,
             }
-
-        episode_folders = "Episode" in delivery_folder_template.keys
 
         for episode in episodes if episode_folders else [None]:
             template_fields = csv_episode_data[episode]["template_fields"]
