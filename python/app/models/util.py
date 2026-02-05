@@ -93,6 +93,7 @@ EXR_COMPRESSION = {
     "RLE_COMPRESSION": "RLE",
     "ZIPS_COMPRESSION": "ZIP1",
     "ZIP_COMPRESSION ": "ZIP16",
+    "PIZ_COMPRESSION": "PIZ",
     "PXR24_COMPRESSION": "PXR24",
     "B44_COMPRESSION": "B44",
     "B44A_COMPRESSION": "B44A",
@@ -100,4 +101,16 @@ EXR_COMPRESSION = {
     "DWAB_COMPRESSION": "DWAB",
     "HTJ2K256_COMPRESSION": "JPEG 2000 256",
     "HTJ2K32_COMPRESSION": "JPEG 2000 32",
+}
+
+NUKE_EXR_COMPRESSION = {
+    "none": "none",
+    "Zip (1 scanline)": "ZIP1",
+    "Zip (16 scanlines)": "ZIP16",
+    "PIZ Wavelet (32 scanlines)": "PIZ",
+    "RLE": "RLE",
+    "B44": "B44",
+    "B44A": "B44A",
+    "DWAA": "DWAA",
+    "DWAB": "DWAB",
 }
