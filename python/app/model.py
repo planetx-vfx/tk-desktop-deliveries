@@ -55,7 +55,11 @@ from .models.context import Context, FileContext
 from .models.entity import EntityType
 from .models.errors import LicenseError
 from .models.footage_format import FootageFormat, FootageFormatType
-from .models.util import compile_extra_template_fields, EXR_COMPRESSION
+from .models.util import (
+    compile_extra_template_fields,
+    EXR_COMPRESSION,
+    NUKE_EXR_COMPRESSION,
+)
 from .models.version import Task
 
 if TYPE_CHECKING:
@@ -1292,18 +1296,18 @@ class DeliveryModel:
         )
 
         if output is not None:
-            if output.settings.keys() == ["compression"]:
+            if output.settings.keys() == ["compression"] or (
+                all(
+                    key.lower() in ["compression", "channels"]
+                    for key in output.settings.keys()
+                )
+                and output.settings["channels"] == "all"
+                and not self.settings.remove_alpha_from_sequence
+            ):
                 if "compression" in metadata:
-                    if (
-                        output.settings["compression"].lower()
-                        in metadata.get("compression")
-                        .replace("_COMPRESSION", "")
-                        .lower()
-                        or output.settings["compression"].lower()
-                        in EXR_COMPRESSION.get(
-                            metadata.get("compression", ""), "unknown"
-                        ).lower()
-                    ):
+                    if NUKE_EXR_COMPRESSION.get(
+                        output.settings["compression"]
+                    ) == EXR_COMPRESSION.get(metadata.get("compression")):
                         self.logger.info("Match compression")
                     else:
                         should_rerender = True
