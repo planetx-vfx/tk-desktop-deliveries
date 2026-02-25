@@ -83,6 +83,12 @@ configuration:
     fields: context, *
     description: "Folder to saves CSV templates."
 
+  ocio_config_template:
+    type: template
+    fields: context, *
+    allows_empty: True
+    description: "Template for the OCIO config file."
+
   # --- LISTS ---
   delivery_preview_outputs:
     type: list

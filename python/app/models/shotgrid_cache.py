@@ -68,6 +68,10 @@ class ShotGridCache:
             )
         self.logger.info("Found %s shots", len(shot_ids))
 
+        published_file_type = self.find_one(
+            "PublishedFileType",
+            [["code", "is", "Rendered Image"]],
+        )
         for version in versions:
             publishes = version.get("published_files", [])
 
@@ -75,7 +79,12 @@ class ShotGridCache:
                 continue
 
             filters = [
-                ["id", "is", publishes[0]["id"]],
+                [
+                    "id",
+                    "in",
+                    [pub["id"] for pub in publishes],
+                ],
+                ["published_file_type", "is", published_file_type],
             ]
 
             self.find_raw(
@@ -126,7 +135,7 @@ class ShotGridCache:
     def find(
         self, entity_type: str, filters: list, ignore_cache: bool = False
     ) -> list[dict] | None:
-        query = json.dumps(filters)
+        query = json.dumps(filters, default=str)
         cached_ids = (
             self.sg_cache.get(entity_type, {})
             .get("query", {})

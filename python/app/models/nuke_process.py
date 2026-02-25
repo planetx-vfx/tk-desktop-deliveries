@@ -34,6 +34,7 @@ class NukeProcess:
         update_progress_bars: Callable[[float], None],
         name: str = None,
         on_error: Callable[[Exception], None] | None = None,
+        ocio_path: str | None = None,
     ):
         self.version = version
         self.process = QtCore.QProcess()
@@ -46,6 +47,11 @@ class NukeProcess:
         self.process.readyReadStandardError.connect(self._on_script_error)
 
         self.name = name
+
+        if ocio_path is not None:
+            env = QtCore.QProcessEnvironment.systemEnvironment()
+            env.insert("OCIO", ocio_path)
+            self.process.setProcessEnvironment(env)
 
     def _on_output(self):
         """Handle logs"""

@@ -338,13 +338,15 @@ class PlateRender(object):
         write = nuke.createNode("Write")
         # Set write node settings
         write.knob("file").fromUserText(self.output_path)
-        write.knob("raw").setValue(True)
         write.knob("afterFrameRender").setValue(
             "print(f\"Frame {nuke.frame()} ({int(nuke.frame() - nuke.root().knob('first_frame').value() + 1)} of {int(nuke.root().knob('last_frame').value() - nuke.root().knob('first_frame').value() + 1)})\")"
         )
 
         if "file_type" in self.write_settings:
             write.knob("file_type").setValue(self.write_settings["file_type"])
+
+        if "colorspace" not in self.write_settings:
+            write.knob("raw").setValue(True)
 
         for knob, setting in self.write_settings.items():
             try:

@@ -356,6 +356,7 @@ quickly.
 | `delivery_asset_preview`  | Template to deliver the asset previews to.    |               | context, delivery_date, delivery_version, version, delivery_preview_extension, * |
 | `csv_submission_form`     | Template to deliver the submission form to.   |               | delivery_date, delivery_version, [Episode], *                                    |
 | `csv_template_folder`     | Folder to saves CSV templates.                |               | context, *                                                                       |
+| `ocio_config_template`    | Template for the OCIO config file.            |               | context, *                                                                       |
 
 
 ### Lists

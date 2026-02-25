@@ -135,6 +135,14 @@ class DeliveryModel:
             "vnd": self.get_vendor_id(),
         }
 
+        ocio_config_template = app.get_template("ocio_config_template")
+        if ocio_config_template is not None:
+            self.ocio_config = app.get_template(
+                "ocio_config_template"
+            ).apply_fields(self.base_template_fields)
+        else:
+            self.ocio_config = None
+
     def quit(self):
         """
         Cancel running threads before app quit
@@ -273,13 +281,23 @@ class DeliveryModel:
         Returns:
             Published files
         """
-        publishes = version["published_files"]
+        publishes = version.get("published_files", [])
 
         if len(publishes) == 0:
             return None
 
+        published_file_type = self.cache.find_one(
+            "PublishedFileType",
+            [["code", "is", "Rendered Image"]],
+        )
+
         filters = [
-            ["id", "is", publishes[0]["id"]],
+            [
+                "id",
+                "in",
+                [pub["id"] for pub in publishes],
+            ],
+            ["published_file_type", "is", published_file_type],
         ]
 
         return self.cache.find_one(
@@ -981,11 +999,16 @@ class DeliveryModel:
                 entity, version, delivery_version
             )
 
-            # Extract fields from preview path
-            fields = preview_movie_template.validate_and_get_fields(
-                version.path_to_movie
+            # Extract fields from sequence path
+            fields = input_sequence_template.validate_and_get_fields(
+                version.sequence_path
             )
-            if fields is not None:
+            if fields is None:
+                self.logger.error(
+                    "Could not extract fields from preview path %s. Is it published?",
+                    version.sequence_path,
+                )
+            else:
                 template_fields = {**fields, **template_fields}
 
             # Get timecode ref path
@@ -1226,6 +1249,7 @@ class DeliveryModel:
             update_progress,
             f"{output.extension.upper()} - {output.name}",
             # on_error,
+            ocio_path=self.ocio_config,
         )
         args = [
             "-t",
@@ -1261,6 +1285,7 @@ class DeliveryModel:
             self.nuke_path,
             args,
         )
+        self.logger.debug("OCIO Config: %s", self.ocio_config)
         process.run(
             self.nuke_path,
             args,
@@ -1366,6 +1391,7 @@ class DeliveryModel:
                 show_validation_message,
                 update_progress,
                 render_name,
+                ocio_path=self.ocio_config,
             )
 
             if self.settings.add_slate_to_sequence:
@@ -1445,6 +1471,7 @@ class DeliveryModel:
                 self.nuke_path,
                 args,
             )
+            self.logger.debug("OCIO Config: %s", self.ocio_config)
             process.run(
                 self.nuke_path,
                 args,
