@@ -1244,6 +1244,7 @@ class DeliveryModel:
             update_progress,
             f"{output.extension.upper()} - {output.name}",
             # on_error,
+            ocio_path=self.ocio_config,
         )
         args = [
             "-t",
@@ -1279,6 +1280,7 @@ class DeliveryModel:
             self.nuke_path,
             args,
         )
+        self.logger.debug("OCIO Config: %s", self.ocio_config)
         process.run(
             self.nuke_path,
             args,
@@ -1384,6 +1386,7 @@ class DeliveryModel:
                 show_validation_message,
                 update_progress,
                 render_name,
+                ocio_path=self.ocio_config,
             )
 
             if self.settings.add_slate_to_sequence:
@@ -1463,6 +1466,7 @@ class DeliveryModel:
                 self.nuke_path,
                 args,
             )
+            self.logger.debug("OCIO Config: %s", self.ocio_config)
             process.run(
                 self.nuke_path,
                 args,
