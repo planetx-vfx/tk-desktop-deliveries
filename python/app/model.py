@@ -286,8 +286,18 @@ class DeliveryModel:
         if len(publishes) == 0:
             return None
 
+        published_file_type = self.cache.find_one(
+            "PublishedFileType",
+            [["code", "is", "Rendered Image"]],
+        )
+
         filters = [
-            ["id", "is", publishes[0]["id"]],
+            [
+                "id",
+                "in",
+                [pub["id"] for pub in publishes],
+            ],
+            ["published_file_type", "is", published_file_type],
         ]
 
         return self.cache.find_one(
