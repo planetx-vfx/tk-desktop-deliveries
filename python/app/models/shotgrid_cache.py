@@ -135,7 +135,7 @@ class ShotGridCache:
     def find(
         self, entity_type: str, filters: list, ignore_cache: bool = False
     ) -> list[dict] | None:
-        query = json.dumps(filters)
+        query = json.dumps(filters, default=str)
         cached_ids = (
             self.sg_cache.get(entity_type, {})
             .get("query", {})
