@@ -999,11 +999,16 @@ class DeliveryModel:
                 entity, version, delivery_version
             )
 
-            # Extract fields from preview path
-            fields = preview_movie_template.validate_and_get_fields(
-                version.path_to_movie
+            # Extract fields from sequence path
+            fields = input_sequence_template.validate_and_get_fields(
+                version.sequence_path
             )
-            if fields is not None:
+            if fields is None:
+                self.logger.error(
+                    "Could not extract fields from preview path %s. Is it published?",
+                    version.sequence_path,
+                )
+            else:
                 template_fields = {**fields, **template_fields}
 
             # Get timecode ref path
