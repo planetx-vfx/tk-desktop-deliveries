@@ -281,7 +281,7 @@ class DeliveryModel:
         Returns:
             Published files
         """
-        publishes = version["published_files"]
+        publishes = version.get("published_files", [])
 
         if len(publishes) == 0:
             return None
