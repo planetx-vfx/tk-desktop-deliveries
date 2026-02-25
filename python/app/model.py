@@ -135,6 +135,14 @@ class DeliveryModel:
             "vnd": self.get_vendor_id(),
         }
 
+        ocio_config_template = app.get_template("ocio_config_template")
+        if ocio_config_template is not None:
+            self.ocio_config = app.get_template(
+                "ocio_config_template"
+            ).apply_fields(self.base_template_fields)
+        else:
+            self.ocio_config = None
+
     def quit(self):
         """
         Cancel running threads before app quit
