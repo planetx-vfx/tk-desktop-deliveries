@@ -397,7 +397,7 @@ quickly.
 | `shot_delivered_status`            | Status to set the shot to if the EXRs of the shot have been delivered.                     | fin                      |
 | `preview_colorspace_idt`           | Input colorspace of the preview.                                                           | ACES - ACEScg            |
 | `preview_colorspace_odt`           | Output colorspace of the preview.                                                          | Output - sRGB            |
-| `sequence_colorspace`              | Colorspace of the sequence.                                                                | ACES - ACES2065-1        |
+| `sequence_colorspace`              | Input colorspace of the sequence.                                                          | ACES - ACES2065-1        |
 | `footage_format_entity`            | Entity that contains the footage formats.                                                  |                          |
 | `shot_footage_formats_field`       | Field that links to the used footage formats on an Shot.                                   | sg_footage_formats       |
 | `asset_footage_formats_field`      | Field that links to the used footage formats on an Asset.                                  | sg_footage_formats       |
