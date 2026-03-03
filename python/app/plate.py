@@ -55,6 +55,7 @@ class PlateRender(object):
         write_settings: str = None,
         logo_path: str = None,
         colorspace_odt: str = "ACES - ACES2065-1",
+        colorspace_idt: str = None,
         slate_data: str = None,
         font_path: str = None,
         font_bold_path: str = None,
@@ -93,6 +94,7 @@ class PlateRender(object):
         )
         if self.render_slate:
             self.logo_path = logo_path
+            self.colorspace_idt = colorspace_idt
             self.colorspace_odt = colorspace_odt
             self.font_path = font_path
             self.font_bold_path = font_bold_path
@@ -203,7 +205,10 @@ class PlateRender(object):
         read.knob("origfirst").setValue(self.first_frame)
         read.knob("origlast").setValue(self.last_frame)
 
-        read.knob("raw").setValue(True)
+        if self.colorspace_idt is not None:
+            read.knob("colorspace").setValue(self.colorspace_idt)
+        else:
+            read.knob("raw").setValue(True)
         read.knob("on_error").setValue("checkerboard")
 
         print("Created read node")

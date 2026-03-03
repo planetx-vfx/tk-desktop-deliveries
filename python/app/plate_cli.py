@@ -27,9 +27,16 @@ slate.add_argument(
     help="Path to logo.",
 )
 slate.add_argument(
+    "-idt",
+    "--colorspace-idt",
+    default="ACES - ACES2065-1",
+    type=str,
+    metavar="colorspace",
+)
+slate.add_argument(
     "-odt",
     "--colorspace-odt",
-    default="Output - sRGB",
+    default="ACES - ACES2065-1",
     type=str,
     metavar="colorspace",
 )

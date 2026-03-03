@@ -260,7 +260,7 @@ configuration:
     type: str
     default_value: "ACES - ACES2065-1"
     allows_empty: True
-    description: Colorspace of the sequence.
+    description: Input colorspace of the sequence.
 
   footage_format_entity:
     type: str
