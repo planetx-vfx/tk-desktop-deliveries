@@ -1452,8 +1452,12 @@ class DeliveryModel:
                     [
                         "--logo-path",
                         self.logo_path,
-                        "-odt",
+                        "-idt",
                         self.settings.sequence_colorspace,
+                        "-odt",
+                        output.settings.get(
+                            "colorspace", self.settings.sequence_colorspace
+                        ),
                         "--slate-data",
                         json.dumps(slate_data),
                         "--font-path",
