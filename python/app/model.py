@@ -1455,7 +1455,7 @@ class DeliveryModel:
                         "-idt",
                         self.settings.sequence_colorspace,
                         "-odt",
-                        output.settings.get(
+                        (output.settings if output is not None else {}).get(
                             "colorspace", self.settings.sequence_colorspace
                         ),
                         "--slate-data",
