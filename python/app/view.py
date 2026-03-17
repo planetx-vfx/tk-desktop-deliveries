@@ -465,9 +465,7 @@ class DeliveryView:
             f"{entity.code} - Version {version.version_number}"
         )
         if entity.type == EntityType.SHOT:
-            shot_name_label.setText(
-                f"Sequence {entity.sequence} - Shot {entity.code} - Version {version.version_number}"
-            )
+            shot_name_label.setText(version.code)
         elif entity.type == EntityType.ASSET:
             shot_name_label.setText(
                 f"Asset {entity.code} - Version {version.version_number}"
