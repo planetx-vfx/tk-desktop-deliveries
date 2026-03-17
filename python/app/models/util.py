@@ -85,6 +85,12 @@ def compile_extra_template_fields(
                     key.shotgun_entity_type,
                 )
 
+    if "output" in fields:
+        fields["output_name"] = fields["output"]
+
+    if "output_name" in fields:
+        fields["output"] = fields["output_name"]
+
     return fields
 
 
