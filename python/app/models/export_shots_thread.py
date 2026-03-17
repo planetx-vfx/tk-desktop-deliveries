@@ -285,6 +285,9 @@ class ExportShotsThread(QtCore.QThread):
                     continue
 
                 if entity.type == EntityType.SHOT:
+                    input_sequence_template = self.model.app.get_template(
+                        "input_shot_sequence"
+                    )
                     delivery_sequence_template = self.model.app.get_template(
                         "delivery_shot_sequence"
                     )
@@ -292,6 +295,9 @@ class ExportShotsThread(QtCore.QThread):
                         "delivery_shot_preview"
                     )
                 else:
+                    input_sequence_template = self.model.app.get_template(
+                        "input_asset_sequence"
+                    )
                     delivery_sequence_template = self.model.app.get_template(
                         "delivery_asset_sequence"
                     )
@@ -326,6 +332,11 @@ class ExportShotsThread(QtCore.QThread):
                             continue
 
                     version_template_fields = (
+                        input_sequence_template.get_fields(
+                            version.sequence_path
+                        )
+                    )
+                    version_template_fields.update(
                         self.model.get_version_template_fields(
                             entity,
                             version,
