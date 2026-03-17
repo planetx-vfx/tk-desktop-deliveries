@@ -116,8 +116,8 @@ configuration:
           type: str
         extension:
           type: str
-        status:
-          type: str
+#        status:
+#          type: str
         settings:
           type: dict
 
