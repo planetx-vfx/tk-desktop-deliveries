@@ -291,6 +291,9 @@ class ExportShotsThread(QtCore.QThread):
                     delivery_sequence_template = self.model.app.get_template(
                         "delivery_shot_sequence"
                     )
+                    input_preview_template = self.model.app.get_template(
+                        "input_shot_preview"
+                    )
                     delivery_preview_template = self.model.app.get_template(
                         "delivery_shot_preview"
                     )
@@ -300,6 +303,9 @@ class ExportShotsThread(QtCore.QThread):
                     )
                     delivery_sequence_template = self.model.app.get_template(
                         "delivery_asset_sequence"
+                    )
+                    input_preview_template = self.model.app.get_template(
+                        "input_asset_preview"
                     )
                     delivery_preview_template = self.model.app.get_template(
                         "delivery_asset_preview"
@@ -331,11 +337,20 @@ class ExportShotsThread(QtCore.QThread):
                             )
                             continue
 
-                    version_template_fields = (
-                        input_sequence_template.get_fields(
-                            version.sequence_path
+                    version_template_fields = {}
+                    if version.path_to_movie is not None:
+                        version_template_fields.update(
+                            input_preview_template.get_fields(
+                                version.path_to_movie
+                            )
                         )
-                    )
+                    if version.sequence_path is not None:
+                        version_template_fields.update(
+                            input_sequence_template.get_fields(
+                                version.sequence_path
+                            )
+                        )
+
                     version_template_fields.update(
                         self.model.get_version_template_fields(
                             entity,
