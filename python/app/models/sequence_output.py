@@ -22,7 +22,7 @@ class SequenceOutput:
         return SequenceOutput(
             data["name"],
             data["extension"],
-            data["status"],
+            data.get("status"),
             data["settings"],
         )
 
